@@ -6,8 +6,13 @@ import os
 # Utile ?
 # PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 # sys.path.append(os.path.join(PROJECT_DIR, 'cryptocompare'))
-import cryptocompare
 
+import cryptocompare
+import dbaccess
+
+
+
+"""""
 coins = ['BTC', 'ETH', 'XMR', 'NEO']
 currencies = ['EUR', 'USD', 'GBP']
 
@@ -34,6 +39,7 @@ print(cryptocompare.get_historical_price(coins[0], curr='USD'))
 print(cryptocompare.get_historical_price(coins[1], curr=['EUR','USD','GBP']))
 print(cryptocompare.get_historical_price(coins[1], 'USD',datetime.datetime.now()))
 print(cryptocompare.get_historical_price(coins[2], ['EUR','USD','GBP'],time.time()))
+"""""
 
 
 

@@ -1,9 +1,9 @@
 import psycopg2
+import config
 
 # Try to connect
-
 try:
-    conn=psycopg2.connect("dbname='algocryptos' user='dbuser' password='algocryptos'")
+    conn=psycopg2.connect("dbname='" & config.get_config('db','dbname') & "' user='" & config.get_config('db','dbuser') & "' password='" & config.get_config('db','dbpassword') & "'")
 except:
     print("I am unable to connect to the database.")
 
