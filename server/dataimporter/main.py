@@ -2,15 +2,20 @@ import datetime
 import time
 import sys
 import os
+from cryptocompare.cryptocompare import CryptoCompare
+from dbaccess.dbconnection import dbConnection
 
 # Utile ?
 # PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 # sys.path.append(os.path.join(PROJECT_DIR, 'cryptocompare'))
 
-import cryptocompare
-import dbaccess
+cryptocomp = CryptoCompare()
+print(cryptocomp.get_coin_list())
 
-
+dbconn = dbConnection()
+rows = dbconn.get_query_result('SELECT * FROM coins')
+for row in rows:
+    print("   ", row)
 
 """""
 coins = ['BTC', 'ETH', 'XMR', 'NEO']

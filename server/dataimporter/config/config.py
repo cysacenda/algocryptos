@@ -1,9 +1,13 @@
 import configparser
+import os
 
-#TODO : Faire quelque chose pour que ça n'ouvre pas le fichier à chaque fois
-#TODO : enum ou autre pour éviter de passer n'importe quoi
-def get_config(section, key):
-    config = configparser.ConfigParser()
-    config.read('config/config.ini')
-    return config.get(section, key)
+class Config:
+    config = None
+
+    def __init__(self):
+        self.config = configparser.ConfigParser()
+        self.config.read(os.path.join(os.path.dirname( __file__ ), 'config.ini'))
+
+    def get_config(self, section, key):
+        return self.config.get(section, key)
 

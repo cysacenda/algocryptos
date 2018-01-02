@@ -1,19 +1,25 @@
 import psycopg2
-import config
+from config.config import Config
 
-# Try to connect
-try:
-    conn=psycopg2.connect("dbname='" & config.get_config('db','dbname') & "' user='" & config.get_config('db','dbuser') & "' password='" & config.get_config('db','dbpassword') & "'")
-except:
-    print("I am unable to connect to the database.")
+class dbConnection:
+    conn = None
+    conf = None
 
-#TODO : Connection OK, select KO (droits user ?)
-cursor = conn.cursor()
-try:
-    cursor.execute("SELECT * FROM coins")
-except:
-    print("I can't SELECT from coins")
+    #Connect to database
+    def __init__(self):
+        self.conf = Config()
+        connstring = "dbname='" + self.conf.get_config('db','dbname') + "' user='" + self.conf.get_config('db','dbuser') + "' password='" + self.conf.get_config('db','dbpassword') + "'"
+        try:
+            self.conn=psycopg2.connect(connstring)
+        except:
+            print("Error while connecting to database : " + connstring)
 
-rows = cursor.fetchall()
-for row in rows:
-    print("   ", row[1][1])
+    def get_query_result(self, query):
+        cursor = self.conn.cursor()
+        try:
+            cursor.execute(query)
+        except:
+            print("Error while executing query : " + query)
+
+        rows = cursor.fetchall()
+        return rows
