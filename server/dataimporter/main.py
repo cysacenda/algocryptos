@@ -2,6 +2,7 @@ import datetime
 import time
 import sys
 import os
+import json
 from cryptocompare.cryptocompare import CryptoCompare
 from dbaccess.dbconnection import dbConnection
 
@@ -10,12 +11,20 @@ from dbaccess.dbconnection import dbConnection
 # sys.path.append(os.path.join(PROJECT_DIR, 'cryptocompare'))
 
 cryptocomp = CryptoCompare()
-print(cryptocomp.get_coin_list())
+data = cryptocomp.get_coin_list()
+for key in data:
+    print(data[key]['Name'])
+
+
 
 dbconn = dbConnection()
 rows = dbconn.get_query_result('SELECT * FROM coins')
 for row in rows:
     print("   ", row)
+
+
+
+
 
 """""
 coins = ['BTC', 'ETH', 'XMR', 'NEO']
