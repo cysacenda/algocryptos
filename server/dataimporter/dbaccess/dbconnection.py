@@ -23,3 +23,14 @@ class dbConnection:
 
         rows = cursor.fetchall()
         return rows
+
+    def exexute_query(self, query):
+        cursor = self.conn.cursor()
+        try:
+            cursor.execute(query)
+            self.conn.commit()
+            return 0
+        except:
+            print("Error while executing query : " + query)
+            return -1
+

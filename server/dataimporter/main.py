@@ -10,14 +10,32 @@ from dbaccess.dbconnection import dbConnection
 # PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 # sys.path.append(os.path.join(PROJECT_DIR, 'cryptocompare'))
 
+insertquery = 'INSERT INTO public.coins ("IdCryptoCompare", "Name", "Symbol", "CoinName", "TotalCoinSupply", "SortOrder", "ProofType", "Algorithm", "ImageUrl")\n'
+insertquery += 'VALUES \n('
+
 cryptocomp = CryptoCompare()
 data = cryptocomp.get_coin_list()
 for key in data:
-    print(data[key]['Name'])
-
-
+    if(not insertquery.endswith('(')):
+        insertquery += ',\n('
+    insertquery +=  data[key]['Id'] + ','
+    insertquery += "'" + data[key]['Name'] + "',"
+    insertquery += "'" + data[key]['Symbol'] + "',"
+    insertquery += "'" + data[key]['CoinName'] + "',"
+    insertquery += "'" + data[key]['TotalCoinSupply'] + "',"
+    insertquery += data[key]['SortOrder'] + ','
+    insertquery += "'" + data[key]['ProofType'] + "',"
+    insertquery += "'" + data[key]['Algorithm'] + "',"
+    if('ImageUrl' in data[key].keys()):
+        insertquery += "'" + data[key]['ImageUrl'] + "'"
+    else:
+        insertquery += "''"
+    insertquery += ')'
+insertquery += ';'
 
 dbconn = dbConnection()
+dbconn.exexute_query(insertquery)
+
 rows = dbconn.get_query_result('SELECT * FROM coins')
 for row in rows:
     print("   ", row)
