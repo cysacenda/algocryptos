@@ -3,12 +3,7 @@ import time
 import datetime
 
 # API
-URL_COIN_LIST = 'https://www.cryptocompare.com/api/data/coinlist/'
-URL_PRICE = 'https://min-api.cryptocompare.com/data/pricemulti?fsyms={}&tsyms={}'
-URL_PRICE_MULTI = 'https://min-api.cryptocompare.com/data/pricemulti?fsyms={}&tsyms={}'
-URL_PRICE_MULTI_FULL = 'https://min-api.cryptocompare.com/data/pricemultifull?fsyms={}&tsyms={}'
-URL_HIST_PRICE = 'https://min-api.cryptocompare.com/data/pricehistorical?fsym={}&tsyms={}&ts={}'
-URL_AVG = 'https://min-api.cryptocompare.com/data/generateAvg?fsym={}&tsym={}&markets={}'
+URL_PRICE_LIST = 'https://api.coinmarketcap.com/v1/ticker/?limit=0'
 
 # FIELDS
 PRICE = 'PRICE'
@@ -25,13 +20,13 @@ CURR = 'USD'
 ###############################################################################
 
 
-class CryptoCompare:
+class CoinMarketCap:
 
-    def query_cryptocompare(self, url,errorCheck=True):
+    def query_coinmarketcap(self, url,errorCheck=True):
         try:
             response = requests.get(url).json()
         except Exception as e:
-            print('Error getting coin information from cryptocompare. %s' % str(e))
+            print('Error getting prices information from CMC. %s' % str(e))
             return None
         if errorCheck and 'Response' in response.keys():
             print('[ERROR] %s' % response['Message'])
@@ -46,14 +41,14 @@ class CryptoCompare:
 
     ###############################################################################
 
-    def get_coin_list(self, format=False):
-        response = self.query_cryptocompare(URL_COIN_LIST, False)['Data']
+    def get_price_list(self, format=False):
+        response = self.query_coinmarketcap(URL_PRICE_LIST, False)
         if format:
             return list(response.keys())
         else:
             return response
 
-    # TODO: add option to filter json response according to a list of fields
+"""""
     def get_price(self, coin, curr=CURR, full=False):
         if full:
             return self.query_cryptocompare(URL_PRICE_MULTI_FULL.format(self.format_parameter(coin),
@@ -68,3 +63,4 @@ class CryptoCompare:
         if isinstance(timestamp, datetime.datetime):
             timestamp = time.mktime(timestamp.timetuple())
         return self.query_cryptocompare(URL_HIST_PRICE.format(coin, self.format_parameter(curr), int(timestamp)))
+"""""

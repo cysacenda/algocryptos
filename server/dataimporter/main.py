@@ -3,45 +3,45 @@ import time
 import sys
 import os
 import json
-from cryptocompare.cryptocompare import CryptoCompare
-from dbaccess.dbconnection import dbConnection
+import extractdata
 
-# Utile ?
-# PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
-# sys.path.append(os.path.join(PROJECT_DIR, 'cryptocompare'))
+#TODO : Add Ids au lieu d'utiliser les symbols comme PK (doublons)
 
-insertquery = 'INSERT INTO public.coins ("IdCryptoCompare", "Name", "Symbol", "CoinName", "TotalCoinSupply", "SortOrder", "ProofType", "Algorithm", "ImageUrl")\n'
-insertquery += 'VALUES \n('
+# -----------------------------------------------
+# Get coin list from Cryptocompare and insert in BDD
+# -----------------------------------------------
+extractdata.extract_crytopcompare_coins()
 
-cryptocomp = CryptoCompare()
-data = cryptocomp.get_coin_list()
-for key in data:
-    if(not insertquery.endswith('(')):
-        insertquery += ',\n('
-    insertquery +=  data[key]['Id'] + ','
-    insertquery += "'" + data[key]['Name'] + "',"
-    insertquery += "'" + data[key]['Symbol'] + "',"
-    insertquery += "'" + data[key]['CoinName'] + "',"
-    insertquery += "'" + data[key]['TotalCoinSupply'] + "',"
-    insertquery += data[key]['SortOrder'] + ','
-    insertquery += "'" + data[key]['ProofType'] + "',"
-    insertquery += "'" + data[key]['Algorithm'] + "',"
-    if('ImageUrl' in data[key].keys()):
-        insertquery += "'" + data[key]['ImageUrl'] + "'"
-    else:
-        insertquery += "''"
-    insertquery += ')'
-insertquery += ';'
+# -----------------------------------------------
+# Insert prices into BDD
+# -----------------------------------------------
+extractdata.extract_coinmarketcap_prices()
 
-dbconn = dbConnection()
-dbconn.exexute_query(insertquery)
+""""" select en BDD
+
 
 rows = dbconn.get_query_result('SELECT * FROM coins')
 for row in rows:
     print("   ", row)
+"""""
 
 
 
+# -----------------------------------------------
+# SocialStats Cryptocompare pour avoir les adresses des twitter, etc.
+# -----------------------------------------------
+
+# -----------------------------------------------
+# Reddit directement (60 call max / sec)
+# -----------------------------------------------
+
+# -----------------------------------------------
+# Twitter directement
+# -----------------------------------------------
+
+# -----------------------------------------------
+# Github directement ou cryptocompare ?
+# -----------------------------------------------
 
 
 """""
