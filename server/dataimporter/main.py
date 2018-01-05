@@ -10,12 +10,24 @@ import extractdata
 # -----------------------------------------------
 # Get coin list from Cryptocompare and insert in BDD
 # -----------------------------------------------
-extractdata.extract_crytopcompare_coins()
+
+#extractdata.extract_crytopcompare_coins()
 
 # -----------------------------------------------
-# Insert prices into BDD
+# Insert current prices into BDD
 # -----------------------------------------------
-extractdata.extract_coinmarketcap_prices()
+
+#extractdata.extract_coinmarketcap_prices()
+
+# -----------------------------------------------
+# Social stats from Cryptocompare (replace with orginal website info post MVP ?)
+# -----------------------------------------------
+extractdata.create_cryptocompare_socialstats()
+
+# -----------------------------------------------
+# Insert OHLCV into BDD
+# -----------------------------------------------
+
 
 """"" select en BDD
 
@@ -24,8 +36,6 @@ rows = dbconn.get_query_result('SELECT * FROM coins')
 for row in rows:
     print("   ", row)
 """""
-
-
 
 # -----------------------------------------------
 # SocialStats Cryptocompare pour avoir les adresses des twitter, etc.

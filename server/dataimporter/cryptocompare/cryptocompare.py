@@ -9,6 +9,7 @@ URL_PRICE_MULTI = 'https://min-api.cryptocompare.com/data/pricemulti?fsyms={}&ts
 URL_PRICE_MULTI_FULL = 'https://min-api.cryptocompare.com/data/pricemultifull?fsyms={}&tsyms={}'
 URL_HIST_PRICE = 'https://min-api.cryptocompare.com/data/pricehistorical?fsym={}&tsyms={}&ts={}'
 URL_AVG = 'https://min-api.cryptocompare.com/data/generateAvg?fsym={}&tsym={}&markets={}'
+URL_SOCIAL_STATS = 'https://www.cryptocompare.com/api/data/socialstats/?id={}'
 
 # FIELDS
 PRICE = 'PRICE'
@@ -31,9 +32,9 @@ class CryptoCompare:
         try:
             response = requests.get(url).json()
         except Exception as e:
-            print('Error getting coin information from cryptocompare. %s' % str(e))
+            print('Error getting information from cryptocompare. %s' % str(e))
             return None
-        if errorCheck and 'Response' in response.keys():
+        if errorCheck and 'Response' in response.keys() and response['Response'] != 'Success':
             print('[ERROR] %s' % response['Message'])
             return None
         return response
@@ -68,3 +69,6 @@ class CryptoCompare:
         if isinstance(timestamp, datetime.datetime):
             timestamp = time.mktime(timestamp.timetuple())
         return self.query_cryptocompare(URL_HIST_PRICE.format(coin, self.format_parameter(curr), int(timestamp)))
+
+    def get_socialstats(self, coin_id):
+        return self.query_cryptocompare(URL_SOCIAL_STATS.format(coin_id))['Data']

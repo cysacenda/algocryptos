@@ -6,11 +6,12 @@ import time
 from datetime import datetime
 import tzlocal
 
+#region Coins list
+
 # Cryptocompare : Insert coins list into BDD
 def extract_crytopcompare_coins():
     dbconn = dbConnection()
     dbconn.exexute_query(create_query_coins())
-
 
 # Cryptocompare : Get coins list and create insert query for BDD
 def create_query_coins():
@@ -38,6 +39,9 @@ def create_query_coins():
     insertquery += ';'
     return insertquery
 
+#endregion AA
+
+#region Coins current prices
 
 def extract_coinmarketcap_prices():
     dbconn = dbConnection()
@@ -104,3 +108,87 @@ def create_query_prices():
         insertquery += ')'
     insertquery += ';'
     return insertquery
+
+#endregion
+
+#region Coins socials stats
+
+def extract_cryptocompare_socialstats():
+    dbconn = dbConnection()
+    dbconn.exexute_query(extract_cryptocompare_socialstats())
+
+def create_cryptocompare_socialstats():
+    cryptocomp = CryptoCompare()
+    data = cryptocomp.get_socialstats(1182)
+
+    insertquery = 'INSERT INTO public.prices (symbol, rank, price_usd, price_btc, "24h_volume_usd", market_cap_usd, percent_change_1h, percent_change_24h,percent_change_7d, last_updated)\n'
+    insertquery += 'VALUES \n('
+
+    #TODO : Stockage des dernières données + historisation au fur et à mesure
+    #Comme pour les prices
+
+    #Twitter
+
+    #Reddit
+
+    #Facebook
+
+    #CodeRepository
+
+
+    #print(entry['name'] + '\n')
+
+    for entry in data:
+        if (not insertquery.endswith('(')):
+            insertquery += ',\n('
+        insertquery += "'" + entry['symbol'] + "',"
+        insertquery += entry['rank'] + ","
+
+        if entry['price_usd'] == None:
+            insertquery += 'NULL' + ","
+        else:
+            insertquery += entry['price_usd'] + ","
+
+        if entry['price_btc'] == None:
+            insertquery += 'NULL' + ","
+        else:
+            insertquery += entry['price_btc'] + ","
+
+        if entry['24h_volume_usd'] == None:
+            insertquery += 'NULL' + ","
+        else:
+            insertquery += entry['24h_volume_usd'] + ","
+
+        if entry['market_cap_usd'] == None:
+            insertquery += 'NULL' + ","
+        else:
+            insertquery += entry['market_cap_usd'] + ","
+
+        if entry['percent_change_1h'] == None:
+            insertquery += 'NULL' + ","
+        else:
+            insertquery += entry['percent_change_1h'] + ","
+
+        if entry['percent_change_24h'] == None:
+            insertquery += 'NULL' + ","
+        else:
+            insertquery += entry['percent_change_24h'] + ","
+
+        if entry['percent_change_7d'] == None:
+            insertquery += 'NULL' + ","
+        else:
+            insertquery += entry['percent_change_7d'] + ","
+
+        if entry['last_updated'] == None:
+            insertquery += 'NULL'
+        else:
+            unix_timestamp = float(entry['last_updated'])
+            local_timezone = tzlocal.get_localzone()  # get pytz timezone
+            local_time = datetime.fromtimestamp(unix_timestamp, local_timezone)
+            insertquery += "'" + datetime.fromtimestamp(unix_timestamp, local_timezone).strftime("%Y-%m-%d %H:%M:%S") + "'"
+
+        insertquery += ')'
+    insertquery += ';'
+    return insertquery
+
+#endregion
