@@ -43,10 +43,6 @@ GRANT ALL ON TABLE public.coins TO postgres;
 
 -- DROP TABLE public.prices;
 
--- Table: public.prices
-
--- DROP TABLE public.prices;
-
 CREATE TABLE public.prices
 (
     Symbol character varying(9) COLLATE pg_catalog."default" NOT NULL,
@@ -72,3 +68,63 @@ ALTER TABLE public.prices
 GRANT ALL ON TABLE public.prices TO dbuser;
 
 GRANT ALL ON TABLE public.prices TO postgres;
+
+
+
+-- Table: public.social_infos
+
+-- DROP TABLE public.social_infos;
+
+CREATE TABLE public.social_infos
+(
+    "IdCoinCryptoCompare" bigint,
+    "Twitter_account_creation" timestamp with time zone,
+    "Twitter_name" text COLLATE pg_catalog."default",
+    "Twitter_link" text COLLATE pg_catalog."default",
+    "Reddit_name" text COLLATE pg_catalog."default",
+    "Reddit_link" text COLLATE pg_catalog."default",
+    "Reddit_community_creation" timestamp with time zone,
+    "Facebook_name" text COLLATE pg_catalog."default",
+    "Facebook_link" text COLLATE pg_catalog."default"
+)
+WITH (
+    OIDS = FALSE
+)
+TABLESPACE pg_default;
+
+ALTER TABLE public.social_infos
+    OWNER to postgres;
+
+
+GRANT ALL ON TABLE public.social_infos TO dbuser;
+
+GRANT ALL ON TABLE public.social_infos TO postgres;
+
+
+-- Table: public.social_stats
+
+-- DROP TABLE public.social_stats;
+
+CREATE TABLE public.social_stats
+(
+    "IdCoinCryptoCompare" bigint,
+    "Twitter_followers" bigint,
+    "Reddit_posts_per_day" double precision,
+    "Reddit_comments_per_day" double precision,
+    "Reddit_active_users" bigint,
+    "Reddit_subscribers" bigint,
+    "Facebook_likes" bigint,
+    "Facebook_talking_about" bigint,
+    "timestamp" timestamp with time zone
+)
+WITH (
+    OIDS = FALSE
+)
+TABLESPACE pg_default;
+
+ALTER TABLE public.social_stats
+    OWNER to postgres;
+
+GRANT ALL ON TABLE public.social_stats TO dbuser;
+
+GRANT ALL ON TABLE public.social_stats TO postgres;
