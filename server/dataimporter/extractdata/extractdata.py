@@ -1,10 +1,13 @@
+from datetime import datetime
+import tzlocal
 from dbaccess.dbconnection import dbConnection
 from cryptocompare.cryptocompare import CryptoCompare
 from coinmarketcap.coinmarketcap import CoinMarketCap
-import datetime
-import time
-from datetime import datetime
-import tzlocal
+from config.config import Config
+
+conf = Config()
+DATE_FORMAT = conf.get_config('cryptocompare_params', 'date_format')
+MINIMUM_MARKET_CAP_USD = conf.get_config('market_params', 'minimum_market_cap_usd')
 
 #region Coins list
 
@@ -104,7 +107,7 @@ def create_query_prices():
             unix_timestamp = float(entry['last_updated'])
             local_timezone = tzlocal.get_localzone()  # get pytz timezone
             local_time = datetime.fromtimestamp(unix_timestamp, local_timezone)
-            insertquery += "'" + datetime.fromtimestamp(unix_timestamp, local_timezone).strftime("%Y-%m-%d %H:%M:%S") + "'"
+            insertquery += "'" + local_time.strftime(DATE_FORMAT) + "'"
 
         insertquery += ')'
     insertquery += ';'
@@ -112,42 +115,80 @@ def create_query_prices():
 
 #endregion
 
+#region Remove useless coins
+
+def remove_useless_coins():
+    dbconn = dbConnection()
+    dbconn.exexute_query("delete from prices where market_cap_usd < {} or market_cap_usd is null".format(MINIMUM_MARKET_CAP_USD))
+    dbconn.exexute_query('delete from  coins where "Symbol" not in (select symbol from prices)')
+
+#endregion
+
 #region Coins socials stats
 
 def extract_cryptocompare_socialstats():
     dbconn = dbConnection()
-    dbconn.exexute_query(extract_cryptocompare_socialstats())
+    dbconn.exexute_query(create_cryptocompare_social(1182))
 
-def create_cryptocompare_socialstats():
-    #boucle sur tous les coins
 
+def create_cryptocompare_social(coin_id):
     cryptocomp = CryptoCompare()
-    data = cryptocomp.get_socialstats(1182)
+    data = cryptocomp.get_socialstats(coin_id)
 
-    insertquery = 'INSERT INTO public.prices (symbol, rank, price_usd, price_btc, "24h_volume_usd", market_cap_usd, percent_change_1h, percent_change_24h,percent_change_7d, last_updated)\n'
-    insertquery += 'VALUES \n('
+    return create_cryptocompare_social_infos(coin_id, data) + "\n" + create_cryptocompare_social_stats(coin_id, data)
 
-    #TODO : Stockage des dernières données + historisation au fur et à mesure
-    for key in data:
-        if (not insertquery.endswith('(')):
-            insertquery += ',\n('
-        insertquery += data[key]['Id'] + ','
-        insertquery += "'" + data[key]['Name'] + "',"
-        insertquery += "'" + data[key]['Symbol'] + "',"
-        insertquery += "'" + data[key]['CoinName'] + "',"
-        insertquery += "'" + data[key]['TotalCoinSupply'] + "',"
-        insertquery += data[key]['SortOrder'] + ','
-        insertquery += "'" + data[key]['ProofType'] + "',"
-        insertquery += "'" + data[key]['Algorithm'] + "',"
-        if ('ImageUrl' in data[key].keys()):
-            insertquery += "'" + data[key]['ImageUrl'] + "'"
-        else:
-            insertquery += "''"
-        insertquery += ')'
-    insertquery += ';'
-    return insertquery
 
-    #Twitter
+def create_cryptocompare_social_infos(coin_id, data):
+    insertquery_socialinfos = 'INSERT INTO public.social_infos("IdCoinCryptoCompare", "Twitter_account_creation", "Twitter_name", "Twitter_link", "Reddit_name", "Reddit_link", "Reddit_community_creation", "Facebook_name", "Facebook_link")\n'
+    insertquery_socialinfos += 'VALUES \n('
+    insertquery_socialinfos += str(coin_id) + ','
+
+    # Twitter
+    unix_timestamp = float(data['Twitter']['account_creation'])
+    local_timezone = tzlocal.get_localzone()
+    local_time = datetime.fromtimestamp(unix_timestamp, local_timezone)
+
+    insertquery_socialinfos += "'" + local_time.strftime(DATE_FORMAT) + "',"
+    insertquery_socialinfos += "'" + data['Twitter']['name'] + "',"
+    insertquery_socialinfos += "'" + data['Twitter']['link'] + "',"
+
+    # Reddit
+    unix_timestamp = float(data['Reddit']['community_creation'])
+    local_timezone = tzlocal.get_localzone()
+    local_time = datetime.fromtimestamp(unix_timestamp, local_timezone)
+
+    insertquery_socialinfos += "'" + data['Reddit']['name'] + "',"
+    insertquery_socialinfos += "'" + data['Reddit']['link'] + "',"
+    insertquery_socialinfos += "'" + local_time.strftime(DATE_FORMAT) + "',"
+
+    # Facebook
+    insertquery_socialinfos += "'" + data['Facebook']['name'] + "',"
+    insertquery_socialinfos += "'" + data['Facebook']['link'] + "'"
+
+    insertquery_socialinfos += ');'
+    return insertquery_socialinfos
+
+def create_cryptocompare_social_stats(coin_id, data):
+    insertquery_socialinfos = 'INSERT INTO public.social_stats ("IdCoinCryptoCompare", "Twitter_followers", "Reddit_posts_per_day", "Reddit_comments_per_day", "Reddit_active_users", "Reddit_subscribers", "Facebook_likes", "Facebook_talking_about", "timestamp")\n'
+    insertquery_socialinfos += 'VALUES \n('
+    insertquery_socialinfos += str(coin_id) + ','
+
+    # Twitter
+    insertquery_socialinfos += data['Twitter']['followers'] + ","
+
+    # Reddit
+    insertquery_socialinfos += data['Reddit']['posts_per_day'] + ","
+    insertquery_socialinfos += data['Reddit']['comments_per_day'] + ","
+    insertquery_socialinfos += data['Reddit']['active_users'] + ","
+    insertquery_socialinfos += data['Reddit']['subscribers'] + ","
+
+    # Facebook
+    insertquery_socialinfos += data['Facebook']['likes'] + ","
+    insertquery_socialinfos += data['Facebook']['talking_about'] + ","
+
+    insertquery_socialinfos += ');'
+    return insertquery_socialinfos
+
 """"
        account_creation": "1390763724", - social_infos
        name": "Ethereum", - social_infos
@@ -293,13 +334,6 @@ def create_cryptocompare_socialstats():
     }
 """""
 
-    #Reddit
-
-    #Facebook
-
     #CodeRepository
-
-
-    #print(entry['name'] + '\n')
 
 #endregion

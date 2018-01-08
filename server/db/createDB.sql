@@ -54,7 +54,7 @@ CREATE TABLE public.prices
     Percent_change_1h double precision,
     Percent_change_24h double precision,
     Percent_change_7d double precision,
-    Last_updated date
+    Last_updated timestamp with time zone
     -- CONSTRAINT prices_pkey PRIMARY KEY (Symbol)
 )
 WITH (

@@ -1,32 +1,29 @@
 import requests
 import time
 import datetime
-
-# API
-URL_COIN_LIST = 'https://www.cryptocompare.com/api/data/coinlist/'
-URL_PRICE = 'https://min-api.cryptocompare.com/data/pricemulti?fsyms={}&tsyms={}'
-URL_PRICE_MULTI = 'https://min-api.cryptocompare.com/data/pricemulti?fsyms={}&tsyms={}'
-URL_PRICE_MULTI_FULL = 'https://min-api.cryptocompare.com/data/pricemultifull?fsyms={}&tsyms={}'
-URL_HIST_PRICE = 'https://min-api.cryptocompare.com/data/pricehistorical?fsym={}&tsyms={}&ts={}'
-URL_AVG = 'https://min-api.cryptocompare.com/data/generateAvg?fsym={}&tsym={}&markets={}'
-URL_SOCIAL_STATS = 'https://www.cryptocompare.com/api/data/socialstats/?id={}'
-
-# FIELDS
-PRICE = 'PRICE'
-HIGH = 'HIGH24HOUR'
-LOW = 'LOW24HOUR'
-VOLUME = 'VOLUME24HOUR'
-CHANGE = 'CHANGE24HOUR'
-CHANGE_PERCENT = 'CHANGEPCT24HOUR'
-MARKETCAP = 'MKTCAP'
-
-# DEFAULTS
-CURR = 'USD'
-
-###############################################################################
-
+from config.config import Config
 
 class CryptoCompare:
+    conf = None
+
+    # Cryptocompare params
+    URL_COIN_LIST = None
+    URL_PRICE = None
+    URL_HIST_PRICE = None
+    URL_SOCIAL_STATS = None
+    CURR = None
+
+    def __init__(self):
+        self.conf = Config()
+
+        # API urls
+        self.URL_COIN_LIST = self.conf.get_config('cryptocompare_params', 'url_coin_list')
+        self.URL_PRICE = self.conf.get_config('cryptocompare_params', 'url_price')
+        self.URL_HIST_PRICE = self.conf.get_config('cryptocompare_params', 'url_hist_price')
+        self.URL_SOCIAL_STATS = self.conf.get_config('cryptocompare_params', 'url_social_stats')
+
+        # DEFAULTS
+        self.CURR = self.conf.get_config('cryptocompare_params', 'default_currency')
 
     def query_cryptocompare(self, url,errorCheck=True):
         try:
@@ -48,27 +45,27 @@ class CryptoCompare:
     ###############################################################################
 
     def get_coin_list(self, format=False):
-        response = self.query_cryptocompare(URL_COIN_LIST, False)['Data']
+        response = self.query_cryptocompare(self.URL_COIN_LIST, False)['Data']
         if format:
             return list(response.keys())
         else:
             return response
 
     # TODO: add option to filter json response according to a list of fields
-    def get_price(self, coin, curr=CURR, full=False):
+    def get_price(self, coin, full=False):
         if full:
-            return self.query_cryptocompare(URL_PRICE_MULTI_FULL.format(self.format_parameter(coin),
-                self.format_parameter(curr)))
+            return self.query_cryptocompare(self.URL_PRICE_MULTI_FULL.format(self.format_parameter(coin),
+                self.format_parameter(self.CURR)))
         if isinstance(coin, list):
-            return self.query_cryptocompare(URL_PRICE_MULTI.format(self.format_parameter(coin),
-                self.format_parameter(curr)))
+            return self.query_cryptocompare(self.URL_PRICE_MULTI.format(self.format_parameter(coin),
+                self.format_parameter(self.CURR)))
         else:
-            return self.query_cryptocompare(URL_PRICE.format(coin, self.format_parameter(curr)))
+            return self.query_cryptocompare(self.URL_PRICE.format(coin, self.format_parameter(self.CURR)))
 
-    def get_historical_price(self, coin, curr=CURR, timestamp=time.time()):
+    def get_historical_price(self, coin, timestamp=time.time()):
         if isinstance(timestamp, datetime.datetime):
             timestamp = time.mktime(timestamp.timetuple())
-        return self.query_cryptocompare(URL_HIST_PRICE.format(coin, self.format_parameter(curr), int(timestamp)))
+        return self.query_cryptocompare(self.URL_HIST_PRICE.format(coin, self.format_parameter(self.CURR), int(timestamp)))
 
     def get_socialstats(self, coin_id):
-        return self.query_cryptocompare(URL_SOCIAL_STATS.format(coin_id))['Data']
+        return self.query_cryptocompare(self.URL_SOCIAL_STATS.format(coin_id))['Data']

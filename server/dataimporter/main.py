@@ -11,13 +11,23 @@ import extractdata
 # Get coin list from Cryptocompare and insert in BDD
 # -----------------------------------------------
 
-#extractdata.extract_crytopcompare_coins()
+extractdata.extract_crytopcompare_coins()
 
 # -----------------------------------------------
 # Insert current prices into BDD
 # -----------------------------------------------
 
-#extractdata.extract_coinmarketcap_prices()
+extractdata.extract_coinmarketcap_prices()
+
+# -----------------------------------------------
+# Delete coins and prices that are judged useless (market cap to low, cf. config file to param)
+# -----------------------------------------------
+
+# TODO : Attention matching pas bon (exemple IOTA / MIOTA
+extractdata.remove_useless_coins()
+
+# extractdata.extract_coinmarketcap_prices()
+
 
 # -----------------------------------------------
 # Social stats from Cryptocompare (replace with orginal website info post MVP ?)
