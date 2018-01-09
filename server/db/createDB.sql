@@ -1,15 +1,18 @@
 -- Database: algocryptos
 
+-- DROP schema public CASCADE
 -- DROP DATABASE algocryptos;
 
 CREATE DATABASE algocryptos
     WITH
-    OWNER = postgres
+    OWNER = dbuser
     ENCODING = 'UTF8'
     LC_COLLATE = 'French_France.1252'
     LC_CTYPE = 'French_France.1252'
     TABLESPACE = pg_default
     CONNECTION LIMIT = -1;
+
+CREATE SCHEMA public AUTHORIZATION dbuser
 
 -- Table: public.coins
 
@@ -36,7 +39,6 @@ ALTER TABLE public.coins
     OWNER to postgres;
 
 GRANT ALL ON TABLE public.coins TO dbuser;
-
 GRANT ALL ON TABLE public.coins TO postgres;
 
 -- Table: public.prices
@@ -45,7 +47,9 @@ GRANT ALL ON TABLE public.coins TO postgres;
 
 CREATE TABLE public.prices
 (
+    "IdCryptoCompare" bigint,
     Symbol character varying(9) COLLATE pg_catalog."default" NOT NULL,
+    "Name" text COLLATE pg_catalog."default",
     Rank integer,
     Price_usd double precision,
     Price_btc double precision,
@@ -66,10 +70,7 @@ ALTER TABLE public.prices
     OWNER to postgres;
 
 GRANT ALL ON TABLE public.prices TO dbuser;
-
 GRANT ALL ON TABLE public.prices TO postgres;
-
-
 
 -- Table: public.social_infos
 
@@ -95,11 +96,8 @@ TABLESPACE pg_default;
 ALTER TABLE public.social_infos
     OWNER to postgres;
 
-
 GRANT ALL ON TABLE public.social_infos TO dbuser;
-
 GRANT ALL ON TABLE public.social_infos TO postgres;
-
 
 -- Table: public.social_stats
 
@@ -126,5 +124,8 @@ ALTER TABLE public.social_stats
     OWNER to postgres;
 
 GRANT ALL ON TABLE public.social_stats TO dbuser;
-
 GRANT ALL ON TABLE public.social_stats TO postgres;
+
+-- User !
+--GRANT ALL ON TABLE public.coins TO dbuser;
+--GRANT ALL ON TABLE public.coins TO postgres;

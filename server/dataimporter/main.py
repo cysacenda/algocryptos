@@ -20,11 +20,11 @@ extractdata.extract_crytopcompare_coins()
 extractdata.extract_coinmarketcap_prices()
 
 # -----------------------------------------------
-# Delete coins and prices that are judged useless (market cap to low, cf. config file to param)
+# Delete coins and prices that are judged useless (market cap to low, no match between CMC & Cryptocompare names)
 # -----------------------------------------------
 
-# TODO : Attention matching pas bon (exemple IOTA / MIOTA
-extractdata.remove_useless_coins()
+extractdata.remove_useless_prices_coins()
+extractdata.add_ids()
 
 # extractdata.extract_coinmarketcap_prices()
 
@@ -32,7 +32,7 @@ extractdata.remove_useless_coins()
 # -----------------------------------------------
 # Social stats from Cryptocompare (replace with orginal website info post MVP ?)
 # -----------------------------------------------
-extractdata.create_cryptocompare_socialstats()
+extractdata.extract_cryptocompare_socialstats()
 
 
 # -----------------------------------------------

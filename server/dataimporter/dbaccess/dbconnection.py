@@ -30,7 +30,8 @@ class dbConnection:
             cursor.execute(query)
             self.conn.commit()
             return 0
-        except:
+        except Exception as e:
+            print("Error :" + str(e))
             print("Error while executing query : " + query)
             return -1
 
