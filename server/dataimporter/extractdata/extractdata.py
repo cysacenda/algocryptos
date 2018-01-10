@@ -1,3 +1,4 @@
+import time
 from datetime import datetime
 import tzlocal
 from dbaccess.dbconnection import dbConnection
@@ -176,12 +177,18 @@ def create_add_ids():
 
 #region Coins socials stats
 
-def extract_cryptocompare_socialstats():
-    'select "IdCryptoCompare" from coins'
-
+def extract_cryptocompare_social():
+    # Get coins id to be retrieved from APIs
     dbconn = dbConnection()
-    dbconn.exexute_query(create_cryptocompare_social(1182))
+    rows = dbconn.get_query_result('select "IdCryptoCompare" from coins')
 
+    #TODO : utiliser url_limit_second / url_limit_hout pour limiter le nombre d'appels / période
+    icountMax = 59
+    icount = 1
+    for row in rows:
+        dbconn.exexute_query(create_cryptocompare_social(row[0]))
+        if icount % 5 == 0:
+            time.sleep(1)
 
 def create_cryptocompare_social(coin_id):
     cryptocomp = CryptoCompare()
@@ -196,26 +203,35 @@ def create_cryptocompare_social_infos(coin_id, data):
     insertquery_socialinfos += str(coin_id) + ','
 
     # Twitter
-    unix_timestamp = float(data['Twitter']['account_creation'])
-    local_timezone = tzlocal.get_localzone()
-    local_time = datetime.fromtimestamp(unix_timestamp, local_timezone)
+    if ('name' in data['Twitter'].keys()):
+        unix_timestamp = float(data['Twitter']['account_creation'])
+        local_timezone = tzlocal.get_localzone()
+        local_time = datetime.fromtimestamp(unix_timestamp, local_timezone)
 
-    insertquery_socialinfos += "'" + local_time.strftime(DATE_FORMAT) + "',"
-    insertquery_socialinfos += "'" + data['Twitter']['name'] + "',"
-    insertquery_socialinfos += "'" + data['Twitter']['link'] + "',"
+        insertquery_socialinfos += "'" + local_time.strftime(DATE_FORMAT) + "',"
+        insertquery_socialinfos += "'" + data['Twitter']['name'] + "',"
+        insertquery_socialinfos += "'" + data['Twitter']['link'] + "',"
+    else:
+        insertquery_socialinfos += "NULL, NULL, NULL,"
 
     # Reddit
-    unix_timestamp = float(data['Reddit']['community_creation'])
-    local_timezone = tzlocal.get_localzone()
-    local_time = datetime.fromtimestamp(unix_timestamp, local_timezone)
+    if ('name' in data['Reddit'].keys()):
+        unix_timestamp = float(data['Reddit']['community_creation'])
+        local_timezone = tzlocal.get_localzone()
+        local_time = datetime.fromtimestamp(unix_timestamp, local_timezone)
 
-    insertquery_socialinfos += "'" + data['Reddit']['name'] + "',"
-    insertquery_socialinfos += "'" + data['Reddit']['link'] + "',"
-    insertquery_socialinfos += "'" + local_time.strftime(DATE_FORMAT) + "',"
+        insertquery_socialinfos += "'" + data['Reddit']['name'] + "',"
+        insertquery_socialinfos += "'" + data['Reddit']['link'] + "',"
+        insertquery_socialinfos += "'" + local_time.strftime(DATE_FORMAT) + "',"
+    else:
+        insertquery_socialinfos += "NULL, NULL, NULL,"
 
     # Facebook
-    insertquery_socialinfos += "'" + data['Facebook']['name'] + "',"
-    insertquery_socialinfos += "'" + data['Facebook']['link'] + "'"
+    if ('name' in data['Facebook'].keys() and 'link' in data['Facebook'].keys()):
+        insertquery_socialinfos += "'" + data['Facebook']['name'] + "',"
+        insertquery_socialinfos += "'" + data['Facebook']['link'] + "'"
+    else:
+        insertquery_socialinfos += "NULL, NULL"
 
     insertquery_socialinfos += ');'
     return insertquery_socialinfos
@@ -227,7 +243,10 @@ def create_cryptocompare_social_stats(coin_id, data):
     insertquery_socialinfos += str(coin_id) + ','
 
     # Twitter
-    insertquery_socialinfos += str(data['Twitter']['followers']) + ","
+    if ('followers' in data['Twitter'].keys()):
+        insertquery_socialinfos += str(data['Twitter']['followers']) + ","
+    else:
+        insertquery_socialinfos += "0"
 
     # Reddit
     insertquery_socialinfos += str(data['Reddit']['posts_per_day']) + ","

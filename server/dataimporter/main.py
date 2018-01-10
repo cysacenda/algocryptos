@@ -1,8 +1,3 @@
-import datetime
-import time
-import sys
-import os
-import json
 import extractdata
 
 #TODO : Add Ids au lieu d'utiliser les symbols comme PK (doublons)
@@ -11,28 +6,26 @@ import extractdata
 # Get coin list from Cryptocompare and insert in BDD
 # -----------------------------------------------
 
-extractdata.extract_crytopcompare_coins()
+# extractdata.extract_crytopcompare_coins()
 
 # -----------------------------------------------
 # Insert current prices into BDD
 # -----------------------------------------------
 
-extractdata.extract_coinmarketcap_prices()
+# extractdata.extract_coinmarketcap_prices()
 
 # -----------------------------------------------
 # Delete coins and prices that are judged useless (market cap to low, no match between CMC & Cryptocompare names)
 # -----------------------------------------------
 
-extractdata.remove_useless_prices_coins()
-extractdata.add_ids()
-
-# extractdata.extract_coinmarketcap_prices()
+# extractdata.remove_useless_prices_coins()
+# extractdata.add_ids()
 
 
 # -----------------------------------------------
 # Social stats from Cryptocompare (replace with orginal website info post MVP ?)
 # -----------------------------------------------
-extractdata.extract_cryptocompare_socialstats()
+extractdata.extract_cryptocompare_social()
 
 
 # -----------------------------------------------
@@ -43,15 +36,6 @@ extractdata.extract_cryptocompare_socialstats()
 # -----------------------------------------------
 # Insert OHLCV into BDD
 # -----------------------------------------------
-
-
-""""" select en BDD
-
-
-rows = dbconn.get_query_result('SELECT * FROM coins')
-for row in rows:
-    print("   ", row)
-"""""
 
 # -----------------------------------------------
 # SocialStats Cryptocompare pour avoir les adresses des twitter, etc.
