@@ -172,6 +172,7 @@ def create_add_ids():
     insertquery_socialinfos += 'SET "IdCryptoCompare" = co."IdCryptoCompare"\n'
     insertquery_socialinfos += 'FROM coins as co\n'
     insertquery_socialinfos += 'WHERE co."CoinName" = pr."Name";'
+    return insertquery_socialinfos;
 
 # endregion
 
@@ -188,7 +189,8 @@ def extract_cryptocompare_social():
     for row in rows:
         dbconn.exexute_query(create_cryptocompare_social(row[0]))
         if icount % 5 == 0:
-            time.sleep(1)
+            time.sleep(0.1)
+
 
 def create_cryptocompare_social(coin_id):
     cryptocomp = CryptoCompare()
@@ -209,13 +211,13 @@ def create_cryptocompare_social_infos(coin_id, data):
         local_time = datetime.fromtimestamp(unix_timestamp, local_timezone)
 
         insertquery_socialinfos += "'" + local_time.strftime(DATE_FORMAT) + "',"
-        insertquery_socialinfos += "'" + data['Twitter']['name'] + "',"
+        insertquery_socialinfos += "'" + data['Twitter']['name'].replace('"', '').replace("'", "") + "',"
         insertquery_socialinfos += "'" + data['Twitter']['link'] + "',"
     else:
         insertquery_socialinfos += "NULL, NULL, NULL,"
 
     # Reddit
-    if ('name' in data['Reddit'].keys()):
+    if ('name' in data['Reddit'].keys() and data['Reddit']['name'] != 'undefined'):
         unix_timestamp = float(data['Reddit']['community_creation'])
         local_timezone = tzlocal.get_localzone()
         local_time = datetime.fromtimestamp(unix_timestamp, local_timezone)
@@ -246,17 +248,23 @@ def create_cryptocompare_social_stats(coin_id, data):
     if ('followers' in data['Twitter'].keys()):
         insertquery_socialinfos += str(data['Twitter']['followers']) + ","
     else:
-        insertquery_socialinfos += "0"
+        insertquery_socialinfos += "0,"
 
     # Reddit
-    insertquery_socialinfos += str(data['Reddit']['posts_per_day']) + ","
-    insertquery_socialinfos += str(data['Reddit']['comments_per_day']) + ","
-    insertquery_socialinfos += str(data['Reddit']['active_users']) + ","
-    insertquery_socialinfos += str(data['Reddit']['subscribers']) + ","
+    if ('posts_per_day' in data['Reddit'].keys() and 'comments_per_day' in data['Reddit'].keys() and 'active_users' in data['Reddit'].keys() and 'subscribers' in data['Reddit'].keys()):
+        insertquery_socialinfos += str(data['Reddit']['posts_per_day']) + ","
+        insertquery_socialinfos += str(data['Reddit']['comments_per_day']) + ","
+        insertquery_socialinfos += str(data['Reddit']['active_users']) + ","
+        insertquery_socialinfos += str(data['Reddit']['subscribers']) + ","
+    else:
+        insertquery_socialinfos += "0, 0, 0, 0,"
 
     # Facebook
-    insertquery_socialinfos += str(data['Facebook']['likes']) + ","
-    insertquery_socialinfos += str(data['Facebook']['talking_about']) + ", "
+    if ('likes' in data['Facebook'].keys() and 'talking_about' in data['Facebook'].keys()):
+        insertquery_socialinfos += str(data['Facebook']['likes']) + ","
+        insertquery_socialinfos += str(data['Facebook']['talking_about']) + ", "
+    else:
+        insertquery_socialinfos += "0, 0,"
 
     # Timestamp
     insertquery_socialinfos += "current_timestamp"
