@@ -1,7 +1,7 @@
 import psycopg2
 from config.config import Config
 
-class dbConnection:
+class DbConnection:
     conn = None
     conf = None
 

@@ -1,10 +1,11 @@
 import time
 from datetime import datetime
 import tzlocal
-from dbaccess.dbconnection import dbConnection
+from dbaccess.dbconnection import DbConnection
 from cryptocompare.cryptocompare import CryptoCompare
 from coinmarketcap.coinmarketcap import CoinMarketCap
 from config.config import Config
+import reddit
 
 conf = Config()
 DATE_FORMAT = conf.get_config('cryptocompare_params', 'date_format')
@@ -14,7 +15,7 @@ MINIMUM_MARKET_CAP_USD = conf.get_config('market_params', 'minimum_market_cap_us
 
 # Cryptocompare : Insert coins list into BDD
 def extract_crytopcompare_coins():
-    dbconn = dbConnection()
+    dbconn = DbConnection()
     dbconn.exexute_query(create_query_coins())
 
 # Cryptocompare : Get coins list and create insert query for BDD
@@ -49,7 +50,7 @@ def create_query_coins():
 #region Coins current prices
 # TODO : Add system which insert / update depending on information already in DB
 def extract_coinmarketcap_prices():
-    dbconn = dbConnection()
+    dbconn = DbConnection()
     dbconn.exexute_query(create_query_prices())
 
 def create_query_prices():
@@ -119,7 +120,7 @@ def create_query_prices():
 
 #endregion
 
-#region Remove useless coins / Prices
+#region Remove useless coins / prices
 
 def remove_useless_prices_coins():
     remove_useless_prices()
@@ -127,12 +128,12 @@ def remove_useless_prices_coins():
 
 
 def remove_useless_prices():
-    dbconn = dbConnection()
+    dbconn = DbConnection()
     dbconn.exexute_query("delete from prices where market_cap_usd < {} or market_cap_usd is null".format(MINIMUM_MARKET_CAP_USD))
 
 
 def remove_useless_coins():
-    dbconn = dbConnection()
+    dbconn = DbConnection()
     dbconn.exexute_query('delete from coins where "CoinName" not in (select "Name" from prices) AND "Symbol" not in (select symbol from prices)')
 
 #endregion
@@ -140,7 +141,7 @@ def remove_useless_coins():
 # region Add Ids
 
 def add_ids():
-    dbconn = dbConnection()
+    dbconn = DbConnection()
     dbconn.exexute_query(create_add_ids())
 
     # TODO : Gérer un mapping dans une table de paramétrage pour ces cryptos
@@ -180,7 +181,7 @@ def create_add_ids():
 
 def extract_cryptocompare_social():
     # Get coins id to be retrieved from APIs
-    dbconn = dbConnection()
+    dbconn = DbConnection()
     rows = dbconn.get_query_result('select "IdCryptoCompare" from coins')
 
     #TODO : utiliser url_limit_second / url_limit_hout pour limiter le nombre d'appels / période
@@ -273,3 +274,8 @@ def create_cryptocompare_social_stats(coin_id, data):
     return insertquery_socialinfos
 
 #endregion
+
+# region Reddit Apis
+def import_Reddit_data():
+    reddit.subscriber_grow_plot()
+# endregion

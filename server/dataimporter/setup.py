@@ -1,5 +1,7 @@
 from setuptools import setup
 
+# TODO : Un truc à faire ici pour gérer automatiquement les dépendances
+
 setup(
     name='algocryptos',
     version='0.1',

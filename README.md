@@ -1,7 +1,7 @@
 # algocryptos
-Tool to analyze cryptocurrencies markets
+Outil permettant l'analyse des données marchés et réseaux sociaux pour les cryptocurrencies
 
-##Monter environnement de développement
+## Monter environnement de développement
 - Outils :
     - Transverses :
         - Git
@@ -25,3 +25,6 @@ Tool to analyze cryptocurrencies markets
 
 ##Infos login / mdp
 - PostgreSQL admin : algocryptos
+
+## API
+- Reddit : https://www.reddit.com/prefs/apps
