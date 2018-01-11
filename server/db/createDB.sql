@@ -129,3 +129,24 @@ GRANT ALL ON TABLE public.social_stats TO postgres;
 -- User !
 --GRANT ALL ON TABLE public.coins TO dbuser;
 --GRANT ALL ON TABLE public.coins TO postgres;
+
+-- Table: public.social_stats_reddit
+
+-- DROP TABLE public.social_stats_reddit;
+
+CREATE TABLE public.social_stats_reddit
+(
+    "IdCoinCryptoCompare" bigint,
+    "Reddit_subscribers" bigint,
+    "timestamp" timestamp with time zone
+)
+WITH (
+    OIDS = FALSE
+)
+TABLESPACE pg_default;
+
+ALTER TABLE public.social_stats_reddit
+    OWNER to postgres;
+
+GRANT ALL ON TABLE public.social_stats_reddit TO dbuser;
+GRANT ALL ON TABLE public.social_stats_reddit TO postgres;

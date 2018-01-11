@@ -185,7 +185,6 @@ def extract_cryptocompare_social():
     rows = dbconn.get_query_result('select "IdCryptoCompare" from coins')
 
     #TODO : utiliser url_limit_second / url_limit_hout pour limiter le nombre d'appels / période
-    icountMax = 59
     icount = 1
     for row in rows:
         dbconn.exexute_query(create_cryptocompare_social(row[0]))
@@ -276,6 +275,34 @@ def create_cryptocompare_social_stats(coin_id, data):
 #endregion
 
 # region Reddit Apis
+
 def import_Reddit_data():
-    reddit.subscriber_grow_plot()
+    # Get coins and associated subreddits id to be retrieved from APIs
+    dbconn = DbConnection()
+    query_select = 'select co."IdCryptoCompare", so."Reddit_name"\n'
+    query_select += 'from coins as co\n'
+    query_select += 'inner join social_infos so on (co."IdCryptoCompare" = so."IdCoinCryptoCompare")\n'
+    query_select += 'where so."Reddit_name" is not null'
+    rows = dbconn.get_query_result(query_select)
+
+    # TODO : utiliser url_limit_second / url_limit_hout pour limiter le nombre d'appels / période
+    for row in rows:
+        subscribers, dates = reddit.get_subscribers_histo(row[1])
+        dbconn.exexute_query(create_query_reddit_stats(row[0], subscribers, dates))
+
+def create_query_reddit_stats(idCoin, subscribers, dates):
+    insertquery_reddit_stats = 'INSERT INTO public.social_stats_reddit("IdCoinCryptoCompare", "Reddit_subscribers", "timestamp")\n'
+    insertquery_reddit_stats += 'VALUES\n('
+    for value, integ in enumerate(subscribers):
+        if (not insertquery_reddit_stats.endswith('(')):
+            insertquery_reddit_stats += ',\n('
+
+        insertquery_reddit_stats += str(idCoin) + ','
+        insertquery_reddit_stats += str(integ) + ','
+        insertquery_reddit_stats += "'" + str(dates[value]) + "'"
+
+        insertquery_reddit_stats += ')'
+    insertquery_reddit_stats += ';'
+    return insertquery_reddit_stats
+
 # endregion

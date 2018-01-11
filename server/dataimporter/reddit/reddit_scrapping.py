@@ -1,10 +1,8 @@
 from urllib import request
 
-def subscriber_grow_plot(subreddit):
+def get_subscribers_histo(subreddit):
     byte_code = get_page_source(subreddit)
-    subscribers, dates = number_of_subscribers(byte_code)
-    for value, integ in enumerate(subscribers):
-        print("[" + str(value) + "] = " + str(dates[value]) + " - " + str(integ))
+    return number_of_subscribers(byte_code)
 
 def get_page_source(redit):
     r = request.urlopen("http://redditmetrics.com/r/"+redit)
@@ -31,21 +29,24 @@ def strip_ending(string):
 
 
 def number_of_subscribers(bytecode):
+    dict_dates_subscribers = {}
+
     data = bytecode.rsplit('\\n')
     start_collecting = False
     subscribers_data = []
-    year_data = []
+    dates_data = []
     for i in range(0, len(data)):
         if start_collecting is True:
             if "a" not in data[i]:
-                return subscribers_data, year_data
+                return subscribers_data, dates_data
             elif "data" not in data[i]:
                 number = get_after(data[i], "a: ")
                 number = strip_ending(number)
                 year = get_after(data[i], "y: \\'", 12)
                 year = strip_ending(year)
-                year_data.append(year)
+                dates_data.append(year)
                 subscribers_data.append(int(number))
+                dict_dates_subscribers[year] = int(number)
         elif ("total-subscribers" in data[i]) and ("data" in data[i+1]):
             start_collecting = True
-    return subscribers_data, year_data
+    return subscribers_data, dates_data
