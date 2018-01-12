@@ -13,7 +13,7 @@ logging.basicConfig(filename=conf.get_config('log_params','log_file'),
 
 logging.warning("Started")
 
-# -----------------------------------------------
+# ----------------------------------------------- 
 # Get coin list from Cryptocompare and insert in BDD
 # -----------------------------------------------
 
