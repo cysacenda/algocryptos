@@ -1,12 +1,8 @@
 import praw
-import pdb
-import re
-import os
 
+#unused for now
 class Redditxxx:
     reddit = None
-
-    # AU pire scrapping : https://github.com/Khalil-Zaman/reddit_compare/blob/master/page_source.py
 
     def __init__(self):
         self.reddit = praw.Reddit(client_id='frV5DR2pJEab3g',
