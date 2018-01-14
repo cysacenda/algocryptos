@@ -40,7 +40,6 @@ if __name__ == '__main__':
         # Insert current prices into BDD
         # -----------------------------------------------
         extractdata.extract_coinmarketcap_prices()
-        print('prices')
 
     if (args.deleteMeaninglessCoins == True):
         # -----------------------------------------------
