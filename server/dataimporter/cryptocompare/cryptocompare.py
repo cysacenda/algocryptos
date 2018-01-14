@@ -11,7 +11,10 @@ class CryptoCompare:
     URL_PRICE = None
     URL_HIST_PRICE = None
     URL_SOCIAL_STATS = None
+    URL_TRADING_PAIRS = None
+    URL_HISTO_HOUR_PAIR = None
     CURR = None
+    MAX_TRADING_PAIRS_FOR_CRYPTO = None
 
     def __init__(self):
         self.conf = Config()
@@ -21,6 +24,9 @@ class CryptoCompare:
         self.URL_PRICE = self.conf.get_config('cryptocompare_params', 'url_price')
         self.URL_HIST_PRICE = self.conf.get_config('cryptocompare_params', 'url_hist_price')
         self.URL_SOCIAL_STATS = self.conf.get_config('cryptocompare_params', 'url_social_stats')
+        self.URL_TRADING_PAIRS = self.conf.get_config('cryptocompare_params', 'url_trading_pairs')
+        self.MAX_TRADING_PAIRS_FOR_CRYPTO = self.conf.get_config('cryptocompare_params', 'max_trading_pairs_for_crypto')
+        self.URL_HISTO_HOUR_PAIR = self.conf.get_config('cryptocompare_params', 'url_histo_hour_pair')
 
         # DEFAULTS
         self.CURR = self.conf.get_config('cryptocompare_params', 'default_currency')
@@ -69,6 +75,15 @@ class CryptoCompare:
 
     def get_socialstats(self, coin_id):
         return self.query_cryptocompare(self.URL_SOCIAL_STATS.format(coin_id))['Data']
+
+    def get_trading_pairs(self, symbol):
+        url = self.URL_TRADING_PAIRS.format(symbol, self.MAX_TRADING_PAIRS_FOR_CRYPTO)
+        return self.query_cryptocompare(url)['Data']
+
+    def get_histo_hour_pair(self, symbol1, symbol2, limit):
+        url = self.URL_HISTO_HOUR_PAIR.format(symbol1, symbol2, limit)
+        return self.query_cryptocompare(url)['Data']
+
 
 
 """"" EXEMPLES A SUPPRIMER

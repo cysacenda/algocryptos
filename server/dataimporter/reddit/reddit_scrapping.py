@@ -29,7 +29,6 @@ def strip_ending(string):
 
 
 def number_of_subscribers(bytecode):
-    dict_dates_subscribers = {}
 
     data = bytecode.rsplit('\\n')
     start_collecting = False
@@ -46,7 +45,6 @@ def number_of_subscribers(bytecode):
                 year = strip_ending(year)
                 dates_data.append(year)
                 subscribers_data.append(int(number))
-                dict_dates_subscribers[year] = int(number)
         elif ("total-subscribers" in data[i]) and ("data" in data[i+1]):
             start_collecting = True
     return subscribers_data, dates_data

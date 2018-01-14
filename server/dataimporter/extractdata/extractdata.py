@@ -1,22 +1,23 @@
 import time
-from datetime import datetime
-import tzlocal
 from dbaccess.dbconnection import DbConnection
 from cryptocompare.cryptocompare import CryptoCompare
 from coinmarketcap.coinmarketcap import CoinMarketCap
 from config.config import Config
 import reddit
+import utils
+import logging
 
 conf = Config()
-DATE_FORMAT = conf.get_config('cryptocompare_params', 'date_format')
 MINIMUM_MARKET_CAP_USD = conf.get_config('market_params', 'minimum_market_cap_usd')
 
-#region Coins list
+# region Coins list
 
 # Cryptocompare : Insert coins list into BDD
 def extract_crytopcompare_coins():
+    logging.warning("extract_crytopcompare_coins - start")
     dbconn = DbConnection()
     dbconn.exexute_query(create_query_coins())
+    logging.warning("extract_crytopcompare_coins - end")
 
 # Cryptocompare : Get coins list and create insert query for BDD
 # TODO : Add system which insert / update depending on information already in DB
@@ -45,25 +46,26 @@ def create_query_coins():
     insertquery += ';'
     return insertquery
 
-#endregion AA
+# endregion
 
-#region Coins current prices
+# region Coins current prices
 # TODO : Add system which insert / update depending on information already in DB
 def extract_coinmarketcap_prices():
+    logging.warning("extract_coinmarketcap_prices - start")
     dbconn = DbConnection()
     dbconn.exexute_query(create_query_prices())
+    logging.warning("extract_coinmarketcap_prices - end")
 
 def create_query_prices():
+    logging.warning("create_query_prices - start")
     coinmarket = CoinMarketCap()
     data = coinmarket.get_price_list()
 
     insertquery = 'INSERT INTO public.prices (symbol, "Name", rank, price_usd, price_btc, "24h_volume_usd", market_cap_usd, percent_change_1h, percent_change_24h,percent_change_7d, last_updated)\n'
     insertquery += 'VALUES \n('
 
-    #print(entry['name'] + '\n')
-
     for entry in data:
-        #Do not take into account cryptos with ' in name
+        #TODO : For the moment, do not take into account cryptos with ' in name
         if (not str(entry['name']).__contains__("'")):
             if (not insertquery.endswith('(')):
                 insertquery += ',\n('
@@ -109,22 +111,22 @@ def create_query_prices():
             if entry['last_updated'] == None:
                 insertquery += 'NULL'
             else:
-                unix_timestamp = float(entry['last_updated'])
-                local_timezone = tzlocal.get_localzone()  # get pytz timezone
-                local_time = datetime.fromtimestamp(unix_timestamp, local_timezone)
-                insertquery += "'" + local_time.strftime(DATE_FORMAT) + "'"
+                insertquery += "'" + utils.format_linux_timestamp_to_db(float(entry['last_updated'])) + "'"
 
             insertquery += ')'
     insertquery += ';'
+    logging.warning("create_query_prices - end")
     return insertquery
 
-#endregion
+# endregion
 
-#region Remove useless coins / prices
+# region Remove useless coins / prices
 
 def remove_useless_prices_coins():
+    logging.warning("remove_useless_prices_coins - start")
     remove_useless_prices()
     remove_useless_coins()
+    logging.warning("remove_useless_prices_coins - end")
 
 
 def remove_useless_prices():
@@ -136,15 +138,24 @@ def remove_useless_coins():
     dbconn = DbConnection()
     dbconn.exexute_query('delete from coins where "CoinName" not in (select "Name" from prices) AND "Symbol" not in (select symbol from prices)')
 
+
+def delete_excluded_coins():
+    logging.warning("delete_excluded_coins - start")
+    dbconn = DbConnection()
+    dbconn.exexute_query('delete from prices where "IdCryptoCompare" in (select * from excluded_coins);')
+    dbconn.exexute_query('delete from coins where "IdCryptoCompare" in (select * from excluded_coins);')
+    logging.warning("delete_excluded_coins - end")
+
 #endregion
 
 # region Add Ids
 
 def add_ids():
+    logging.warning("add_ids - start")
     dbconn = DbConnection()
     dbconn.exexute_query(create_add_ids())
 
-    # TODO : Gérer un mapping dans une table de paramétrage pour ces cryptos
+    # TODO : Gérer un mapping dans une table de paramétrage pour ces cryptos car rapprochement impossible entre cryptocompare et CMC
     """"" 
     -- KO dans table prices idCryptoCompare null
     -- requête: select *
@@ -162,24 +173,26 @@ def add_ids():
     'TIPS', 'FedoraCoin'
     'ECN', 'E-coin'
     """""
+    logging.warning("add_ids - end")
 
 def create_add_ids():
-    insertquery_socialinfos = 'UPDATE prices as pr\n'
-    insertquery_socialinfos += 'SET "IdCryptoCompare" = co."IdCryptoCompare"\n'
-    insertquery_socialinfos += 'FROM coins as co\n'
-    insertquery_socialinfos += 'WHERE co."Symbol" = pr.symbol;\n'
+    update_query = 'UPDATE prices as pr\n'
+    update_query += 'SET "IdCryptoCompare" = co."IdCryptoCompare"\n'
+    update_query += 'FROM coins as co\n'
+    update_query += 'WHERE co."Symbol" = pr.symbol;\n\n'
 
-    insertquery_socialinfos = 'UPDATE prices as pr\n'
-    insertquery_socialinfos += 'SET "IdCryptoCompare" = co."IdCryptoCompare"\n'
-    insertquery_socialinfos += 'FROM coins as co\n'
-    insertquery_socialinfos += 'WHERE co."CoinName" = pr."Name";'
-    return insertquery_socialinfos;
+    update_query += 'UPDATE prices as pr\n'
+    update_query += 'SET "IdCryptoCompare" = co."IdCryptoCompare"\n'
+    update_query += 'FROM coins as co\n'
+    update_query += 'WHERE co."CoinName" = pr."Name";'
+    return update_query;
 
 # endregion
 
 #region Coins socials stats
 
 def extract_cryptocompare_social():
+    logging.warning("extract_cryptocompare_social - start")
     # Get coins id to be retrieved from APIs
     dbconn = DbConnection()
     rows = dbconn.get_query_result('select "IdCryptoCompare" from coins')
@@ -191,11 +204,12 @@ def extract_cryptocompare_social():
         if icount % 5 == 0:
             time.sleep(0.1)
 
+    logging.warning("extract_cryptocompare_social - end")
+
 
 def create_cryptocompare_social(coin_id):
     cryptocomp = CryptoCompare()
     data = cryptocomp.get_socialstats(coin_id)
-
     return create_cryptocompare_social_infos(coin_id, data) + "\n" + create_cryptocompare_social_stats(coin_id, data)
 
 
@@ -206,11 +220,7 @@ def create_cryptocompare_social_infos(coin_id, data):
 
     # Twitter
     if ('name' in data['Twitter'].keys()):
-        unix_timestamp = float(data['Twitter']['account_creation'])
-        local_timezone = tzlocal.get_localzone()
-        local_time = datetime.fromtimestamp(unix_timestamp, local_timezone)
-
-        insertquery_socialinfos += "'" + local_time.strftime(DATE_FORMAT) + "',"
+        insertquery_socialinfos += "'" + utils.format_linux_timestamp_to_db(float(data['Twitter']['account_creation'])) + "',"
         insertquery_socialinfos += "'" + data['Twitter']['name'].replace('"', '').replace("'", "") + "',"
         insertquery_socialinfos += "'" + data['Twitter']['link'] + "',"
     else:
@@ -218,13 +228,9 @@ def create_cryptocompare_social_infos(coin_id, data):
 
     # Reddit
     if ('name' in data['Reddit'].keys() and data['Reddit']['name'] != 'undefined'):
-        unix_timestamp = float(data['Reddit']['community_creation'])
-        local_timezone = tzlocal.get_localzone()
-        local_time = datetime.fromtimestamp(unix_timestamp, local_timezone)
-
         insertquery_socialinfos += "'" + data['Reddit']['name'] + "',"
         insertquery_socialinfos += "'" + data['Reddit']['link'] + "',"
-        insertquery_socialinfos += "'" + local_time.strftime(DATE_FORMAT) + "',"
+        insertquery_socialinfos += "'" + utils.format_linux_timestamp_to_db(float(data['Reddit']['community_creation'])) + "',"
     else:
         insertquery_socialinfos += "NULL, NULL, NULL,"
 
@@ -277,6 +283,7 @@ def create_cryptocompare_social_stats(coin_id, data):
 # region Reddit Apis
 
 def import_Reddit_data():
+    logging.warning("import_Reddit_data - start")
     # Get coins and associated subreddits id to be retrieved from APIs
     dbconn = DbConnection()
     query_select = 'select co."IdCryptoCompare", so."Reddit_name"\n'
@@ -289,6 +296,8 @@ def import_Reddit_data():
     for row in rows:
         subscribers, dates = reddit.get_subscribers_histo(row[1])
         dbconn.exexute_query(create_query_reddit_stats(row[0], subscribers, dates))
+
+    logging.warning("import_Reddit_data - end")
 
 def create_query_reddit_stats(idCoin, subscribers, dates):
     insertquery_reddit_stats = 'INSERT INTO public.social_stats_reddit("IdCoinCryptoCompare", "Reddit_subscribers", "timestamp")\n'
@@ -306,3 +315,64 @@ def create_query_reddit_stats(idCoin, subscribers, dates):
     return insertquery_reddit_stats
 
 # endregion
+
+#region Trading pairs & histo volumes, prices
+
+def extract_histo_ohlcv():
+    logging.warning("extract_histo_ohlcv - start")
+    #extract_histo_ohlcv_for_coin(4560, 'MED')
+    # Get coins id to be retrieved from APIs
+    dbconn = DbConnection()
+    rows = dbconn.get_query_result('select "IdCryptoCompare", "Symbol" from coins')
+
+    # TODO : utiliser url_limit_second / url_limit_hout pour limiter le nombre d'appels / période
+    icount = 1
+    for row in rows:
+        extract_histo_ohlcv_for_coin(row[0], row[1])
+        if icount % 5 == 0:
+            time.sleep(0.1)
+
+    logging.warning("extract_histo_ohlcv - end")
+
+
+def extract_histo_ohlcv_for_coin(coin_id, symbol):
+    dict_dates_volumes = {}
+    for key in get_trading_pairs_for_crypto(symbol):
+        get_histo_ohlcv_for_pair(dict_dates_volumes, symbol, key['toSymbol'])
+
+    # if found values
+    if (dict_dates_volumes):
+        dbconn = DbConnection()
+        dbconn.exexute_query(create_query_histo_ohlcv(coin_id, dict_dates_volumes))
+
+
+def get_trading_pairs_for_crypto(symbol):
+    cryptocomp = CryptoCompare()
+    data = cryptocomp.get_trading_pairs(symbol)
+    return data
+
+def get_histo_ohlcv_for_pair(dict_dates_volumes, symbolFrom, symbolTo):
+    cryptocomp = CryptoCompare()
+
+    # TODO : Limit 2000 to be replaced for retrieving only what's not in database
+    data = cryptocomp.get_histo_hour_pair(symbolFrom, symbolTo, limit=2000)
+    for key in data:
+        if int(key['time']) in dict_dates_volumes.keys():
+            dict_dates_volumes[int(key['time'])] += key['volumefrom']
+        else:
+            dict_dates_volumes[int(key['time'])] = key['volumefrom']
+
+def create_query_histo_ohlcv(coin_id, data):
+    insertquery = 'INSERT INTO public.histo_volumes ("IdCoinCryptoCompare", "1h_volumes_aggregated_pairs", "timestamp")\n'
+    insertquery += 'VALUES \n('
+    for key in data:
+        if (not insertquery.endswith('(')):
+            insertquery += ',\n('
+        insertquery += str(coin_id) + ','
+        insertquery += str(data[key]) + ','
+        insertquery += "'" + utils.format_linux_timestamp_to_db(float(key)) + "'"
+        insertquery += ')'
+    insertquery += ';'
+    return insertquery
+
+#endregion

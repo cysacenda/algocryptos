@@ -9,10 +9,10 @@ from config.config import Config
 conf = Config()
 
 # Logging params
-logging.basicConfig(filename=conf.get_config('log_params','log_file'),
+logging.basicConfig(filename='dataimporter.log',
                     format=conf.get_config('log_params','log_format'))
 
-logging.warning("Started")
+logging.warning("DataImporter started")
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Outil permettant l'analyse des données marchés et réseaux sociaux pour les cryptocurrencies")
@@ -71,7 +71,5 @@ if __name__ == '__main__':
         extractdata.add_ids()
         extractdata.extract_cryptocompare_social()
         extractdata.import_Reddit_data()
-
-
 
 logging.warning("Stopped")

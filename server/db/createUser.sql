@@ -13,3 +13,5 @@ ALTER USER dbuser WITH PASSWORD 'algocryptos';
 
 GRANT postgres TO dbuser;
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO dbuser
+
+CREATE SCHEMA public AUTHORIZATION dbuser
