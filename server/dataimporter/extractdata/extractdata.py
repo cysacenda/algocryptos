@@ -312,7 +312,7 @@ def extract_histo_ohlcv():
         extract_histo_ohlcv_for_coin(row[0], row[1])
         if icount % 5 == 0:
             time.sleep(0.1)
-            
+
 
 def extract_histo_ohlcv_for_coin(coin_id, symbol):
     dict_dates_volumes = {}
