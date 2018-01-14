@@ -157,20 +157,6 @@ ALTER TABLE public.histo_volumes
 
 GRANT ALL ON TABLE public.histo_volumes TO dbuser;
 GRANT ALL ON TABLE public.histo_volumes TO postgres;
-
--- Table: public.histo_volumes
-
--- DROP TABLE public.histo_volumes;
-
-CREATE TABLE public.histo_volumes
-(
-    "IdCoinCryptoCompare" bigint NOT NULL,
-    "1h_volumes_aggregated_pairs" double precision,
-    "timestamp" timestamp with time zone
-)
-WITH (
-    OIDS = FALSE
-)
 TABLESPACE pg_default;
 
 ALTER TABLE public.histo_volumes
