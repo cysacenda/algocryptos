@@ -8,47 +8,47 @@ from config.config import Config
 conf = Config()
 
 # Logging params
-logging.basicConfig(filename=conf.get_config('log_params','log_file'),
+logging.basicConfig(filename='dataimporter.log',
                     format=conf.get_config('log_params','log_format'))
 
-logging.warning("Started")
+logging.warning("DataImporter started")
 
 # ----------------------------------------------- 
 # Get coin list from Cryptocompare and insert in BDD
 # -----------------------------------------------
 
-#extractdata.extract_crytopcompare_coins()
+extractdata.extract_crytopcompare_coins()
 
 # -----------------------------------------------
 # Insert current prices into BDD
 # -----------------------------------------------
 
-#extractdata.extract_coinmarketcap_prices()
+extractdata.extract_coinmarketcap_prices()
 
 # -----------------------------------------------
 # Delete coins and prices that are judged useless (market cap to low, no match between CMC & Cryptocompare names)
 # -----------------------------------------------
 
-#extractdata.remove_useless_prices_coins()
-#extractdata.add_ids()
+extractdata.remove_useless_prices_coins()
+extractdata.add_ids()
 extractdata.delete_excluded_coins()
 
 
 # -----------------------------------------------
 # Social stats from Cryptocompare (replace with orginal website info post MVP ?)
 # -----------------------------------------------
-#extractdata.extract_cryptocompare_social()
+extractdata.extract_cryptocompare_social()
 
 
 # -----------------------------------------------
 # Social stats from Redditmetric
 # -----------------------------------------------
-#extractdata.import_Reddit_data()
+extractdata.import_Reddit_data()
 
 # -----------------------------------------------
 # Histo OHLCV
 # -----------------------------------------------
 extractdata.extract_histo_ohlcv()
 
-logging.warning("Stopped")
+logging.warning("DataImporter ended")
 

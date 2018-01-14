@@ -5,7 +5,7 @@ from config.config import Config
 conf = Config()
 
 # Logging params
-logging.basicConfig(filename=conf.get_config('log_params','log_file'),
+logging.basicConfig(filename='algokpi.log',
                     format=conf.get_config('log_params','log_format'))
 
 logging.warning("Started")

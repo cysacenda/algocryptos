@@ -5,6 +5,7 @@ from coinmarketcap.coinmarketcap import CoinMarketCap
 from config.config import Config
 import reddit
 import utils
+import logging
 
 conf = Config()
 MINIMUM_MARKET_CAP_USD = conf.get_config('market_params', 'minimum_market_cap_usd')
@@ -13,8 +14,10 @@ MINIMUM_MARKET_CAP_USD = conf.get_config('market_params', 'minimum_market_cap_us
 
 # Cryptocompare : Insert coins list into BDD
 def extract_crytopcompare_coins():
+    logging.warning("extract_crytopcompare_coins - start")
     dbconn = DbConnection()
     dbconn.exexute_query(create_query_coins())
+    logging.warning("extract_crytopcompare_coins - end")
 
 # Cryptocompare : Get coins list and create insert query for BDD
 # TODO : Add system which insert / update depending on information already in DB
@@ -48,10 +51,13 @@ def create_query_coins():
 # region Coins current prices
 # TODO : Add system which insert / update depending on information already in DB
 def extract_coinmarketcap_prices():
+    logging.warning("extract_coinmarketcap_prices - start")
     dbconn = DbConnection()
     dbconn.exexute_query(create_query_prices())
+    logging.warning("extract_coinmarketcap_prices - end")
 
 def create_query_prices():
+    logging.warning("create_query_prices - start")
     coinmarket = CoinMarketCap()
     data = coinmarket.get_price_list()
 
@@ -109,6 +115,7 @@ def create_query_prices():
 
             insertquery += ')'
     insertquery += ';'
+    logging.warning("create_query_prices - end")
     return insertquery
 
 # endregion
@@ -116,8 +123,10 @@ def create_query_prices():
 # region Remove useless coins / prices
 
 def remove_useless_prices_coins():
+    logging.warning("remove_useless_prices_coins - start")
     remove_useless_prices()
     remove_useless_coins()
+    logging.warning("remove_useless_prices_coins - end")
 
 
 def remove_useless_prices():
@@ -131,15 +140,18 @@ def remove_useless_coins():
 
 
 def delete_excluded_coins():
+    logging.warning("delete_excluded_coins - start")
     dbconn = DbConnection()
     dbconn.exexute_query('delete from prices where "IdCryptoCompare" in (select * from excluded_coins);')
     dbconn.exexute_query('delete from coins where "IdCryptoCompare" in (select * from excluded_coins);')
+    logging.warning("delete_excluded_coins - end")
 
 #endregion
 
 # region Add Ids
 
 def add_ids():
+    logging.warning("add_ids - start")
     dbconn = DbConnection()
     dbconn.exexute_query(create_add_ids())
 
@@ -161,6 +173,7 @@ def add_ids():
     'TIPS', 'FedoraCoin'
     'ECN', 'E-coin'
     """""
+    logging.warning("add_ids - end")
 
 def create_add_ids():
     update_query = 'UPDATE prices as pr\n'
@@ -179,6 +192,7 @@ def create_add_ids():
 #region Coins socials stats
 
 def extract_cryptocompare_social():
+    logging.warning("extract_cryptocompare_social - start")
     # Get coins id to be retrieved from APIs
     dbconn = DbConnection()
     rows = dbconn.get_query_result('select "IdCryptoCompare" from coins')
@@ -190,11 +204,12 @@ def extract_cryptocompare_social():
         if icount % 5 == 0:
             time.sleep(0.1)
 
+    logging.warning("extract_cryptocompare_social - end")
+
 
 def create_cryptocompare_social(coin_id):
     cryptocomp = CryptoCompare()
     data = cryptocomp.get_socialstats(coin_id)
-
     return create_cryptocompare_social_infos(coin_id, data) + "\n" + create_cryptocompare_social_stats(coin_id, data)
 
 
@@ -268,6 +283,7 @@ def create_cryptocompare_social_stats(coin_id, data):
 # region Reddit Apis
 
 def import_Reddit_data():
+    logging.warning("import_Reddit_data - start")
     # Get coins and associated subreddits id to be retrieved from APIs
     dbconn = DbConnection()
     query_select = 'select co."IdCryptoCompare", so."Reddit_name"\n'
@@ -280,6 +296,8 @@ def import_Reddit_data():
     for row in rows:
         subscribers, dates = reddit.get_subscribers_histo(row[1])
         dbconn.exexute_query(create_query_reddit_stats(row[0], subscribers, dates))
+
+    logging.warning("import_Reddit_data - end")
 
 def create_query_reddit_stats(idCoin, subscribers, dates):
     insertquery_reddit_stats = 'INSERT INTO public.social_stats_reddit("IdCoinCryptoCompare", "Reddit_subscribers", "timestamp")\n'
@@ -301,6 +319,7 @@ def create_query_reddit_stats(idCoin, subscribers, dates):
 #region Trading pairs & histo volumes, prices
 
 def extract_histo_ohlcv():
+    logging.warning("extract_histo_ohlcv - start")
     #extract_histo_ohlcv_for_coin(4560, 'MED')
     # Get coins id to be retrieved from APIs
     dbconn = DbConnection()
@@ -312,6 +331,8 @@ def extract_histo_ohlcv():
         extract_histo_ohlcv_for_coin(row[0], row[1])
         if icount % 5 == 0:
             time.sleep(0.1)
+
+    logging.warning("extract_histo_ohlcv - end")
 
 
 def extract_histo_ohlcv_for_coin(coin_id, symbol):
