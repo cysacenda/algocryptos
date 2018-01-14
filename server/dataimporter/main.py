@@ -27,40 +27,49 @@ if __name__ == '__main__':
     parser.add_argument('-r', '--reddit', dest="reddit", help='Social stats from Redditmetric', action='store_true')
     parser.add_argument('-f', '--full', dest="full", help='Get everything (Useful for first-timer)',
                         action='store_true')
+    parser.add_argument('-o', '--histoohlcv', dest="histoohlcv", help='Get historical OHLCV',
+                        action='store_true')
     args = parser.parse_args()
 
-    if (args.coins == True):
+    if (args.coins):
         # -----------------------------------------------
         # Get coin list from Cryptocompare and insert in BDD
         # -----------------------------------------------
         extractdata.extract_crytopcompare_coins()
 
-    if (args.prices == True):
+    if (args.prices):
         # -----------------------------------------------
         # Insert current prices into BDD
         # -----------------------------------------------
         extractdata.extract_coinmarketcap_prices()
 
-    if (args.deleteMeaninglessCoins == True):
+    if (args.deleteMeaninglessCoins):
         # -----------------------------------------------
         # Delete coins and prices that are judged useless (market cap to low, no match between CMC & Cryptocompare names)
         # -----------------------------------------------
         extractdata.remove_useless_prices_coins()
         extractdata.add_ids()
+        extractdata.delete_excluded_coins()
 
-    if (args.socialStats == True):
+    if (args.socialStats):
         # -----------------------------------------------
         # Social stats from Cryptocompare (replace with orginal website info post MVP ?)
         # -----------------------------------------------
         extractdata.extract_cryptocompare_social()
 
-    if (args.reddit == True):
+    if (args.reddit):
         # -----------------------------------------------
         # Social stats from Redditmetric
         # -----------------------------------------------
         extractdata.import_Reddit_data()
 
-    if (args.full == True):
+    if (args.histoohlcv):
+        # -----------------------------------------------
+        # Histo OHLCV
+        # -----------------------------------------------
+        extractdata.extract_histo_ohlcv()
+
+    if (args.full):
         # -----------------------------------------------
         # Get everything (Useful for first-timer)
         # -----------------------------------------------
@@ -70,5 +79,6 @@ if __name__ == '__main__':
         extractdata.add_ids()
         extractdata.extract_cryptocompare_social()
         extractdata.import_Reddit_data()
+        extractdata.extract_histo_ohlcv()
 
-logging.warning("Stopped")
+logging.warning("DataImporter ended")
