@@ -164,16 +164,16 @@ def add_ids():
     """""
 
 def create_add_ids():
-    insertquery_socialinfos = 'UPDATE prices as pr\n'
-    insertquery_socialinfos += 'SET "IdCryptoCompare" = co."IdCryptoCompare"\n'
-    insertquery_socialinfos += 'FROM coins as co\n'
-    insertquery_socialinfos += 'WHERE co."Symbol" = pr.symbol;\n'
+    update_query = 'UPDATE prices as pr\n'
+    update_query += 'SET "IdCryptoCompare" = co."IdCryptoCompare"\n'
+    update_query += 'FROM coins as co\n'
+    update_query += 'WHERE co."Symbol" = pr.symbol;\n\n'
 
-    insertquery_socialinfos = 'UPDATE prices as pr\n'
-    insertquery_socialinfos += 'SET "IdCryptoCompare" = co."IdCryptoCompare"\n'
-    insertquery_socialinfos += 'FROM coins as co\n'
-    insertquery_socialinfos += 'WHERE co."CoinName" = pr."Name";'
-    return insertquery_socialinfos;
+    update_query += 'UPDATE prices as pr\n'
+    update_query += 'SET "IdCryptoCompare" = co."IdCryptoCompare"\n'
+    update_query += 'FROM coins as co\n'
+    update_query += 'WHERE co."CoinName" = pr."Name";'
+    return update_query;
 
 # endregion
 
@@ -309,12 +309,12 @@ def create_query_reddit_stats(idCoin, subscribers, dates):
 
 #region Trading pairs & histo volumes, prices
 
-def extract_histo_ohlcv(symbol):
+def extract_histo_ohlcv(coin_id, symbol):
     dict_dates_volumes = {}
     for key in get_trading_pairs_for_crypto(symbol):
         get_histo_ohlcv_for_pair(dict_dates_volumes, symbol, key['toSymbol'])
 
-    create_query_histo_volumes(dict_dates_volumes)
+    create_query_histo_ohlcv(coin_id, dict_dates_volumes)
 
 def get_trading_pairs_for_crypto(symbol):
     cryptocomp = CryptoCompare()
@@ -332,26 +332,15 @@ def get_histo_ohlcv_for_pair(dict_dates_volumes, symbolFrom, symbolTo):
         else:
             dict_dates_volumes[int(key['time'])] = key['volumefrom']
 
-
-def create_query_histo_volumes(data):
-    
-    insertquery = 'INSERT INTO public.coins ("IdCryptoCompare", "Name", "Symbol", "CoinName", "TotalCoinSupply", "SortOrder", "ProofType", "Algorithm", "ImageUrl")\n'
+def create_query_histo_ohlcv(coin_id, data):
+    insertquery = 'INSERT INTO public.histo_volumes ("IdCoinCryptoCompare", "1h_volumes_aggregated_pairs", "timestamp")\n'
     insertquery += 'VALUES \n('
     for key in data:
         if (not insertquery.endswith('(')):
             insertquery += ',\n('
-        insertquery += data[key]['Id'] + ','
-        insertquery += "'" + data[key]['Name'] + "',"
+        insertquery += coin_id + ','
+        insertquery += "'" + data[key]['volumefrom'] + "',"
         insertquery += "'" + data[key]['Symbol'] + "',"
-        insertquery += "'" + data[key]['CoinName'] + "',"
-        insertquery += "'" + data[key]['TotalCoinSupply'] + "',"
-        insertquery += data[key]['SortOrder'] + ','
-        insertquery += "'" + data[key]['ProofType'] + "',"
-        insertquery += "'" + data[key]['Algorithm'] + "',"
-        if ('ImageUrl' in data[key].keys()):
-            insertquery += "'" + data[key]['ImageUrl'] + "'"
-        else:
-            insertquery += "''"
         insertquery += ')'
     insertquery += ';'
     return insertquery
