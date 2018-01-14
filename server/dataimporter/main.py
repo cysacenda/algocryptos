@@ -44,5 +44,10 @@ logging.warning("Started")
 # -----------------------------------------------
 #extractdata.import_Reddit_data()
 
+# -----------------------------------------------
+# Histo OHLCV
+# -----------------------------------------------
+extractdata.extract_histo_ohlcv('BTC')
+
 logging.warning("Stopped")
 

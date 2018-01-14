@@ -306,3 +306,54 @@ def create_query_reddit_stats(idCoin, subscribers, dates):
     return insertquery_reddit_stats
 
 # endregion
+
+#region Trading pairs & histo volumes, prices
+
+def extract_histo_ohlcv(symbol):
+    dict_dates_volumes = {}
+    for key in get_trading_pairs_for_crypto(symbol):
+        get_histo_ohlcv_for_pair(dict_dates_volumes, symbol, key['toSymbol'])
+
+    create_query_histo_volumes(dict_dates_volumes)
+
+def get_trading_pairs_for_crypto(symbol):
+    cryptocomp = CryptoCompare()
+    data = cryptocomp.get_trading_pairs(symbol)
+    return data
+
+def get_histo_ohlcv_for_pair(dict_dates_volumes, symbolFrom, symbolTo):
+    cryptocomp = CryptoCompare()
+
+    # TODO : Limit 2000 to be replaced for getting only what's not in database
+    data = cryptocomp.get_histo_hour_pair(symbolFrom, symbolTo, limit=2000)
+    for key in data:
+        if int(key['time']) in dict_dates_volumes.keys():
+            dict_dates_volumes[int(key['time'])] += key['volumefrom']
+        else:
+            dict_dates_volumes[int(key['time'])] = key['volumefrom']
+
+
+def create_query_histo_volumes(data):
+    
+    insertquery = 'INSERT INTO public.coins ("IdCryptoCompare", "Name", "Symbol", "CoinName", "TotalCoinSupply", "SortOrder", "ProofType", "Algorithm", "ImageUrl")\n'
+    insertquery += 'VALUES \n('
+    for key in data:
+        if (not insertquery.endswith('(')):
+            insertquery += ',\n('
+        insertquery += data[key]['Id'] + ','
+        insertquery += "'" + data[key]['Name'] + "',"
+        insertquery += "'" + data[key]['Symbol'] + "',"
+        insertquery += "'" + data[key]['CoinName'] + "',"
+        insertquery += "'" + data[key]['TotalCoinSupply'] + "',"
+        insertquery += data[key]['SortOrder'] + ','
+        insertquery += "'" + data[key]['ProofType'] + "',"
+        insertquery += "'" + data[key]['Algorithm'] + "',"
+        if ('ImageUrl' in data[key].keys()):
+            insertquery += "'" + data[key]['ImageUrl'] + "'"
+        else:
+            insertquery += "''"
+        insertquery += ')'
+    insertquery += ';'
+    return insertquery
+
+#endregion

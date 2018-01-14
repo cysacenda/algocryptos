@@ -17,7 +17,10 @@ Outil permettant l'analyse des données marchés et réseaux sociaux pour les cr
     
 - Paramétrage environnement :
     - Transverse :
-        - Créer la base de données et les users via pgadmin avec les scripts contenus dans server/db (scripts à mettre à jour au fur et à mesure)
+        - Créer la base de données et les users via pgadmin avec les scripts contenus dans server/db (scripts à mettre à jour au fur et à mesure), dans l'ordre :
+            - 1 / createUser
+            - 2 / createDB
+            - 3 / createTables
     - Python :
         - Paramétrer Python dans l'IDE : File / Setting / Project Interpreter / Add Local et choisir installation Python locale
         - Installer les librairies manquantes Python avec la commande pip3 install xxxx (where xxxx = library name)
