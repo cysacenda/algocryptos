@@ -157,7 +157,6 @@ ALTER TABLE public.histo_volumes
 
 GRANT ALL ON TABLE public.histo_volumes TO dbuser;
 GRANT ALL ON TABLE public.histo_volumes TO postgres;
-TABLESPACE pg_default;
 
 ALTER TABLE public.histo_volumes
     OWNER to postgres;
