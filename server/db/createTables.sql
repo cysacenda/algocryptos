@@ -163,3 +163,23 @@ ALTER TABLE public.histo_volumes
 
 GRANT ALL ON TABLE public.histo_volumes TO dbuser;
 GRANT ALL ON TABLE public.histo_volumes TO postgres;
+
+
+-- Table: public.excluded_coins
+
+-- DROP TABLE public.excluded_coins;
+
+CREATE TABLE public.excluded_coins
+(
+    "IdCoinCryptoCompare" bigint NOT NULL
+)
+WITH (
+    OIDS = FALSE
+)
+TABLESPACE pg_default;
+
+ALTER TABLE public.excluded_coins
+    OWNER to postgres;
+
+GRANT ALL ON TABLE public.excluded_coins TO dbuser;
+GRANT ALL ON TABLE public.excluded_coins TO postgres;
