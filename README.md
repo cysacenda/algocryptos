@@ -15,7 +15,7 @@ Outil permettant l'analyse des données marchés et réseaux sociaux pour les cr
         - IDE Jetbrain WebStorm
         - ...
     
-- Paramétrage environnement :
+- Paramétrage environnement (cf. pré-requis Outils ci-dessus) :
     - Transverse :
         - Créer la base de données et les users via pgadmin avec les scripts contenus dans server/db (scripts à mettre à jour au fur et à mesure), dans l'ordre :
             - 1 / createUser
@@ -26,12 +26,14 @@ Outil permettant l'analyse des données marchés et réseaux sociaux pour les cr
         - Installer les librairies manquantes Python avec la commande pip3 install xxxx (where xxxx = library name)
         - installer le token github
     - Fronting / Node / Angular :
-    
-    - Git :
-        - installer l'executable git
 
-##Infos login / mdp
+##Infos login / mdp (Dev / Ops only)
+- Télécharger logiciel Keepass : https://keepass.info/
+- Récupérer la BDD Keepass dans Github : algocryptos/docs/keepass
+- Demander la masterkey à CSA via Slack
 - PostgreSQL admin : algocryptos
 
-## API
-- Reddit : https://www.reddit.com/prefs/apps
+## Accès Cloud (Ops only)
+- Devops only: Demander création d'un compte à CSA via Slack
+
+
