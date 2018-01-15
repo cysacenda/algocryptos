@@ -24,7 +24,11 @@ Outil permettant l'analyse des données marchés et réseaux sociaux pour les cr
     - Python :
         - Paramétrer Python dans l'IDE : File / Setting / Project Interpreter / Add Local et choisir installation Python locale
         - Installer les librairies manquantes Python avec la commande pip3 install xxxx (where xxxx = library name)
+        - installer le token github
     - Fronting / Node / Angular :
+    
+    - Git :
+        - installer l'executable git
 
 ##Infos login / mdp
 - PostgreSQL admin : algocryptos
