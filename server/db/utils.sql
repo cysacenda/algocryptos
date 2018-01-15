@@ -4,6 +4,9 @@ truncate table prices;
 truncate table social_infos;
 truncate table social_stats;
 truncate table social_stats_reddit;
+truncate table histo_volumes;
+truncate table excluded_coins;
+
 
 -- Tailles de toutes les tables de la base de données
 SELECT *, pg_size_pretty(total_bytes) AS total

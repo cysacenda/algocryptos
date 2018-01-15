@@ -16,6 +16,7 @@ MINIMUM_MARKET_CAP_USD = conf.get_config('market_params', 'minimum_market_cap_us
 def extract_crytopcompare_coins():
     logging.warning("extract_crytopcompare_coins - start")
     dbconn = DbConnection()
+    dbconn.exexute_query("Delete from coins;")
     dbconn.exexute_query(create_query_coins())
     logging.warning("extract_crytopcompare_coins - end")
 
@@ -195,6 +196,8 @@ def extract_cryptocompare_social():
     logging.warning("extract_cryptocompare_social - start")
     # Get coins id to be retrieved from APIs
     dbconn = DbConnection()
+    dbconn.exexute_query("Delete from social_infos;")
+    dbconn.exexute_query("Delete from social_stats;")
     rows = dbconn.get_query_result('select "IdCryptoCompare" from coins')
 
     #TODO : utiliser url_limit_second / url_limit_hout pour limiter le nombre d'appels / période
@@ -280,16 +283,20 @@ def create_cryptocompare_social_stats(coin_id, data):
 
 #endregion
 
-# region Reddit Apis
+# region Reddit
 
-def import_Reddit_data():
-    logging.warning("import_Reddit_data - start")
+# TODO : Gérer pour ne récupérer que ce qu'on a pas déjà
+def import_reddit_histo():
+    logging.warning("import_reddit_histo - start")
     # Get coins and associated subreddits id to be retrieved from APIs
     dbconn = DbConnection()
-    query_select = 'select co."IdCryptoCompare", so."Reddit_name"\n'
-    query_select += 'from coins as co\n'
-    query_select += 'inner join social_infos so on (co."IdCryptoCompare" = so."IdCoinCryptoCompare")\n'
+    # TODO : A modifier quand on aura aussi des donneés des infos reddit saisies à la main (nouvelle table)
+    query_select = 'select co."IdCryptoCompare", so."Reddit_name", max(timestamp)'
+    query_select += 'from coins as co'
+    query_select += 'inner join social_infos so on (co."IdCryptoCompare" = so."IdCoinCryptoCompare")'
+    query_select += 'left outer join social_stats_reddit ss on (so."IdCoinCryptoCompare" = ss."IdCoinCryptoCompare")'
     query_select += 'where so."Reddit_name" is not null'
+    query_select += 'group by co."IdCryptoCompare", so."Reddit_name"'
     rows = dbconn.get_query_result(query_select)
 
     # TODO : utiliser url_limit_second / url_limit_hout pour limiter le nombre d'appels / période
@@ -297,7 +304,7 @@ def import_Reddit_data():
         subscribers, dates = reddit.get_subscribers_histo(row[1])
         dbconn.exexute_query(create_query_reddit_stats(row[0], subscribers, dates))
 
-    logging.warning("import_Reddit_data - end")
+    logging.warning("import_reddit_histo - end")
 
 def create_query_reddit_stats(idCoin, subscribers, dates):
     insertquery_reddit_stats = 'INSERT INTO public.social_stats_reddit("IdCoinCryptoCompare", "Reddit_subscribers", "timestamp")\n'
@@ -313,6 +320,35 @@ def create_query_reddit_stats(idCoin, subscribers, dates):
         insertquery_reddit_stats += ')'
     insertquery_reddit_stats += ';'
     return insertquery_reddit_stats
+
+# TODO : Récupérer via : https://www.reddit.com/r/EthereumClassic/about.json
+"""""
+-Ajouter aussi la donnée active user dans la table
+
+-Json about :
+    data/subscribers : bigint
+    data/created : unix date
+    data/active_user_count : Bigint
+
+Algo récupération données Reddit :
+-Pour chaque crypto :
+    -Récupération de la dernière occurence dans la table social_stats_reddit :
+        
+        select co."IdCryptoCompare", so."Reddit_name", max(timestamp)
+        from coins as co
+        inner join social_infos so on (co."IdCryptoCompare" = so."IdCoinCryptoCompare")
+        left outer join social_stats_reddit ss on (so."IdCoinCryptoCompare" = ss."IdCoinCryptoCompare")
+        where so."Reddit_name" is not null
+        group by co."IdCryptoCompare", so."Reddit_name"
+        
+        -Si last date < yesterday ou pas de date
+            -Reccup histo via redditmetric (ne récupérer que après la dernière date stockée en base)
+        -Récupérer pour la date du jour via le about.json
+
+
+-Pourquoi le traitement plante au bout d'un certain nombre de cryptos à l'heure actuelle ?? => Bon sur 39, à voir sur plus
+-Quid du nombre de posts ?
+"""""
 
 # endregion
 

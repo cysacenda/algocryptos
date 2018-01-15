@@ -61,7 +61,7 @@ if __name__ == '__main__':
         # -----------------------------------------------
         # Social stats from Redditmetric
         # -----------------------------------------------
-        extractdata.import_Reddit_data()
+        extractdata.import_reddit_histo()
 
     if (args.histoohlcv):
         # -----------------------------------------------
@@ -78,7 +78,7 @@ if __name__ == '__main__':
         extractdata.remove_useless_prices_coins()
         extractdata.add_ids()
         extractdata.extract_cryptocompare_social()
-        extractdata.import_Reddit_data()
+        extractdata.import_reddit_histo()
         extractdata.extract_histo_ohlcv()
 
 logging.warning("DataImporter ended")

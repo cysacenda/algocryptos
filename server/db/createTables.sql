@@ -122,6 +122,7 @@ CREATE TABLE public.social_stats_reddit
 (
     "IdCoinCryptoCompare" bigint,
     "Reddit_subscribers" bigint,
+    "Reddit_active_users" bigint,
     "timestamp" timestamp with time zone
 )
 WITH (
