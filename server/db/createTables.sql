@@ -184,3 +184,25 @@ ALTER TABLE public.excluded_coins
 
 GRANT ALL ON TABLE public.excluded_coins TO dbuser;
 GRANT ALL ON TABLE public.excluded_coins TO postgres;
+
+
+-- Table: public.social_infos_manual
+
+-- DROP TABLE public.social_infos_manual;
+
+
+CREATE TABLE public.social_infos_manual
+(
+    "IdCoinCryptoCompare" bigint NOT NULL,
+    "Reddit_link" text COLLATE pg_catalog."default"
+)
+WITH (
+    OIDS = FALSE
+)
+TABLESPACE pg_default;
+
+ALTER TABLE public.social_infos_manual
+    OWNER to postgres;
+
+GRANT ALL ON TABLE public.social_infos_manual TO dbuser;
+GRANT ALL ON TABLE public.social_infos_manual TO postgres;
