@@ -321,7 +321,7 @@ def extract_reddit_data():
 
         # region Récupération temps réel à maintenant (reddit.com => about.json)
 
-        #print(reddit.get_reddit_infos_real_time(row[1]))
+        print(reddit.get_reddit_infos_real_time(row[1]))
 
         # endregion
 

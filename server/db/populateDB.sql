@@ -1,5 +1,6 @@
 -- Excluded coins
--- INSERT INTO public.excluded_coins("IdCoinCryptoCompare") VALUES (542140); --MED, inactive
+INSERT INTO public.excluded_coins("IdCoinCryptoCompare") VALUES (542140); --MED, inactive
+
 
 -- Manual reddit lookup
 INSERT INTO social_infos_manual VALUES (4337,'Betacoin');

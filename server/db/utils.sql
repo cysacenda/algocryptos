@@ -2,6 +2,7 @@
 truncate table coins;
 truncate table prices;
 truncate table social_infos;
+truncate table social_infos_manual;
 truncate table social_stats;
 truncate table social_stats_reddit;
 truncate table histo_volumes;

@@ -76,10 +76,10 @@ def get_reddit_infos_real_time(subreddit):
 
 def query_reddit_about(url):
     try:
-        response = requests.get(url).json()
+        response = requests.get(url, headers = {'User-agent': 'algocryptos'}).json()
     except Exception as e:
         print('Error getting information from get_reddit_infos_real_time. %s' % str(e))
         return None
-    return response
+    return response['data']
 
 # endregion

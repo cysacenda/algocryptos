@@ -159,12 +159,6 @@ ALTER TABLE public.histo_volumes
 GRANT ALL ON TABLE public.histo_volumes TO dbuser;
 GRANT ALL ON TABLE public.histo_volumes TO postgres;
 
-ALTER TABLE public.histo_volumes
-    OWNER to postgres;
-
-GRANT ALL ON TABLE public.histo_volumes TO dbuser;
-GRANT ALL ON TABLE public.histo_volumes TO postgres;
-
 
 -- Table: public.excluded_coins
 
