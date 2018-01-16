@@ -1,16 +1,18 @@
 from urllib import request
 import datetime
+from config.config import Config
+import requests
+
+conf = Config()
+URL_REDDITMETRIC = conf.get_config('reddit_params','url_redditmetric')
+URL_REDDIT_START = conf.get_config('reddit_params','url_reddit_start')
+URL_REDDIT_END = conf.get_config('reddit_params','url_reddit_end')
 
 # region Scraping redditmetrics.com
 
 def get_subscribers_histo(subreddit, after_date=None):
-    byte_code = get_page_source(subreddit)
+    byte_code = get_page_source(URL_REDDITMETRIC, subreddit)
     return number_of_subscribers(byte_code, after_date)
-
-def get_page_source(redit):
-    r = request.urlopen("http://redditmetrics.com/r/"+redit)
-    bytecode = r.read()
-    return str(bytecode)
 
 
 def get_after(data, sub, max_after=0):
@@ -60,9 +62,24 @@ def number_of_subscribers(bytecode, after_date=None):
             start_collecting = True
     return subscribers_data, dates_data
 
+def get_page_source(url_start, subreddit):
+    r = request.urlopen(url_start + subreddit)
+    bytecode = r.read()
+    return str(bytecode)
+
 # endregion
 
 # region Scraping https://www.reddit.com/r/###SUBREDDIT_NAME###/about.json
 
+def get_reddit_infos_real_time(subreddit):
+    return query_reddit_about(URL_REDDIT_START + subreddit + URL_REDDIT_END)
+
+def query_reddit_about(url):
+    try:
+        response = requests.get(url).json()
+    except Exception as e:
+        print('Error getting information from get_reddit_infos_real_time. %s' % str(e))
+        return None
+    return response
 
 # endregion

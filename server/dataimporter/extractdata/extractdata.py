@@ -321,10 +321,12 @@ def extract_reddit_data():
 
         # region Récupération temps réel à maintenant (reddit.com => about.json)
 
+        #print(reddit.get_reddit_infos_real_time(row[1]))
+
         # endregion
 
-
     logging.warning("import_reddit_histo - end")
+
 
 def create_query_reddit_stats(idCoin, subscribers, dates):
     insertquery_reddit_stats = 'INSERT INTO public.social_stats_reddit("IdCoinCryptoCompare", "Reddit_subscribers", "timestamp")\n'
@@ -340,35 +342,6 @@ def create_query_reddit_stats(idCoin, subscribers, dates):
         insertquery_reddit_stats += ')'
     insertquery_reddit_stats += ';'
     return insertquery_reddit_stats
-
-# TODO : Récupérer via : https://www.reddit.com/r/EthereumClassic/about.json
-"""""
--Ajouter aussi la donnée active user dans la table
-
--Json about :
-    data/subscribers : bigint
-    data/created : unix date
-    data/active_user_count : Bigint
-
-Algo récupération données Reddit :
--Pour chaque crypto :
-    -Récupération de la dernière occurence dans la table social_stats_reddit :
-        
-        select co."IdCryptoCompare", so."Reddit_name", max(timestamp)
-        from coins as co
-        inner join social_infos so on (co."IdCryptoCompare" = so."IdCoinCryptoCompare")
-        left outer join social_stats_reddit ss on (so."IdCoinCryptoCompare" = ss."IdCoinCryptoCompare")
-        where so."Reddit_name" is not null
-        group by co."IdCryptoCompare", so."Reddit_name"
-        
-        -Si last date < yesterday ou pas de date
-            -Reccup histo via redditmetric (ne récupérer que après la dernière date stockée en base)
-        -Récupérer pour la date du jour via le about.json
-
-
--Pourquoi le traitement plante au bout d'un certain nombre de cryptos à l'heure actuelle ?? => Bon sur 39, à voir sur plus
--Quid du nombre de posts ?
-"""""
 
 # endregion
 
