@@ -194,7 +194,7 @@ GRANT ALL ON TABLE public.excluded_coins TO postgres;
 CREATE TABLE public.social_infos_manual
 (
     "IdCoinCryptoCompare" bigint NOT NULL,
-    "Reddit_link" text COLLATE pg_catalog."default"
+    "Reddit_name" text COLLATE pg_catalog."default"
 )
 WITH (
     OIDS = FALSE

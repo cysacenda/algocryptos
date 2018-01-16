@@ -1,8 +1,11 @@
 from urllib import request
+import datetime
 
-def get_subscribers_histo(subreddit):
+# region Scraping redditmetrics.com
+
+def get_subscribers_histo(subreddit, after_date=None):
     byte_code = get_page_source(subreddit)
-    return number_of_subscribers(byte_code)
+    return number_of_subscribers(byte_code, after_date)
 
 def get_page_source(redit):
     r = request.urlopen("http://redditmetrics.com/r/"+redit)
@@ -28,7 +31,12 @@ def strip_ending(string):
     return string[:-counter]
 
 
-def number_of_subscribers(bytecode):
+def number_of_subscribers(bytecode, after_date=None):
+    strdate = ''
+    start_collecting_date_ok = True
+    if(after_date != None):
+        strdate = after_date.strftime('%Y-%m-%d')
+        start_collecting_date_ok = False
 
     data = bytecode.rsplit('\\n')
     start_collecting = False
@@ -43,8 +51,18 @@ def number_of_subscribers(bytecode):
                 number = strip_ending(number)
                 year = get_after(data[i], "y: \\'", 12)
                 year = strip_ending(year)
-                dates_data.append(year)
-                subscribers_data.append(int(number))
+                if(start_collecting_date_ok):
+                    dates_data.append(year)
+                    subscribers_data.append(int(number))
+                if (year == strdate):
+                    start_collecting_date_ok = True
         elif ("total-subscribers" in data[i]) and ("data" in data[i+1]):
             start_collecting = True
     return subscribers_data, dates_data
+
+# endregion
+
+# region Scraping https://www.reddit.com/r/###SUBREDDIT_NAME###/about.json
+
+
+# endregion

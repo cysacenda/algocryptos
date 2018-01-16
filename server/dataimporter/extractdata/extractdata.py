@@ -6,6 +6,7 @@ from config.config import Config
 import reddit
 import utils
 import logging
+from datetime import datetime
 
 conf = Config()
 MINIMUM_MARKET_CAP_USD = conf.get_config('market_params', 'minimum_market_cap_usd')
@@ -286,23 +287,42 @@ def create_cryptocompare_social_stats(coin_id, data):
 # region Reddit
 
 # TODO : Gérer pour ne récupérer que ce qu'on a pas déjà
-def import_reddit_histo():
+def extract_reddit_data():
     logging.warning("import_reddit_histo - start")
     # Get coins and associated subreddits id to be retrieved from APIs
     dbconn = DbConnection()
     # TODO : A modifier quand on aura aussi des donneés des infos reddit saisies à la main (nouvelle table)
-    query_select = 'select co."IdCryptoCompare", so."Reddit_name", max(timestamp)'
-    query_select += 'from coins as co'
-    query_select += 'inner join social_infos so on (co."IdCryptoCompare" = so."IdCoinCryptoCompare")'
-    query_select += 'left outer join social_stats_reddit ss on (so."IdCoinCryptoCompare" = ss."IdCoinCryptoCompare")'
-    query_select += 'where so."Reddit_name" is not null'
-    query_select += 'group by co."IdCryptoCompare", so."Reddit_name"'
+    query_select = 'Select co."IdCryptoCompare", CASE WHEN som."Reddit_name" IS NULL THEN so."Reddit_name" ELSE som."Reddit_name" END AS reddit_agr, max(timestamp)\n'
+    query_select += 'from coins as co\n'
+    query_select += 'left outer join social_infos_manual som on (co."IdCryptoCompare" = som."IdCoinCryptoCompare")\n'
+    query_select += 'left outer join social_infos so on (co."IdCryptoCompare" = so."IdCoinCryptoCompare")\n'
+    query_select += 'left outer join social_stats_reddit ss on (so."IdCoinCryptoCompare" = ss."IdCoinCryptoCompare")\n'
+    query_select += 'where CASE WHEN som."Reddit_name" IS NULL THEN so."Reddit_name" ELSE som."Reddit_name" END is not null\n'
+    query_select += 'group by co."IdCryptoCompare", reddit_agr;'
     rows = dbconn.get_query_result(query_select)
 
     # TODO : utiliser url_limit_second / url_limit_hout pour limiter le nombre d'appels / période
     for row in rows:
-        subscribers, dates = reddit.get_subscribers_histo(row[1])
-        dbconn.exexute_query(create_query_reddit_stats(row[0], subscribers, dates))
+        # region Récupération historique (scraping redditmetrics.com)
+
+        # Si aucun historique, on récupère tout
+        if(row[2] == None):
+            subscribers, dates = reddit.get_subscribers_histo(row[1])
+            if(not not subscribers):
+                dbconn.exexute_query(create_query_reddit_stats(row[0], subscribers, dates))
+
+        # Si historique partiel, on essaye de récupérer l'historique aux dates manquantes
+        elif((datetime.now().astimezone() - row[2]).days >= 2):
+            # TODO : Filtrer sur date dans scraping
+            subscribers, dates = reddit.get_subscribers_histo(row[1], after_date=row[2])
+            if (not not subscribers):
+                dbconn.exexute_query(create_query_reddit_stats(row[0], subscribers, dates))
+        # endregion
+
+        # region Récupération temps réel à maintenant (reddit.com => about.json)
+
+        # endregion
+
 
     logging.warning("import_reddit_histo - end")
 
