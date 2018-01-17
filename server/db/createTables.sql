@@ -176,7 +176,7 @@ ALTER TABLE public.histo_volumes
 GRANT ALL ON TABLE public.histo_volumes TO dbuser;
 GRANT ALL ON TABLE public.histo_volumes TO postgres;
 
-COMMENT ON TABLE public.social_stats_reddit
+COMMENT ON TABLE public.histo_volumes
     IS 'Contains one line per cryptocurrency per date per hour with informations on the volumes of the cryptocurrency, data comes from CryptoCompare and volumes are calculated on an aggregate of main trading pairs (so it s not the global volume, but we are looking for trends, so ok';
 
 
@@ -199,7 +199,7 @@ ALTER TABLE public.excluded_coins
 GRANT ALL ON TABLE public.excluded_coins TO dbuser;
 GRANT ALL ON TABLE public.excluded_coins TO postgres;
 
-COMMENT ON TABLE public.social_stats_reddit
+COMMENT ON TABLE public.excluded_coins
     IS 'This table contains the list of cryptocurrencies we want to exclude from the tool - inactive, useless, etc.';
 
 
@@ -224,5 +224,34 @@ ALTER TABLE public.social_infos_manual
 GRANT ALL ON TABLE public.social_infos_manual TO dbuser;
 GRANT ALL ON TABLE public.social_infos_manual TO postgres;
 
-COMMENT ON TABLE public.social_stats_reddit
+COMMENT ON TABLE public.social_infos_manual
+    IS 'Contains one line per cryptocurrency with informations relatives to social networks of the cryptocurrency which are not provided by CryptoCompare and are retrieved manually by us';
+
+
+-- Table: public.histo_prices
+
+-- DROP TABLE public.histo_prices;
+
+
+CREATE TABLE public.histo_prices
+(
+    "IdCoinCryptoCompare" bigint NOT NULL,
+    Price_usd double precision,
+    Price_btc double precision,
+    "24h_volume_usd" double precision,
+    Market_cap_usd double precision,
+    "timestamp" timestamp with time zone
+)
+WITH (
+    OIDS = FALSE
+)
+TABLESPACE pg_default;
+
+ALTER TABLE public.histo_prices
+    OWNER to postgres;
+
+GRANT ALL ON TABLE public.histo_prices TO dbuser;
+GRANT ALL ON TABLE public.histo_prices TO postgres;
+
+COMMENT ON TABLE public.histo_prices
     IS 'Contains one line per cryptocurrency with informations relatives to social networks of the cryptocurrency which are not provided by CryptoCompare and are retrieved manually by us';
