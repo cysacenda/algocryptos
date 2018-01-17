@@ -71,10 +71,9 @@ def get_page_source(url_start, subreddit):
 
 # region Scraping https://www.reddit.com/r/###SUBREDDIT_NAME###/about.json
 
-def get_reddit_infos_real_time(subreddit):
-    return query_reddit_about(URL_REDDIT_START + subreddit + URL_REDDIT_END)
 
-def query_reddit_about(url):
+def get_reddit_infos_real_time(subreddit):
+    url = URL_REDDIT_START + subreddit + URL_REDDIT_END
     try:
         response = requests.get(url, headers = {'User-agent': 'algocryptos'}).json()
     except Exception as e:

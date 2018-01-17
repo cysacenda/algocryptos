@@ -55,6 +55,7 @@ def create_query_coins():
 def extract_coinmarketcap_prices():
     logging.warning("extract_coinmarketcap_prices - start")
     dbconn = DbConnection()
+    dbconn.exexute_query("Delete from prices;")
     dbconn.exexute_query(create_query_prices())
     logging.warning("extract_coinmarketcap_prices - end")
 
@@ -291,7 +292,6 @@ def extract_reddit_data():
     logging.warning("import_reddit_histo - start")
     # Get coins and associated subreddits id to be retrieved from APIs
     dbconn = DbConnection()
-    # TODO : A modifier quand on aura aussi des donneés des infos reddit saisies à la main (nouvelle table)
     query_select = 'Select co."IdCryptoCompare", CASE WHEN som."Reddit_name" IS NULL THEN so."Reddit_name" ELSE som."Reddit_name" END AS reddit_agr, max(timestamp)\n'
     query_select += 'from coins as co\n'
     query_select += 'left outer join social_infos_manual som on (co."IdCryptoCompare" = som."IdCoinCryptoCompare")\n'
@@ -313,7 +313,6 @@ def extract_reddit_data():
 
         # Si historique partiel, on essaye de récupérer l'historique aux dates manquantes
         elif((datetime.now().astimezone() - row[2]).days >= 2):
-            # TODO : Filtrer sur date dans scraping
             subscribers, dates = reddit.get_subscribers_histo(row[1], after_date=row[2])
             if (not not subscribers):
                 dbconn.exexute_query(create_query_reddit_stats(row[0], subscribers, dates))
@@ -321,7 +320,8 @@ def extract_reddit_data():
 
         # region Récupération temps réel à maintenant (reddit.com => about.json)
 
-        print(reddit.get_reddit_infos_real_time(row[1]))
+        req = create_query_reddit_real_time(row[0], reddit.get_reddit_infos_real_time(row[1]))
+        dbconn.exexute_query(req)
 
         # endregion
 
@@ -342,6 +342,19 @@ def create_query_reddit_stats(idCoin, subscribers, dates):
         insertquery_reddit_stats += ')'
     insertquery_reddit_stats += ';'
     return insertquery_reddit_stats
+
+def create_query_reddit_real_time(coin_id, dictInfos):
+    reddit_real_time = ''
+
+    if ('subscribers' in dictInfos.keys() and 'active_user_count' in dictInfos.keys()):
+        reddit_real_time = 'INSERT INTO public.social_stats_reddit ("IdCoinCryptoCompare", "Reddit_subscribers", "Reddit_active_users", "timestamp")\n'
+        reddit_real_time += 'VALUES \n('
+        reddit_real_time += str(coin_id) + ','
+        reddit_real_time += str(dictInfos['subscribers']) + ","
+        reddit_real_time += str(dictInfos['active_user_count']) + ","
+        reddit_real_time += "current_timestamp"
+        reddit_real_time += ');'
+    return reddit_real_time
 
 # endregion
 
@@ -390,6 +403,7 @@ def get_histo_ohlcv_for_pair(dict_dates_volumes, symbolFrom, symbolTo):
             dict_dates_volumes[int(key['time'])] += key['volumefrom']
         else:
             dict_dates_volumes[int(key['time'])] = key['volumefrom']
+
 
 def create_query_histo_ohlcv(coin_id, data):
     insertquery = 'INSERT INTO public.histo_volumes ("IdCoinCryptoCompare", "1h_volumes_aggregated_pairs", "timestamp")\n'
