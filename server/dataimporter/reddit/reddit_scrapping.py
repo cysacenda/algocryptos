@@ -1,7 +1,7 @@
 from urllib import request
-import datetime
 from config.config import Config
 import requests
+from ratelimit import rate_limited
 
 conf = Config()
 URL_REDDITMETRIC = conf.get_config('reddit_params','url_redditmetric')
@@ -10,6 +10,7 @@ URL_REDDIT_END = conf.get_config('reddit_params','url_reddit_end')
 
 # region Scraping redditmetrics.com
 
+@rate_limited(0.01)
 def get_subscribers_histo(subreddit, after_date=None):
     byte_code = get_page_source(URL_REDDITMETRIC, subreddit)
     return number_of_subscribers(byte_code, after_date)
@@ -71,7 +72,7 @@ def get_page_source(url_start, subreddit):
 
 # region Scraping https://www.reddit.com/r/###SUBREDDIT_NAME###/about.json
 
-
+@rate_limited(0.01)
 def get_reddit_infos_real_time(subreddit):
     url = URL_REDDIT_START + subreddit + URL_REDDIT_END
     try:

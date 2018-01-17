@@ -1,6 +1,4 @@
 import requests
-import time
-import datetime
 
 # API
 URL_PRICE_LIST = 'https://api.coinmarketcap.com/v1/ticker/?limit=0'

@@ -199,15 +199,9 @@ def extract_cryptocompare_social():
     # Get coins id to be retrieved from APIs
     dbconn = DbConnection()
     dbconn.exexute_query("Delete from social_infos;")
-    dbconn.exexute_query("Delete from social_stats;")
     rows = dbconn.get_query_result('select "IdCryptoCompare" from coins')
-
-    #TODO : utiliser url_limit_second / url_limit_hout pour limiter le nombre d'appels / période
-    icount = 1
     for row in rows:
         dbconn.exexute_query(create_cryptocompare_social(row[0]))
-        if icount % 5 == 0:
-            time.sleep(0.1)
 
     logging.warning("extract_cryptocompare_social - end")
 
@@ -362,25 +356,22 @@ def create_query_reddit_real_time(coin_id, dictInfos):
 
 def extract_histo_ohlcv():
     logging.warning("extract_histo_ohlcv - start")
-    #extract_histo_ohlcv_for_coin(4560, 'MED')
     # Get coins id to be retrieved from APIs
     dbconn = DbConnection()
-    rows = dbconn.get_query_result('select "IdCryptoCompare", "Symbol" from coins')
-
-    # TODO : utiliser url_limit_second / url_limit_hout pour limiter le nombre d'appels / période
-    icount = 1
+    req =  'select co."IdCryptoCompare", co."Symbol", max(hi."timestamp")  from coins as co\n'
+    req += 'left outer join histo_volumes as hi on (co."IdCryptoCompare" = hi."IdCoinCryptoCompare")\n'
+    req += 'group by co."IdCryptoCompare", co."Symbol"'
+    rows = dbconn.get_query_result(req)
     for row in rows:
-        extract_histo_ohlcv_for_coin(row[0], row[1])
-        if icount % 5 == 0:
-            time.sleep(0.1)
+        extract_histo_ohlcv_for_coin(row[0], row[1], row[2])
 
     logging.warning("extract_histo_ohlcv - end")
 
 
-def extract_histo_ohlcv_for_coin(coin_id, symbol):
+def extract_histo_ohlcv_for_coin(coin_id, symbol, lastdate):
     dict_dates_volumes = {}
     for key in get_trading_pairs_for_crypto(symbol):
-        get_histo_ohlcv_for_pair(dict_dates_volumes, symbol, key['toSymbol'])
+        get_histo_ohlcv_for_pair(dict_dates_volumes, symbol, key['toSymbol'], lastdate)
 
     # if found values
     if (dict_dates_volumes):
@@ -393,11 +384,17 @@ def get_trading_pairs_for_crypto(symbol):
     data = cryptocomp.get_trading_pairs(symbol)
     return data
 
-def get_histo_ohlcv_for_pair(dict_dates_volumes, symbolFrom, symbolTo):
+def get_histo_ohlcv_for_pair(dict_dates_volumes, symbolFrom, symbolTo, lastdate):
     cryptocomp = CryptoCompare()
+    limit = 2000
 
-    # TODO : Limit 2000 to be replaced for retrieving only what's not in database
-    data = cryptocomp.get_histo_hour_pair(symbolFrom, symbolTo, limit=2000)
+    # If data already in database, retrieve only needed data
+    if(lastdate != None):
+        limit = int(((datetime.now().astimezone() - lastdate).total_seconds())/3600) - 1
+        if(limit == 0):
+            limit = 1
+
+    data = cryptocomp.get_histo_hour_pair(symbolFrom, symbolTo, limit)
     for key in data:
         if int(key['time']) in dict_dates_volumes.keys():
             dict_dates_volumes[int(key['time'])] += key['volumefrom']
