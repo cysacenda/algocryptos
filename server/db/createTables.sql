@@ -25,6 +25,9 @@ ALTER TABLE public.coins
 GRANT ALL ON TABLE public.coins TO dbuser;
 GRANT ALL ON TABLE public.coins TO postgres;
 
+COMMENT ON TABLE public.coins
+    IS 'Contains one line per cryptocurrency, data comes from Cryptocompare';
+
 -- Table: public.prices
 
 -- DROP TABLE public.prices;
@@ -56,6 +59,9 @@ ALTER TABLE public.prices
 GRANT ALL ON TABLE public.prices TO dbuser;
 GRANT ALL ON TABLE public.prices TO postgres;
 
+COMMENT ON TABLE public.prices
+    IS 'Contains one line per cryptocurrency, data comes from CoinMarketCap';
+
 -- Table: public.social_infos
 
 -- DROP TABLE public.social_infos;
@@ -82,6 +88,9 @@ ALTER TABLE public.social_infos
 
 GRANT ALL ON TABLE public.social_infos TO dbuser;
 GRANT ALL ON TABLE public.social_infos TO postgres;
+
+COMMENT ON TABLE public.social_infos
+    IS 'Contains one line per cryptocurrency with informations relatives to social networks of the cryptocurrency, data comes from CryptoCompare';
 
 -- Table: public.social_stats
 
@@ -110,6 +119,10 @@ ALTER TABLE public.social_stats
 GRANT ALL ON TABLE public.social_stats TO dbuser;
 GRANT ALL ON TABLE public.social_stats TO postgres;
 
+
+COMMENT ON TABLE public.social_stats
+    IS 'Contains one line per cryptocurrency with informations relatives to social networks statistics about the cryptocurrency, data comes from CryptoCompare; For information related to Reddit, use social_stats_reddit table, not this one';
+
 -- User !
 --GRANT ALL ON TABLE public.coins TO dbuser;
 --GRANT ALL ON TABLE public.coins TO postgres;
@@ -137,6 +150,10 @@ GRANT ALL ON TABLE public.social_stats_reddit TO dbuser;
 GRANT ALL ON TABLE public.social_stats_reddit TO postgres;
 
 
+COMMENT ON TABLE public.social_stats_reddit
+    IS 'Contains one line per cryptocurrency per date with statistic on th subreddit of the cryptocurrency, data comes from redditmetrics.com (historical data) and reddit.com/subredditname/about.json for real time data';
+
+
 
 -- Table: public.histo_volumes
 
@@ -159,6 +176,9 @@ ALTER TABLE public.histo_volumes
 GRANT ALL ON TABLE public.histo_volumes TO dbuser;
 GRANT ALL ON TABLE public.histo_volumes TO postgres;
 
+COMMENT ON TABLE public.social_stats_reddit
+    IS 'Contains one line per cryptocurrency per date per hour with informations on the volumes of the cryptocurrency, data comes from CryptoCompare and volumes are calculated on an aggregate of main trading pairs (so it s not the global volume, but we are looking for trends, so ok';
+
 
 -- Table: public.excluded_coins
 
@@ -178,6 +198,9 @@ ALTER TABLE public.excluded_coins
 
 GRANT ALL ON TABLE public.excluded_coins TO dbuser;
 GRANT ALL ON TABLE public.excluded_coins TO postgres;
+
+COMMENT ON TABLE public.social_stats_reddit
+    IS 'This table contains the list of cryptocurrencies we want to exclude from the tool - inactive, useless, etc.';
 
 
 -- Table: public.social_infos_manual
@@ -200,3 +223,6 @@ ALTER TABLE public.social_infos_manual
 
 GRANT ALL ON TABLE public.social_infos_manual TO dbuser;
 GRANT ALL ON TABLE public.social_infos_manual TO postgres;
+
+COMMENT ON TABLE public.social_stats_reddit
+    IS 'Contains one line per cryptocurrency with informations relatives to social networks of the cryptocurrency which are not provided by CryptoCompare and are retrieved manually by us';

@@ -1,3 +1,13 @@
+-- Select tables
+select * from coins;
+select * from prices;
+select * from social_infos;
+select * from social_infos_manual;
+select * from social_stats;
+select * from social_stats_reddit;
+select * from histo_volumes;
+select * from excluded_coins;
+
 -- Truncate tables
 truncate table coins;
 truncate table prices;
@@ -8,6 +18,15 @@ truncate table social_stats_reddit;
 truncate table histo_volumes;
 truncate table excluded_coins;
 
+-- Dropdrop tables
+drop table coins;
+drop table prices;
+drop table social_infos;
+drop table social_infos_manual;
+drop table social_stats;
+drop table social_stats_reddit;
+drop table histo_volumes;
+drop table excluded_coins;
 
 -- Tailles de toutes les tables de la base de données
 SELECT *, pg_size_pretty(total_bytes) AS total
