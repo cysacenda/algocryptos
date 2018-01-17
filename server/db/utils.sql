@@ -28,6 +28,16 @@ drop table social_stats_reddit;
 drop table histo_volumes;
 drop table excluded_coins;
 
+-- Delete tables
+delete from coins;
+delete from prices;
+delete from social_infos;
+delete from social_infos_manual;
+delete from social_stats;
+delete from social_stats_reddit;
+delete from histo_volumes;
+delete from excluded_coins;
+
 -- Tailles de toutes les tables de la base de données
 SELECT *, pg_size_pretty(total_bytes) AS total
     , pg_size_pretty(index_bytes) AS INDEX
