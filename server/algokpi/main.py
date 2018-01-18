@@ -1,5 +1,6 @@
 import logging
 from config.config import Config
+from kpi_reddit import calcul_reddit_kpi
 
 #Configuration
 conf = Config()
@@ -11,7 +12,7 @@ logging.basicConfig(filename='algokpi.log',
 logging.warning("Started")
 
 # TODO : Mettre en place parsing des arguments (cf. main de dataimporter)
-
+calcul_reddit_kpi.calcul_kpi_subscribers_trend()
 
 
 logging.warning("Stopped")
