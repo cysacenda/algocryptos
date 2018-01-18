@@ -1,0 +1,57 @@
+2018-01-14 17:41:06,596 -- root -- WARNING -- DataImporter started
+2018-01-14 17:41:06,596 -- root -- WARNING -- extract_crytopcompare_coins - start
+2018-01-14 17:41:07,024 -- root -- WARNING -- extract_crytopcompare_coins - end
+2018-01-14 17:41:07,024 -- root -- WARNING -- extract_coinmarketcap_prices - start
+2018-01-14 17:41:07,049 -- root -- WARNING -- create_query_prices - start
+2018-01-14 17:41:07,433 -- root -- WARNING -- create_query_prices - end
+2018-01-14 17:41:07,489 -- root -- WARNING -- extract_coinmarketcap_prices - end
+2018-01-14 17:41:07,489 -- root -- WARNING -- remove_useless_prices_coins - start
+2018-01-14 17:41:07,548 -- root -- WARNING -- remove_useless_prices_coins - end
+2018-01-14 17:41:07,548 -- root -- WARNING -- add_ids - start
+2018-01-14 17:41:07,576 -- root -- WARNING -- add_ids - end
+2018-01-14 17:41:07,576 -- root -- WARNING -- delete_excluded_coins - start
+2018-01-14 17:41:07,603 -- root -- WARNING -- delete_excluded_coins - end
+2018-01-14 17:41:07,603 -- root -- WARNING -- extract_cryptocompare_social - start
+2018-01-14 17:41:21,569 -- root -- WARNING -- extract_cryptocompare_social - end
+2018-01-14 17:41:21,569 -- root -- WARNING -- import_Reddit_data - start
+2018-01-14 17:41:45,590 -- root -- WARNING -- import_Reddit_data - end
+2018-01-14 17:41:45,590 -- root -- WARNING -- extract_histo_ohlcv - start
+2018-01-14 17:43:21,781 -- root -- WARNING -- extract_histo_ohlcv - end
+2018-01-14 17:43:21,781 -- root -- WARNING -- DataImporter ended
+2018-01-14 19:11:25,665 -- root -- WARNING -- DataImporter started
+2018-01-14 19:12:18,664 -- root -- WARNING -- DataImporter started
+2018-01-14 19:12:18,665 -- root -- WARNING -- DataImporter ended
+2018-01-14 19:13:53,255 -- root -- WARNING -- DataImporter started
+2018-01-14 19:13:53,256 -- root -- WARNING -- DataImporter ended
+2018-01-16 21:40:43,332 -- root -- WARNING -- DataImporter started
+2018-01-16 21:40:43,334 -- root -- WARNING -- extract_crytopcompare_coins - start
+2018-01-16 21:40:43,979 -- root -- WARNING -- extract_crytopcompare_coins - end
+2018-01-16 21:40:43,980 -- root -- WARNING -- extract_coinmarketcap_prices - start
+2018-01-16 21:40:44,005 -- root -- WARNING -- create_query_prices - start
+2018-01-16 21:40:46,136 -- root -- WARNING -- create_query_prices - end
+2018-01-16 21:40:46,202 -- root -- WARNING -- extract_coinmarketcap_prices - end
+2018-01-16 21:40:46,202 -- root -- WARNING -- remove_useless_prices_coins - start
+2018-01-16 21:40:46,261 -- root -- WARNING -- remove_useless_prices_coins - end
+2018-01-16 21:40:46,261 -- root -- WARNING -- add_ids - start
+2018-01-16 21:40:46,286 -- root -- WARNING -- add_ids - end
+2018-01-16 21:40:46,287 -- root -- WARNING -- extract_cryptocompare_social - start
+2018-01-16 21:40:58,464 -- root -- WARNING -- extract_cryptocompare_social - end
+2018-01-16 21:40:58,464 -- root -- WARNING -- import_reddit_histo - start
+2018-01-16 21:41:30,147 -- root -- WARNING -- import_reddit_histo - end
+2018-01-16 21:41:30,148 -- root -- WARNING -- extract_histo_ohlcv - start
+2018-01-16 21:43:02,450 -- root -- WARNING -- extract_histo_ohlcv - end
+2018-01-16 21:43:02,451 -- root -- WARNING -- DataImporter ended
+2018-01-16 22:49:24,179 -- root -- WARNING -- DataImporter started
+2018-01-16 22:49:24,182 -- root -- WARNING -- import_reddit_histo - start
+2018-01-16 22:51:24,018 -- root -- WARNING -- DataImporter started
+2018-01-16 22:51:24,021 -- root -- WARNING -- import_reddit_histo - start
+2018-01-16 22:52:37,332 -- root -- WARNING -- DataImporter started
+2018-01-16 22:52:37,335 -- root -- WARNING -- import_reddit_histo - start
+2018-01-16 22:54:53,444 -- root -- WARNING -- DataImporter started
+2018-01-16 22:54:53,447 -- root -- WARNING -- import_reddit_histo - start
+2018-01-16 22:57:02,553 -- root -- WARNING -- DataImporter started
+2018-01-16 22:57:02,556 -- root -- WARNING -- import_reddit_histo - start
+2018-01-16 23:00:57,531 -- root -- WARNING -- DataImporter started
+2018-01-16 23:00:57,536 -- root -- WARNING -- import_reddit_histo - start
+2018-01-18 22:09:51,412 -- root -- WARNING -- DataImporter started
+2018-01-18 22:09:51,418 -- root -- WARNING -- DataImporter ended
