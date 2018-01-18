@@ -7,7 +7,8 @@ from ratelimit import rate_limited
 class CryptoCompare:
     conf = None
 
-    # Cryptocompare params
+    # region Params / Constructor
+
     URL_COIN_LIST = None
     URL_PRICE = None
     URL_HIST_PRICE = None
@@ -32,24 +33,9 @@ class CryptoCompare:
         # DEFAULTS
         self.CURR = self.conf.get_config('cryptocompare_params', 'default_currency')
 
-    def query_cryptocompare(self, url,errorCheck=True):
-        try:
-            response = requests.get(url).json()
-        except Exception as e:
-            print('Error getting information from cryptocompare. %s' % str(e))
-            return None
-        if errorCheck and 'Response' in response.keys() and response['Response'] != 'Success':
-            print('[ERROR] %s' % response['Message'])
-            return None
-        return response
+    # endregion
 
-    def format_parameter(self, parameter):
-        if isinstance(parameter, list):
-            return ','.join(parameter)
-        else:
-            return parameter
-
-    ###############################################################################
+    # region Retrieve infos from CryptoCompare
 
     def get_coin_list(self, format=False):
         response = self.query_cryptocompare(self.URL_COIN_LIST, False)['Data']
@@ -84,9 +70,11 @@ class CryptoCompare:
             data = self.query_cryptocompare(url)
         return data['Data']
 
+    # endregion
 
+    # region Useless for the moment
 
-
+    """""
     def get_historical_price(self, coin, timestamp=time.time()):
         if isinstance(timestamp, datetime.datetime):
             timestamp = time.mktime(timestamp.timetuple())
@@ -101,34 +89,27 @@ class CryptoCompare:
                 self.format_parameter(self.CURR)))
         else:
             return self.query_cryptocompare(self.URL_PRICE.format(coin, self.format_parameter(self.CURR)))
+    """""
 
+    # endregion
 
+    # region Utils
 
-""""" EXEMPLES A SUPPRIMER
-coins = ['BTC', 'ETH', 'XMR', 'NEO']
-currencies = ['EUR', 'USD', 'GBP']
+    def query_cryptocompare(self, url, errorCheck=True):
+        try:
+            response = requests.get(url).json()
+        except Exception as e:
+            print('Error getting information from cryptocompare. %s' % str(e))
+            return None
+        if errorCheck and 'Response' in response.keys() and response['Response'] != 'Success':
+            print('[ERROR] %s' % response['Message'])
+            return None
+        return response
 
-print('================== COIN LIST =====================')
-print(cryptocompare.get_coin_list())
-print(cryptocompare.get_coin_list(True))
+    def format_parameter(self, parameter):
+        if isinstance(parameter, list):
+            return ','.join(parameter)
+        else:
+            return parameter
 
-print('===================== PRICE ======================')
-print(cryptocompare.get_price(coins[0]))
-print(cryptocompare.get_price(coins[1], curr='USD'))
-print(cryptocompare.get_price(coins[2], curr=['EUR','USD','GBP']))
-print(cryptocompare.get_price(coins[2], full=True))
-print(cryptocompare.get_price(coins[0], curr='USD', full=True))
-print(cryptocompare.get_price(coins[1], curr=['EUR','USD','GBP'], full=True))
-
-print('==================================================')
-print(cryptocompare.get_price(coins))
-print(cryptocompare.get_price(coins, curr='USD'))
-print(cryptocompare.get_price(coins, curr=['EUR','USD','GBP']))
-
-print('==================== HIST PRICE ==================')
-print(cryptocompare.get_historical_price(coins[0]))
-print(cryptocompare.get_historical_price(coins[0], curr='USD'))
-print(cryptocompare.get_historical_price(coins[1], curr=['EUR','USD','GBP']))
-print(cryptocompare.get_historical_price(coins[1], 'USD',datetime.datetime.now()))
-print(cryptocompare.get_historical_price(coins[2], ['EUR','USD','GBP'],time.time()))
-"""""
+    # endregion

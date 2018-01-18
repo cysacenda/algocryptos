@@ -15,10 +15,20 @@ MARKETCAP = 'MKTCAP'
 # DEFAULTS
 CURR = 'USD'
 
-###############################################################################
-
-
 class CoinMarketCap:
+
+    # region Get prices
+
+    def get_price_list(self, format=False):
+        response = self.query_coinmarketcap(URL_PRICE_LIST, False)
+        if format:
+            return list(response.keys())
+        else:
+            return response
+
+    # endregion
+
+    # region Utils
 
     def query_coinmarketcap(self, url,errorCheck=True):
         try:
@@ -37,28 +47,4 @@ class CoinMarketCap:
         else:
             return parameter
 
-    ###############################################################################
-
-    def get_price_list(self, format=False):
-        response = self.query_coinmarketcap(URL_PRICE_LIST, False)
-        if format:
-            return list(response.keys())
-        else:
-            return response
-
-"""""
-    def get_price(self, coin, curr=CURR, full=False):
-        if full:
-            return self.query_cryptocompare(URL_PRICE_MULTI_FULL.format(self.format_parameter(coin),
-                self.format_parameter(curr)))
-        if isinstance(coin, list):
-            return self.query_cryptocompare(URL_PRICE_MULTI.format(self.format_parameter(coin),
-                self.format_parameter(curr)))
-        else:
-            return self.query_cryptocompare(URL_PRICE.format(coin, self.format_parameter(curr)))
-
-    def get_historical_price(self, coin, curr=CURR, timestamp=time.time()):
-        if isinstance(timestamp, datetime.datetime):
-            timestamp = time.mktime(timestamp.timetuple())
-        return self.query_cryptocompare(URL_HIST_PRICE.format(coin, self.format_parameter(curr), int(timestamp)))
-"""""
+    # endregion

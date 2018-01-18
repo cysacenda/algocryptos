@@ -1,6 +1,9 @@
+# Unused for the moment
+"""""
+
 import praw
 
-#unused for now
+
 class Redditxxx:
     reddit = None
 
@@ -21,3 +24,5 @@ class Redditxxx:
     def get_subreddit_infos(self, subreddit_name):
         subreddit = self.reddit.subreddit(subreddit_name)
         sinfos = subreddit.traffic()
+
+"""""

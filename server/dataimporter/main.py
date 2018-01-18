@@ -1,7 +1,5 @@
 import extractdata
-import datetime
 import logging
-import sys
 import argparse
 from config.config import Config
 
@@ -39,13 +37,14 @@ if __name__ == '__main__':
 
     if (args.prices):
         # -----------------------------------------------
-        # Insert current prices into BDD
+        # Get prices for coins from CoinMarketCap and insert in BDD
         # -----------------------------------------------
         extractdata.extract_coinmarketcap_prices()
 
     if (args.deleteMeaninglessCoins):
         # -----------------------------------------------
         # Delete coins and prices that are judged useless (market cap to low, no match between CMC & Cryptocompare names)
+        # Add CryptoCompare Ids to prices (retrieved from CMC so without Ids)
         # -----------------------------------------------
         extractdata.remove_useless_prices_coins()
         extractdata.add_ids()
@@ -53,19 +52,19 @@ if __name__ == '__main__':
 
     if (args.socialStats):
         # -----------------------------------------------
-        # Social stats from Cryptocompare (replace with orginal website info post MVP ?)
+        # Social infos & stats from Cryptocompare
         # -----------------------------------------------
         extractdata.extract_cryptocompare_social()
 
     if (args.reddit):
         # -----------------------------------------------
-        # Social stats from Redditmetric
+        # Social stats from Redditmetric / reddit/subreddit/about.json
         # -----------------------------------------------
         extractdata.extract_reddit_data()
 
     if (args.histoohlcv):
         # -----------------------------------------------
-        # Histo OHLCV
+        # Histo OHLCV (V only for the moment)
         # -----------------------------------------------
         extractdata.extract_histo_ohlcv()
 

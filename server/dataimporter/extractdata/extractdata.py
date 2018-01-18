@@ -1,4 +1,3 @@
-import time
 from dbaccess.dbconnection import DbConnection
 from cryptocompare.cryptocompare import CryptoCompare
 from coinmarketcap.coinmarketcap import CoinMarketCap
@@ -18,12 +17,12 @@ def extract_crytopcompare_coins():
     logging.warning("extract_crytopcompare_coins - start")
     dbconn = DbConnection()
     dbconn.exexute_query("Delete from coins;")
-    dbconn.exexute_query(create_query_coins())
+    dbconn.exexute_query(__create_query_coins())
     logging.warning("extract_crytopcompare_coins - end")
 
 # Cryptocompare : Get coins list and create insert query for BDD
 # TODO : Add system which insert / update depending on information already in DB
-def create_query_coins():
+def __create_query_coins():
     cryptocomp = CryptoCompare()
     data = cryptocomp.get_coin_list()
 
@@ -56,10 +55,10 @@ def extract_coinmarketcap_prices():
     logging.warning("extract_coinmarketcap_prices - start")
     dbconn = DbConnection()
     dbconn.exexute_query("Delete from prices;")
-    dbconn.exexute_query(create_query_prices())
+    dbconn.exexute_query(__create_query_prices())
     logging.warning("extract_coinmarketcap_prices - end")
 
-def create_query_prices():
+def __create_query_prices():
     logging.warning("create_query_prices - start")
     coinmarket = CoinMarketCap()
     data = coinmarket.get_price_list()
@@ -156,7 +155,7 @@ def delete_excluded_coins():
 def add_ids():
     logging.warning("add_ids - start")
     dbconn = DbConnection()
-    dbconn.exexute_query(create_add_ids())
+    dbconn.exexute_query(__create_add_ids())
 
     # TODO : Gérer un mapping dans une table de paramétrage pour ces cryptos car rapprochement impossible entre cryptocompare et CMC
     """"" 
@@ -178,7 +177,7 @@ def add_ids():
     """""
     logging.warning("add_ids - end")
 
-def create_add_ids():
+def __create_add_ids():
     update_query = 'UPDATE prices as pr\n'
     update_query += 'SET "IdCryptoCompare" = co."IdCryptoCompare"\n'
     update_query += 'FROM coins as co\n'
@@ -209,10 +208,10 @@ def extract_cryptocompare_social():
 def create_cryptocompare_social(coin_id):
     cryptocomp = CryptoCompare()
     data = cryptocomp.get_socialstats(coin_id)
-    return create_cryptocompare_social_infos(coin_id, data) + "\n" + create_cryptocompare_social_stats(coin_id, data)
+    return __create_cryptocompare_social_infos(coin_id, data) + "\n" + create_cryptocompare_social_stats(coin_id, data)
 
 
-def create_cryptocompare_social_infos(coin_id, data):
+def __create_cryptocompare_social_infos(coin_id, data):
     insertquery_socialinfos = 'INSERT INTO public.social_infos("IdCoinCryptoCompare", "Twitter_account_creation", "Twitter_name", "Twitter_link", "Reddit_name", "Reddit_link", "Reddit_community_creation", "Facebook_name", "Facebook_link")\n'
     insertquery_socialinfos += 'VALUES \n('
     insertquery_socialinfos += str(coin_id) + ','
@@ -303,18 +302,18 @@ def extract_reddit_data():
         if(row[2] == None):
             subscribers, dates = reddit.get_subscribers_histo(row[1])
             if(not not subscribers):
-                dbconn.exexute_query(create_query_reddit_stats(row[0], subscribers, dates))
+                dbconn.exexute_query(__create_query_reddit_stats(row[0], subscribers, dates))
 
         # Si historique partiel, on essaye de récupérer l'historique aux dates manquantes
         elif((datetime.now().astimezone() - row[2]).days >= 2):
             subscribers, dates = reddit.get_subscribers_histo(row[1], after_date=row[2])
             if (not not subscribers):
-                dbconn.exexute_query(create_query_reddit_stats(row[0], subscribers, dates))
+                dbconn.exexute_query(__create_query_reddit_stats(row[0], subscribers, dates))
         # endregion
 
         # region Récupération temps réel à maintenant (reddit.com => about.json)
 
-        req = create_query_reddit_real_time(row[0], reddit.get_reddit_infos_real_time(row[1]))
+        req = __create_query_reddit_real_time(row[0], reddit.get_reddit_infos_real_time(row[1]))
         dbconn.exexute_query(req)
 
         # endregion
@@ -322,7 +321,7 @@ def extract_reddit_data():
     logging.warning("import_reddit_histo - end")
 
 
-def create_query_reddit_stats(idCoin, subscribers, dates):
+def __create_query_reddit_stats(idCoin, subscribers, dates):
     insertquery_reddit_stats = 'INSERT INTO public.social_stats_reddit("IdCoinCryptoCompare", "Reddit_subscribers", "timestamp")\n'
     insertquery_reddit_stats += 'VALUES\n('
     for value, integ in enumerate(subscribers):
@@ -337,7 +336,7 @@ def create_query_reddit_stats(idCoin, subscribers, dates):
     insertquery_reddit_stats += ';'
     return insertquery_reddit_stats
 
-def create_query_reddit_real_time(coin_id, dictInfos):
+def __create_query_reddit_real_time(coin_id, dictInfos):
     reddit_real_time = ''
 
     if ('subscribers' in dictInfos.keys() and 'active_user_count' in dictInfos.keys()):
@@ -363,28 +362,28 @@ def extract_histo_ohlcv():
     req += 'group by co."IdCryptoCompare", co."Symbol"'
     rows = dbconn.get_query_result(req)
     for row in rows:
-        extract_histo_ohlcv_for_coin(row[0], row[1], row[2])
+        __extract_histo_ohlcv_for_coin(row[0], row[1], row[2])
 
     logging.warning("extract_histo_ohlcv - end")
 
 
-def extract_histo_ohlcv_for_coin(coin_id, symbol, lastdate):
+def __extract_histo_ohlcv_for_coin(coin_id, symbol, lastdate):
     dict_dates_volumes = {}
-    for key in get_trading_pairs_for_crypto(symbol):
-        get_histo_ohlcv_for_pair(dict_dates_volumes, symbol, key['toSymbol'], lastdate)
+    for key in __get_trading_pairs_for_crypto(symbol):
+        __get_histo_ohlcv_for_pair(dict_dates_volumes, symbol, key['toSymbol'], lastdate)
 
     # if found values
     if (dict_dates_volumes):
         dbconn = DbConnection()
-        dbconn.exexute_query(create_query_histo_ohlcv(coin_id, dict_dates_volumes))
+        dbconn.exexute_query(__create_query_histo_ohlcv(coin_id, dict_dates_volumes))
 
 
-def get_trading_pairs_for_crypto(symbol):
+def __get_trading_pairs_for_crypto(symbol):
     cryptocomp = CryptoCompare()
     data = cryptocomp.get_trading_pairs(symbol)
     return data
 
-def get_histo_ohlcv_for_pair(dict_dates_volumes, symbolFrom, symbolTo, lastdate):
+def __get_histo_ohlcv_for_pair(dict_dates_volumes, symbolFrom, symbolTo, lastdate):
     cryptocomp = CryptoCompare()
     limit = 2000
 
@@ -402,7 +401,7 @@ def get_histo_ohlcv_for_pair(dict_dates_volumes, symbolFrom, symbolTo, lastdate)
             dict_dates_volumes[int(key['time'])] = key['volumefrom']
 
 
-def create_query_histo_ohlcv(coin_id, data):
+def __create_query_histo_ohlcv(coin_id, data):
     insertquery = 'INSERT INTO public.histo_volumes ("IdCoinCryptoCompare", "1h_volumes_aggregated_pairs", "timestamp")\n'
     insertquery += 'VALUES \n('
     for key in data:

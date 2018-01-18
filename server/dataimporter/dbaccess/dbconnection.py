@@ -5,7 +5,6 @@ class DbConnection:
     conn = None
     conf = None
 
-    #Connect to database
     def __init__(self):
         self.conf = Config()
         connstring = "dbname='" + self.conf.get_config('db','dbname') + "' user='" + self.conf.get_config('db','dbuser') + "' password='" + self.conf.get_config('db','dbpassword') + "'"
@@ -18,8 +17,10 @@ class DbConnection:
         cursor = self.conn.cursor()
         try:
             cursor.execute(query)
-        except:
+        except Exception as e:
+            print("Error :" + str(e))
             print("Error while executing query : " + query)
+            return None
 
         rows = cursor.fetchall()
         return rows
@@ -34,4 +35,3 @@ class DbConnection:
             print("Error :" + str(e))
             print("Error while executing query : " + query)
             return -1
-

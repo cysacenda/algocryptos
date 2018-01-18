@@ -254,4 +254,4 @@ GRANT ALL ON TABLE public.histo_prices TO dbuser;
 GRANT ALL ON TABLE public.histo_prices TO postgres;
 
 COMMENT ON TABLE public.histo_prices
-    IS 'Contains one line per cryptocurrency with informations relatives to social networks of the cryptocurrency which are not provided by CryptoCompare and are retrieved manually by us';
+    IS 'Contains one line per cryptocurency with informations relatives to social networks of the cryptocurrency which are not provided by CryptoCompare and are retrieved manually by us';

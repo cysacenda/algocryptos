@@ -10,6 +10,9 @@ logging.basicConfig(filename='algokpi.log',
 
 logging.warning("Started")
 
+# TODO : Mettre en place parsing des arguments (cf. main de dataimporter)
+
+
 
 logging.warning("Stopped")
 
