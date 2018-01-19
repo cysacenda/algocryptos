@@ -6,6 +6,7 @@ select * from social_infos_manual;
 select * from social_stats;
 select * from social_stats_reddit;
 select * from histo_volumes;
+select * from histo_prices;
 select * from excluded_coins;
 
 -- Truncate tables
@@ -16,6 +17,7 @@ truncate table social_infos_manual;
 truncate table social_stats;
 truncate table social_stats_reddit;
 truncate table histo_volumes;
+truncate table histo_prices;
 truncate table excluded_coins;
 
 -- Dropdrop tables
@@ -26,6 +28,7 @@ drop table social_infos_manual;
 drop table social_stats;
 drop table social_stats_reddit;
 drop table histo_volumes;
+drop table histo_prices;
 drop table excluded_coins;
 
 -- Delete tables
@@ -36,6 +39,7 @@ delete from social_infos_manual;
 delete from social_stats;
 delete from social_stats_reddit;
 delete from histo_volumes;
+delete from histo_prices;
 delete from excluded_coins;
 
 -- Tailles de toutes les tables de la base de données

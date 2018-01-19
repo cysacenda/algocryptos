@@ -235,7 +235,9 @@ COMMENT ON TABLE public.social_infos_manual
 
 CREATE TABLE public.histo_prices
 (
-    "IdCoinCryptoCompare" bigint NOT NULL,
+    "IdCryptoCompare" bigint,
+    Symbol character varying(9) COLLATE pg_catalog."default" NOT NULL,
+    "Name" text COLLATE pg_catalog."default",
     Price_usd double precision,
     Price_btc double precision,
     "24h_volume_usd" double precision,

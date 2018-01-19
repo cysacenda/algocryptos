@@ -27,6 +27,8 @@ if __name__ == '__main__':
                         action='store_true')
     parser.add_argument('-o', '--histoohlcv', dest="histoohlcv", help='Get historical OHLCV',
                         action='store_true')
+    parser.add_argument('-hp', '--histoprices', dest="histoprices",
+                        help='Insert current prices into historical database', action='store_true')
     args = parser.parse_args()
 
     if (args.coins):
@@ -67,6 +69,12 @@ if __name__ == '__main__':
         # Histo OHLCV (V only for the moment)
         # -----------------------------------------------
         extractdata.extract_histo_ohlcv()
+
+    if (args.histoprices):
+        # -----------------------------------------------
+        # Get prices for coins from CoinMarketCap and insert in histo_prices
+        # -----------------------------------------------
+        extractdata.extract_coinmarketcap_historical_prices()
 
     if (args.full):
         # -----------------------------------------------
