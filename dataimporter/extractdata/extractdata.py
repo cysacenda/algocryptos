@@ -234,15 +234,15 @@ def add_ids():
 
 def __create_add_ids(table):
 
-    update_query = 'UPDATE ' + table + ' as pr\n'
+    update_query = 'UPDATE ' + table + ' as ta\n'
     update_query += 'SET "IdCryptoCompare" = co."IdCryptoCompare"\n'
     update_query += 'FROM coins as co\n'
-    update_query += 'WHERE co."Symbol" = pr.symbol;\n\n'
+    update_query += 'WHERE co."Symbol" = ta.symbol AND ta."IdCryptoCompare" IS NULL;\n\n'
 
-    update_query += 'UPDATE ' + table + ' as pr\n'
+    update_query += 'UPDATE ' + table + ' as ta\n'
     update_query += 'SET "IdCryptoCompare" = co."IdCryptoCompare"\n'
     update_query += 'FROM coins as co\n'
-    update_query += 'WHERE co."CoinName" = pr."Name";'
+    update_query += 'WHERE co."CoinName" = ta."Name" AND ta."IdCryptoCompare" IS NULL;'
     return update_query;
 
 # endregion
