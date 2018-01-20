@@ -5,6 +5,7 @@ from config.config import Config
 import reddit
 import utils
 import logging
+import time
 from datetime import datetime
 
 conf = Config()
@@ -120,20 +121,74 @@ def __create_query_prices():
     logging.warning("create_query_prices - end")
     return insertquery
 
+
+
+def extract_coinmarketcap_historical_prices():
+    logging.warning("extract_coinmarketcap_histo_prices - start")
+    dbconn = DbConnection()
+    dbconn.exexute_query(__create_query_historical_prices())
+    dbconn.exexute_query(__create_add_ids("histo_prices"))
+    remove_useless_prices("histo_prices")
+    logging.warning("extract_coinmarketcap_histo_prices - end")
+
+
+
+def __create_query_historical_prices():
+    logging.warning("create_historical_query_prices - start")
+    coinmarket = CoinMarketCap()
+    data = coinmarket.get_price_list()
+    current_time = time.time()
+
+    insertquery = 'INSERT INTO public.histo_prices (symbol, "Name", price_usd, price_btc, "24h_volume_usd", market_cap_usd, "timestamp")\n'
+    insertquery += 'VALUES \n('
+
+    for entry in data:
+        if (not str(entry['name']).__contains__("'")):
+            if (not insertquery.endswith('(')):
+                insertquery += ',\n('
+            insertquery += "'" + entry['symbol'] + "',"
+            insertquery += "'" + entry['name'] + "',"
+
+            if entry['price_usd'] == None:
+                insertquery += 'NULL' + ","
+            else:
+                insertquery += entry['price_usd'] + ","
+
+            if entry['price_btc'] == None:
+                insertquery += 'NULL' + ","
+            else:
+                insertquery += entry['price_btc'] + ","
+
+            if entry['24h_volume_usd'] == None:
+                insertquery += 'NULL' + ","
+            else:
+                insertquery += entry['24h_volume_usd'] + ","
+
+            if entry['market_cap_usd'] == None:
+                insertquery += 'NULL' + ","
+            else:
+                insertquery += entry['market_cap_usd'] + ","
+
+            insertquery += "'" + utils.format_linux_timestamp_to_db(current_time) + "'"
+            insertquery += ')'
+    insertquery += ';'
+    logging.warning("create_historical_query_prices - end")
+    return insertquery
+
 # endregion
 
 # region Remove useless coins / prices
 
 def remove_useless_prices_coins():
     logging.warning("remove_useless_prices_coins - start")
-    remove_useless_prices()
+    remove_useless_prices("prices")
     remove_useless_coins()
     logging.warning("remove_useless_prices_coins - end")
 
 
-def remove_useless_prices():
+def remove_useless_prices(table):
     dbconn = DbConnection()
-    dbconn.exexute_query("delete from prices where market_cap_usd < {} or market_cap_usd is null".format(MINIMUM_MARKET_CAP_USD))
+    dbconn.exexute_query("delete from " + table + " where market_cap_usd < {} or market_cap_usd is null".format(MINIMUM_MARKET_CAP_USD))
 
 
 def remove_useless_coins():
@@ -155,7 +210,7 @@ def delete_excluded_coins():
 def add_ids():
     logging.warning("add_ids - start")
     dbconn = DbConnection()
-    dbconn.exexute_query(__create_add_ids())
+    dbconn.exexute_query(__create_add_ids("prices"))
 
     # TODO : Gérer un mapping dans une table de paramétrage pour ces cryptos car rapprochement impossible entre cryptocompare et CMC
     """"" 
@@ -177,16 +232,17 @@ def add_ids():
     """""
     logging.warning("add_ids - end")
 
-def __create_add_ids():
-    update_query = 'UPDATE prices as pr\n'
-    update_query += 'SET "IdCryptoCompare" = co."IdCryptoCompare"\n'
-    update_query += 'FROM coins as co\n'
-    update_query += 'WHERE co."Symbol" = pr.symbol;\n\n'
+def __create_add_ids(table):
 
-    update_query += 'UPDATE prices as pr\n'
+    update_query = 'UPDATE ' + table + ' as ta\n'
     update_query += 'SET "IdCryptoCompare" = co."IdCryptoCompare"\n'
     update_query += 'FROM coins as co\n'
-    update_query += 'WHERE co."CoinName" = pr."Name";'
+    update_query += 'WHERE co."Symbol" = ta.symbol AND ta."IdCryptoCompare" IS NULL;\n\n'
+
+    update_query += 'UPDATE ' + table + ' as ta\n'
+    update_query += 'SET "IdCryptoCompare" = co."IdCryptoCompare"\n'
+    update_query += 'FROM coins as co\n'
+    update_query += 'WHERE co."CoinName" = ta."Name" AND ta."IdCryptoCompare" IS NULL;'
     return update_query;
 
 # endregion
