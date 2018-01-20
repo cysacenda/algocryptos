@@ -37,3 +37,11 @@ Outil permettant l'analyse des données marchés et réseaux sociaux pour les cr
 - Devops only: Demander création d'un compte à CSA via Slack
 
 
+## Utilisation Git via Pycharm (simple)
+- Pousser du code sur Git : 
+    - VCS / Update (on update avec la dernière version du code avant de pousser, si merge nécessaire, faire bien attention de ne pas écraser du code)
+    - VCS / Commit...
+        - Vérifier / sélectionnez les fichiers qui vont être commités
+        - Si vous voulez pusher sur Github et pas uniquement en local, faire commit & push
+- Updater votre local avec le code présent sur Github :
+    - VCS / Update
