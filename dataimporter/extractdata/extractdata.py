@@ -425,13 +425,16 @@ def extract_histo_ohlcv():
 
 def __extract_histo_ohlcv_for_coin(coin_id, symbol, lastdate):
     dict_dates_volumes = {}
-    for key in __get_trading_pairs_for_crypto(symbol):
-        __get_histo_ohlcv_for_pair(dict_dates_volumes, symbol, key['toSymbol'], lastdate)
+    data = __get_trading_pairs_for_crypto(symbol)
 
-    # if found values
-    if (dict_dates_volumes):
-        dbconn = DbConnection()
-        dbconn.exexute_query(__create_query_histo_ohlcv(coin_id, dict_dates_volumes))
+    if(data != None):
+        for key in data:
+            __get_histo_ohlcv_for_pair(dict_dates_volumes, symbol, key['toSymbol'], lastdate)
+
+        # if found values
+        if (dict_dates_volumes):
+            dbconn = DbConnection()
+            dbconn.exexute_query(__create_query_histo_ohlcv(coin_id, dict_dates_volumes))
 
 
 def __get_trading_pairs_for_crypto(symbol):

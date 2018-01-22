@@ -54,10 +54,16 @@ class CryptoCompare:
         data = self.query_cryptocompare(url)
 
         # retry if needed - TODO : Replace with something proper
-        if('Data' not in data.keys()):
-            time.sleep(5)
-            data = self.query_cryptocompare(url)
-        return data['Data']
+        if(data != None):
+            if('Data' not in data.keys()):
+                time.sleep(5)
+                data = self.query_cryptocompare(url)
+
+            if ('Data' not in data.keys()):
+                return None
+            return data['Data']
+        else:
+            return None;
 
     @rate_limited(0.08)
     def get_histo_hour_pair(self, symbol1, symbol2, limit):
