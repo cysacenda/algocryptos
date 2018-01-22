@@ -24,6 +24,12 @@ def __calcul_kpi_subscribers_7d_trend():
 def __calcul_kpi_subscribers_15d_trend():
     toto = 0
 
+def __calcul_kpi_subscribers_30d_trend():
+    squery = 'select * from social_stats_reddit'
+    squery += 'where "IdCoinCryptoCompare" = 172091'
+    squery += "and timestamp > CURRENT_TIMESTAMP - interval '30 days'"
+    squery += 'order by timestamp'
+
 def __calcul_kpi_subscribers_60d_trend():
     toto = 0
 
