@@ -8,6 +8,7 @@ select * from social_stats_reddit;
 select * from histo_volumes;
 select * from histo_prices;
 select * from excluded_coins;
+select * from kpi_reddit_subscribers;
 
 -- Truncate tables
 truncate table coins;
@@ -19,6 +20,7 @@ truncate table social_stats_reddit;
 truncate table histo_volumes;
 truncate table histo_prices;
 truncate table excluded_coins;
+truncate table kpi_reddit_subscribers;
 
 -- Dropdrop tables
 drop table coins;
@@ -30,6 +32,7 @@ drop table social_stats_reddit;
 drop table histo_volumes;
 drop table histo_prices;
 drop table excluded_coins;
+drop table kpi_reddit_subscribers;
 
 -- Delete tables
 delete from coins;
@@ -41,6 +44,7 @@ delete from social_stats_reddit;
 delete from histo_volumes;
 delete from histo_prices;
 delete from excluded_coins;
+delete from kpi_reddit_subscribers;
 
 -- Tailles de toutes les tables de la base de données
 SELECT *, pg_size_pretty(total_bytes) AS total

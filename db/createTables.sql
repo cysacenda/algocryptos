@@ -257,3 +257,35 @@ GRANT ALL ON TABLE public.histo_prices TO postgres;
 
 COMMENT ON TABLE public.histo_prices
     IS 'Contains one line per cryptocurency with informations relatives to social networks of the cryptocurrency which are not provided by CryptoCompare and are retrieved manually by us';
+
+
+-- Table: public.kpi_reddit_subscribers
+
+-- DROP TABLE public.kpi_reddit_subscribers;
+
+
+CREATE TABLE public.kpi_reddit_subscribers
+(
+    "IdCryptoCompare" bigint,
+    subscribers_1d_trend double precision,
+    subscribers_3d_trend double precision,
+    subscribers_7d_trend double precision,
+    subscribers_15d_trend double precision,
+    subscribers_30d_trend double precision,
+    subscribers_60d_trend double precision,
+    subscribers_90d_trend double precision,
+    "timestamp" timestamp with time zone
+)
+WITH (
+    OIDS = FALSE
+)
+TABLESPACE pg_default;
+
+ALTER TABLE public.kpi_reddit_subscribers
+    OWNER to postgres;
+
+GRANT ALL ON TABLE public.kpi_reddit_subscribers TO dbuser;
+GRANT ALL ON TABLE public.kpi_reddit_subscribers TO postgres;
+
+COMMENT ON TABLE public.kpi_reddit_subscribers
+    IS 'Contains one line per cryptocurency with kpis on reddit subscribers';
