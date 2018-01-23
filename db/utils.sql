@@ -62,7 +62,8 @@ SELECT *, pg_size_pretty(total_bytes) AS total
 
 -- Checker les reddits manquants
 
-SELECT * FROM social_infos si
+SELECT co."Symbol", si."Reddit_name" , sim."Reddit_name" AS Reddit_name_manual FROM social_infos si
 INNER JOIN coins co ON si."IdCoinCryptoCompare" = co."IdCryptoCompare"
 LEFT JOIN social_infos_manual sim ON sim."IdCoinCryptoCompare" = co."IdCryptoCompare"
 WHERE si."Reddit_name" IS NULL AND sim."Reddit_name" IS NULL;
+--WHERE co."Symbol" LIKE 'SALT';

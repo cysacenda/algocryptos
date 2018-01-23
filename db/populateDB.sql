@@ -222,3 +222,6 @@ INSERT INTO social_infos_manual VALUES (685098,'ecc');
 INSERT INTO social_infos_manual VALUES (116180,'ZenSys');
 INSERT INTO social_infos_manual VALUES (360299,'selfkey');
 INSERT INTO social_infos_manual VALUES (368694,'ATMChain');
+INSERT INTO social_infos_manual VALUES (179896,'populous_platform');
+INSERT INTO social_infos_manual VALUES (4433,'vergecurrency');
+INSERT INTO social_infos_manual VALUES (347235,'BitcoinGoldHQ');
