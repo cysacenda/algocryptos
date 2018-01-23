@@ -59,3 +59,10 @@ SELECT *, pg_size_pretty(total_bytes) AS total
           WHERE relkind = 'r'
   ) a
 ) a;
+
+-- Checker les reddits manquants
+
+SELECT * FROM social_infos si
+INNER JOIN coins co ON si."IdCoinCryptoCompare" = co."IdCryptoCompare"
+LEFT JOIN social_infos_manual sim ON sim."IdCoinCryptoCompare" = co."IdCryptoCompare"
+WHERE si."Reddit_name" IS NULL AND sim."Reddit_name" IS NULL;
