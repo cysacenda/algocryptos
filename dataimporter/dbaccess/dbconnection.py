@@ -1,5 +1,6 @@
 import psycopg2
 from config.config import Config
+import logging
 
 class DbConnection:
     conn = None
@@ -11,15 +12,14 @@ class DbConnection:
         try:
             self.conn=psycopg2.connect(connstring)
         except:
-            print("Error while connecting to database : " + connstring)
+            logging.error("Error while connecting to database : " + connstring)
 
     def get_query_result(self, query):
         cursor = self.conn.cursor()
         try:
             cursor.execute(query)
         except Exception as e:
-            print("Error :" + str(e))
-            print("Error while executing query : " + query)
+            logging.error("Error : " + str(e) + " - " + "Error while executing query : " + query)
             return None
 
         rows = cursor.fetchall()
@@ -32,6 +32,5 @@ class DbConnection:
             self.conn.commit()
             return 0
         except Exception as e:
-            print("Error :" + str(e))
-            print("Error while executing query : " + query)
+            logging.error("Error : " + str(e) + " - " + "Error while executing query : " + query)
             return -1

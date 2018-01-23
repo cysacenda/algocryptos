@@ -2,6 +2,7 @@ from urllib import request
 from config.config import Config
 import requests
 from ratelimit import rate_limited
+import logging
 
 conf = Config()
 URL_REDDITMETRIC = conf.get_config('reddit_params','url_redditmetric')
@@ -16,7 +17,7 @@ def get_reddit_infos_real_time(subreddit):
     try:
         response = requests.get(url, headers = {'User-agent': 'algocryptos'}).json()
     except Exception as e:
-        print('Error getting information from get_reddit_infos_real_time. %s' % str(e))
+        logging.error("Error getting information from get_reddit_infos_real_time." + str(e))
         return None
     return response['data']
 
