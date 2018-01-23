@@ -1,4 +1,5 @@
 import requests
+import logging
 
 # API
 URL_PRICE_LIST = 'https://api.coinmarketcap.com/v1/ticker/?limit=0'
@@ -34,10 +35,10 @@ class CoinMarketCap:
         try:
             response = requests.get(url).json()
         except Exception as e:
-            print('Error getting prices information from CMC. %s' % str(e))
+            logging.error("Error getting prices information from CMC. " + str(e))
             return None
         if errorCheck and 'Response' in response.keys():
-            print('[ERROR] %s' % response['Message'])
+            logging.error("[ERROR] " + response['Message'])
             return None
         return response
 

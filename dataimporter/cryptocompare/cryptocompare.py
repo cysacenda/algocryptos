@@ -3,6 +3,7 @@ import time
 import datetime
 from config.config import Config
 from ratelimit import rate_limited
+import logging
 
 class CryptoCompare:
     conf = None
@@ -48,33 +49,28 @@ class CryptoCompare:
     def get_socialstats(self, coin_id):
         return self.query_cryptocompare(self.URL_SOCIAL_STATS.format(coin_id))['Data']
 
-    @rate_limited(0.02)
+    @rate_limited(0.04)
     def get_trading_pairs(self, symbol):
         url = self.URL_TRADING_PAIRS.format(symbol, self.MAX_TRADING_PAIRS_FOR_CRYPTO)
         data = self.query_cryptocompare(url)
+        return self.__get_data_manage_errors(data, url)
 
-        # retry if needed - TODO : Replace with something proper
-        if(data != None):
-            if('Data' not in data.keys()):
+    @rate_limited(0.1)
+    def get_histo_hour_pair(self, symbol1, symbol2, limit):
+        url = self.URL_HISTO_HOUR_PAIR.format(symbol1, symbol2, limit)
+        data = self.query_cryptocompare(url)
+        return self.__get_data_manage_errors(data,url)
+
+    def __get_data_manage_errors(self, data, url):
+        if (data != None):
+            if ('Data' not in data.keys()):
                 time.sleep(5)
                 data = self.query_cryptocompare(url)
-
             if ('Data' not in data.keys()):
                 return None
             return data['Data']
         else:
-            return None;
-
-    @rate_limited(0.08)
-    def get_histo_hour_pair(self, symbol1, symbol2, limit):
-        url = self.URL_HISTO_HOUR_PAIR.format(symbol1, symbol2, limit)
-        data = self.query_cryptocompare(url)
-
-        # retry if needed - TODO : Replace with something proper
-        if ('Data' not in data.keys()):
-            time.sleep(5)
-            data = self.query_cryptocompare(url)
-        return data['Data']
+            return None
 
     # endregion
 
@@ -105,10 +101,10 @@ class CryptoCompare:
         try:
             response = requests.get(url).json()
         except Exception as e:
-            print('Error getting information from cryptocompare. %s' % str(e))
+            logging.error("Error getting information from cryptocompare. " + str(e))
             return None
         if errorCheck and 'Response' in response.keys() and response['Response'] != 'Success':
-            print('[ERROR] %s' % response['Message'])
+            logging.error("[ERROR] " + response['Message'])
             return None
         return response
 
