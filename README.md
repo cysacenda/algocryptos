@@ -1,4 +1,4 @@
-# algocryptos
+# AlgoCryptos
 Outil permettant l'analyse des données marchés et réseaux sociaux pour les cryptocurrencies
 
 ## Monter environnement de développement
@@ -24,10 +24,22 @@ Outil permettant l'analyse des données marchés et réseaux sociaux pour les cr
     - Python :
         - Paramétrer Python dans l'IDE : File / Setting / Project Interpreter / Add Local et choisir installation Python locale
         - Installer les librairies manquantes Python dans le Terminal de Pycharm via la commande "setup.py install"  (manuel : la commande pip3 install xxxx (where xxxx = library name))
-        - installer le token github
+        - installer le token github / sinon utilisation possible login / mdp
     - Fronting / Node / Angular :
+        - Faire un install du package.json
+        - Utiliser les scripts du package.json via Webstorm pour builder le node, starter le node et starter l'angular
+        - Il est possible de faire du debug avec Webstorm (node / angular)
 
-##Infos login / mdp (Dev / Ops only)
+## Déploiement / Gestion de la BDD
+- Une release par semaine pour le moment
+- S'assurer que tout ce qui est commité fonctionne
+- Figer une branche prod 1-2j avant de déployer
+- Dev : Toute modification du modèle de données doit être répercutée dans les scripts :
+    -createTables.sql : Création du modèle de données, toutes les tables, etc.
+    -populateDB.sql : Ajout de données en bas
+    -modifsBDD.sql : toutes les modifications du modèle de données actuellement en prod, doit être vidé après chaque déploiement
+
+## Infos login / mdp (Dev / Ops only)
 - Télécharger logiciel Keepass : https://keepass.info/
 - Récupérer la BDD Keepass dans Github : algocryptos/docs/keepass
 - Demander la masterkey à CSA via Slack
