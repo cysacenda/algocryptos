@@ -111,3 +111,35 @@
 2018-01-23 11:42:33,960 -- root -- WARNING -- delete_excluded_coins - start
 2018-01-23 11:42:34,025 -- root -- WARNING -- delete_excluded_coins - end
 2018-01-23 11:42:34,025 -- root -- WARNING -- DataImporter ended
+2018-01-24 21:26:52,854 -- root -- WARNING -- DataImporter started
+2018-01-24 21:26:52,855 -- root -- WARNING -- remove_useless_prices_coins - start
+2018-01-24 21:26:52,958 -- root -- WARNING -- remove_useless_prices_coins - end
+2018-01-24 21:26:52,958 -- root -- WARNING -- add_ids - start
+2018-01-24 21:26:53,003 -- root -- WARNING -- add_ids - end
+2018-01-24 21:26:53,004 -- root -- WARNING -- delete_excluded_coins - start
+2018-01-24 21:26:53,052 -- root -- WARNING -- delete_excluded_coins - end
+2018-01-24 21:26:53,052 -- root -- WARNING -- DataImporter ended
+2018-01-24 21:27:13,934 -- root -- WARNING -- DataImporter started
+2018-01-24 21:27:13,936 -- root -- WARNING -- extract_crytopcompare_coins - start
+2018-01-24 21:27:14,550 -- root -- WARNING -- extract_crytopcompare_coins - end
+2018-01-24 21:27:14,551 -- root -- WARNING -- extract_coinmarketcap_prices - start
+2018-01-24 21:27:14,602 -- root -- WARNING -- create_query_prices - start
+2018-01-24 21:27:17,228 -- root -- WARNING -- create_query_prices - end
+2018-01-24 21:27:17,313 -- root -- WARNING -- extract_coinmarketcap_prices - end
+2018-01-24 21:27:17,313 -- root -- WARNING -- remove_useless_prices_coins - start
+2018-01-24 21:27:17,447 -- root -- WARNING -- remove_useless_prices_coins - end
+2018-01-24 21:27:17,447 -- root -- WARNING -- add_ids - start
+2018-01-24 21:27:17,509 -- root -- WARNING -- add_ids - end
+2018-01-24 21:27:17,509 -- root -- WARNING -- delete_excluded_coins - start
+2018-01-24 21:27:17,560 -- root -- WARNING -- delete_excluded_coins - end
+2018-01-24 21:27:17,561 -- root -- WARNING -- DataImporter ended
+2018-01-24 21:27:35,502 -- root -- WARNING -- DataImporter started
+2018-01-24 21:27:35,504 -- root -- WARNING -- extract_cryptocompare_social - start
+2018-01-24 21:28:10,854 -- root -- WARNING -- extract_cryptocompare_social - end
+2018-01-24 21:28:10,855 -- root -- WARNING -- DataImporter ended
+2018-01-24 21:28:18,855 -- root -- WARNING -- DataImporter started
+2018-01-24 21:28:18,856 -- root -- WARNING -- import_reddit_histo - start
+2018-01-24 21:28:45,276 -- root -- WARNING -- import_reddit_histo - end
+2018-01-24 21:28:45,277 -- root -- WARNING -- DataImporter ended
+2018-01-25 12:01:45,417 -- root -- WARNING -- DataImporter started
+2018-01-25 12:01:45,417 -- root -- WARNING -- import_reddit_histo - start
