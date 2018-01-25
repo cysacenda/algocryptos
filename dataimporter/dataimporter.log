@@ -143,3 +143,37 @@
 2018-01-24 21:28:45,277 -- root -- WARNING -- DataImporter ended
 2018-01-25 12:01:45,417 -- root -- WARNING -- DataImporter started
 2018-01-25 12:01:45,417 -- root -- WARNING -- import_reddit_histo - start
+2018-01-25 14:56:57,118 -- root -- WARNING -- DataImporter started
+2018-01-25 14:56:57,120 -- root -- WARNING -- extract_crytopcompare_coins - start
+2018-01-25 14:56:57,775 -- root -- WARNING -- extract_crytopcompare_coins - end
+2018-01-25 14:56:57,775 -- root -- WARNING -- extract_coinmarketcap_prices - start
+2018-01-25 14:56:57,936 -- root -- WARNING -- create_query_prices - start
+2018-01-25 14:57:00,632 -- root -- WARNING -- create_query_prices - end
+2018-01-25 14:57:00,701 -- root -- WARNING -- extract_coinmarketcap_prices - end
+2018-01-25 14:57:00,701 -- root -- WARNING -- remove_useless_prices_coins - start
+2018-01-25 14:57:00,806 -- root -- WARNING -- remove_useless_prices_coins - end
+2018-01-25 14:57:00,806 -- root -- WARNING -- add_ids - start
+2018-01-25 14:57:00,876 -- root -- WARNING -- add_ids - end
+2018-01-25 14:57:00,877 -- root -- WARNING -- extract_cryptocompare_social - start
+2018-01-25 15:02:35,756 -- root -- WARNING -- extract_cryptocompare_social - end
+2018-01-25 15:02:35,756 -- root -- WARNING -- import_reddit_histo - start
+2018-01-25 15:07:59,541 -- root -- WARNING -- import_reddit_histo - end
+2018-01-25 15:07:59,544 -- root -- WARNING -- extract_histo_ohlcv - start
+2018-01-25 15:08:15,510 -- root -- ERROR -- [ERROR] There is no data for the symbol BLT .
+2018-01-25 15:08:34,116 -- root -- ERROR -- [ERROR] There is no data for the symbol HPB .
+2018-01-25 15:09:58,007 -- root -- ERROR -- [ERROR] There is no data for the symbol JINN .
+2018-01-25 15:12:49,740 -- root -- ERROR -- [ERROR] There is no data for the symbol HIVE .
+2018-01-25 15:14:01,759 -- root -- ERROR -- [ERROR] There is no data for the symbol AURA .
+2018-01-25 15:14:25,079 -- root -- ERROR -- [ERROR] There is no data for the symbol GTC .
+2018-01-25 15:14:42,883 -- root -- ERROR -- [ERROR] There is no data for the symbol BCO* .
+2018-01-25 15:15:34,113 -- root -- ERROR -- [ERROR] There is no data for the symbol XSH .
+2018-01-25 15:19:27,589 -- root -- ERROR -- [ERROR] There is no data for the symbol ECC .
+2018-01-25 15:19:43,191 -- root -- ERROR -- [ERROR] There is no data for the symbol BDG .
+2018-01-25 15:20:00,079 -- root -- ERROR -- [ERROR] There is no data for the symbol TAU .
+2018-01-25 15:21:07,918 -- root -- ERROR -- [ERROR] There is no data for the symbol NVST .
+2018-01-25 15:21:13,665 -- root -- ERROR -- [ERROR] There is no data for the symbol SPHTX .
+2018-01-25 15:21:22,948 -- root -- ERROR -- [ERROR] There is no data for the symbol COV .
+2018-01-25 15:21:34,644 -- root -- ERROR -- [ERROR] There is no data for the symbol THETA .
+2018-01-25 15:25:05,599 -- root -- ERROR -- [ERROR] There is no data for the symbol ACT .
+2018-01-25 15:25:08,987 -- root -- WARNING -- extract_histo_ohlcv - end
+2018-01-25 15:25:08,987 -- root -- WARNING -- DataImporter ended

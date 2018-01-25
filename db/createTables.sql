@@ -288,4 +288,36 @@ GRANT ALL ON TABLE public.kpi_reddit_subscribers TO dbuser;
 GRANT ALL ON TABLE public.kpi_reddit_subscribers TO postgres;
 
 COMMENT ON TABLE public.kpi_reddit_subscribers
-    IS 'Contains one line per cryptocurency with kpis on reddit subscribers';
+    IS 'Contains one line per cryptocurency with kpis on reddit subscribers, store only last kpi calcul';
+
+
+-- Table: public.kpi_reddit_subscribers
+
+-- DROP TABLE public.kpi_reddit_subscribers;
+
+
+CREATE TABLE public.kpi_reddit_subscribers_histo
+(
+    "IdCryptoCompare" bigint,
+    subscribers_1d_trend double precision,
+    subscribers_3d_trend double precision,
+    subscribers_7d_trend double precision,
+    subscribers_15d_trend double precision,
+    subscribers_30d_trend double precision,
+    subscribers_60d_trend double precision,
+    subscribers_90d_trend double precision,
+    "timestamp" timestamp with time zone
+)
+WITH (
+    OIDS = FALSE
+)
+TABLESPACE pg_default;
+
+ALTER TABLE public.kpi_reddit_subscribers_histo
+    OWNER to postgres;
+
+GRANT ALL ON TABLE public.kpi_reddit_subscribers_histo TO dbuser;
+GRANT ALL ON TABLE public.kpi_reddit_subscribers_histo TO postgres;
+
+COMMENT ON TABLE public.kpi_reddit_subscribers_histo
+    IS 'Contains one line per cryptocurency with kpis on reddit subscribers, store all historic of KPI';
