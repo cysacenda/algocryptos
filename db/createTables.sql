@@ -321,3 +321,29 @@ GRANT ALL ON TABLE public.kpi_reddit_subscribers_histo TO postgres;
 
 COMMENT ON TABLE public.kpi_reddit_subscribers_histo
     IS 'Contains one line per cryptocurency with kpis on reddit subscribers, store all historic of KPI';
+
+
+-- Table: public.process_params
+
+-- DROP TABLE public.process_params;
+
+CREATE TABLE public.process_params
+(
+    "IdProcess" integer NOT NULL,
+    "Name" text COLLATE pg_catalog."default",
+	"timestamp" timestamp with time zone,
+    CONSTRAINT process_params_pkey PRIMARY KEY ("IdProcess")
+)
+WITH (
+    OIDS = FALSE
+)
+TABLESPACE pg_default;
+
+ALTER TABLE public.process_params
+    OWNER to postgres;
+
+GRANT ALL ON TABLE public.process_params TO dbuser;
+GRANT ALL ON TABLE public.process_params TO postgres;
+
+COMMENT ON TABLE public.process_params
+    IS 'Allow to avoid some processes to run at the same time';

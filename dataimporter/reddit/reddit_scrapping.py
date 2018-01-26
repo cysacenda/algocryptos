@@ -79,8 +79,13 @@ def __number_of_subscribers(bytecode, after_date=None):
     return subscribers_data, dates_data
 
 def __get_page_source(url_start, subreddit):
-    r = request.urlopen(url_start + subreddit)
-    bytecode = r.read()
+    try:
+        r = request.urlopen(url_start + subreddit)
+        bytecode = r.read()
+    except Exception as e:
+        logging.error("Error __get_page_source : " + str(e))
+        return ''
+
     return str(bytecode)
 
 # endregion

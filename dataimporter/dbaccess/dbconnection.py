@@ -8,7 +8,6 @@ class DbConnection:
 
     def __init__(self):
         self.conf = Config()
-        # TODO : Gérer le host
         connstring = "host='" + self.conf.get_config('db','dbhost') + "' dbname='" + self.conf.get_config('db','dbname') + "' user='" + self.conf.get_config('db','dbuser') + "' password='" + self.conf.get_config('db','dbpassword') + "'"
         try:
             self.conn=psycopg2.connect(connstring)

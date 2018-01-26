@@ -57,3 +57,9 @@ Outil permettant l'analyse des données marchés et réseaux sociaux pour les cr
         - Si vous voulez pusher sur Github et pas uniquement en local, faire commit & push
 - Updater votre local avec le code présent sur Github :
     - VCS / Update
+    
+##Régler problème en production
+- Process manager, il se peut (en théorie non mais on ne sais jamais), qu'un process reste inscrit
+dans la table process_params ce qui aura pour effet de bloquer les autres traitements.
+Il est possible d'appeler cet api http://localhost:3000/api/params/resetprocesses pour vider la table
+et permettre aux traitements de se lancer correctement
