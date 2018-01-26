@@ -1,6 +1,6 @@
-00 */1 * * * /usr/bin/python /algocryptos_scripts/dataimporter/main.py -hp
-0 3 * * * /usr/bin/python /algocryptos_scripts/dataimporter/main.py -o
-0 3 * * * /usr/bin/python /algocryptos_scripts/dataimporter/main.py -r
-*/5 * * * * /usr/bin/python /algocryptos_scripts/dataimporter/main.py -cpd
+00 */1 * * * /home/ec2-user/test/VirtEnvTest/bin/python /home/ec2-user/test/algocryptos_scripts/dataimporter/main.py -hp
+4 4 * * * /home/ec2-user/test/VirtEnvTest/bin/python /home/ec2-user/test/algocryptos_scripts/dataimporter/main.py -o
+4 3 * * * /home/ec2-user/test/VirtEnvTest/bin/python /home/ec2-user/test/algocryptos_scripts/dataimporter/main.py -r
+*/5 * * * * /home/ec2-user/test/VirtEnvTest/bin/python /home/ec2-user/test/algocryptos_scripts/dataimporter/main.py -cpd
 
-0 5 * * * /usr/bin/python /algocryptos_scripts/algokpi/main.py -r
+0 5 * * * /home/ec2-user/test/VirtEnvTest/bin/python /home/ec2-user/test/algocryptos_scripts/algokpi/main.py -r
