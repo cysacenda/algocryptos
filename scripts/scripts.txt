@@ -1,4 +1,6 @@
 00 */1 * * * /usr/bin/python /algocryptos_scripts/dataimporter/main.py -hp
 0 3 * * * /usr/bin/python /algocryptos_scripts/dataimporter/main.py -o
 0 3 * * * /usr/bin/python /algocryptos_scripts/dataimporter/main.py -r
-*/5 * * * * /usr/bin/python /algocryptos_scripts/dataimporter/main.py -p
+*/5 * * * * /usr/bin/python /algocryptos_scripts/dataimporter/main.py -cpd
+
+0 5 * * * /usr/bin/python /algocryptos_scripts/algokpi/main.py -r
