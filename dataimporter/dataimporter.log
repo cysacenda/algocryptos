@@ -51,3 +51,35 @@ HINT:  Peut-être que vous souhaitiez référencer la colonne « process_params.IdPr
 2018-01-26 13:48:10,729 -- root -- WARNING -- delete_excluded_coins - start
 2018-01-26 13:48:10,776 -- root -- WARNING -- delete_excluded_coins - end
 2018-01-26 13:48:10,777 -- root -- WARNING -- DataImporter ended
+2018-01-26 16:03:12,644 -- root -- WARNING -- DataImporter started
+2018-01-26 16:03:12,646 -- root -- ERROR -- start_process - blocking processes running
+2018-01-26 16:03:22,041 -- root -- WARNING -- DataImporter started
+2018-01-26 16:03:22,051 -- root -- WARNING -- extract_crytopcompare_coins - start
+2018-01-26 16:03:22,710 -- root -- WARNING -- extract_crytopcompare_coins - end
+2018-01-26 16:03:22,711 -- root -- WARNING -- extract_coinmarketcap_prices - start
+2018-01-26 16:03:22,884 -- root -- WARNING -- create_query_prices - start
+2018-01-26 16:05:08,426 -- root -- WARNING -- create_query_prices - end
+2018-01-26 16:05:08,486 -- root -- WARNING -- extract_coinmarketcap_prices - end
+2018-01-26 16:05:08,487 -- root -- WARNING -- remove_useless_prices_coins - start
+2018-01-26 16:05:08,592 -- root -- WARNING -- remove_useless_prices_coins - end
+2018-01-26 16:05:08,592 -- root -- WARNING -- add_ids - start
+2018-01-26 16:05:08,643 -- root -- WARNING -- add_ids - end
+2018-01-26 16:05:08,644 -- root -- WARNING -- delete_excluded_coins - start
+2018-01-26 16:05:08,699 -- root -- WARNING -- delete_excluded_coins - end
+2018-01-26 16:05:08,700 -- root -- WARNING -- DataImporter ended
+2018-01-26 16:53:08,781 -- root -- WARNING -- DataImporter started
+2018-01-26 16:53:08,789 -- root -- WARNING -- extract_crytopcompare_coins - start
+2018-01-26 16:53:09,437 -- root -- WARNING -- extract_crytopcompare_coins - end
+2018-01-26 16:53:09,438 -- root -- WARNING -- extract_coinmarketcap_prices - start
+2018-01-26 16:53:09,484 -- root -- WARNING -- create_query_prices - start
+2018-01-26 16:53:09,860 -- root -- WARNING -- create_query_prices - end
+2018-01-26 16:53:09,918 -- root -- WARNING -- extract_coinmarketcap_prices - end
+2018-01-26 16:53:09,918 -- root -- WARNING -- remove_useless_prices_coins - start
+2018-01-26 16:53:10,020 -- root -- WARNING -- remove_useless_prices_coins - end
+2018-01-26 16:53:10,020 -- root -- WARNING -- add_ids - start
+2018-01-26 16:53:10,081 -- root -- WARNING -- add_ids - end
+2018-01-26 16:53:10,082 -- root -- WARNING -- delete_excluded_coins - start
+2018-01-26 16:53:10,334 -- root -- WARNING -- delete_excluded_coins - end
+2018-01-26 16:53:10,361 -- root -- WARNING -- DataImporter ended
+2018-01-26 18:08:18,480 -- root -- WARNING -- DataImporter started
+2018-01-26 18:08:18,482 -- root -- ERROR -- start_process - blocking processes running

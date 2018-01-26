@@ -7,7 +7,7 @@ setup(
               'dataimporter/dbaccess', 'dataimporter/extractdata', 'dataimporter/coinmarketcap',
               'dataimporter/cryptocompare'],
     package_dir={'algokpi': 'algokpi', 'dataimporter': 'dataimporter'},
-    install_requires=['requests', 'logging', 'configparser', 'ratelimit', 'psycopg2', 'tzlocal'],
+    install_requires=['requests', 'configparser', 'ratelimit', 'psycopg2', 'tzlocal'],
     url='',
     license='',
     author='csacenda',
