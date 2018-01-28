@@ -19,7 +19,7 @@ logging.warning("DataImporter started")
 
 # If process can't start because other processes running
 IdCurrentProcess = conf.get_config('process_params', 'data_importer_process_id')
-if(not procM.start_process(IdCurrentProcess, 'DataImporter')):
+if(not procM.start_process(IdCurrentProcess, 'DataImporter', sys.argv)):
     sys.exit(1)
 
 try:

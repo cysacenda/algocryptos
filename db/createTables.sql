@@ -331,8 +331,8 @@ CREATE TABLE public.process_params
 (
     "IdProcess" integer NOT NULL,
     "Name" text COLLATE pg_catalog."default",
-	"timestamp" timestamp with time zone,
-    CONSTRAINT process_params_pkey PRIMARY KEY ("IdProcess")
+    "Status" text COLLATE pg_catalog."default",
+	"timestamp" timestamp with time zone
 )
 WITH (
     OIDS = FALSE

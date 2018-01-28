@@ -20,7 +20,7 @@ logging.warning("AlgoKPI Started")
 
 # If process can't start because other processes running
 IdCurrentProcess = conf.get_config('process_params', 'algokpi_process_id')
-if(not procM.start_process(IdCurrentProcess, 'AlgoKPI')):
+if(not procM.start_process(IdCurrentProcess, 'AlgoKPI', sys.argv)):
     sys.exit(1)
 
 try:

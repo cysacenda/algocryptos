@@ -1,27 +1,21 @@
 import requests
 import logging
-
-# API
-URL_PRICE_LIST = 'https://api.coinmarketcap.com/v1/ticker/?limit=0'
-
-# FIELDS
-PRICE = 'PRICE'
-HIGH = 'HIGH24HOUR'
-LOW = 'LOW24HOUR'
-VOLUME = 'VOLUME24HOUR'
-CHANGE = 'CHANGE24HOUR'
-CHANGE_PERCENT = 'CHANGEPCT24HOUR'
-MARKETCAP = 'MKTCAP'
-
-# DEFAULTS
-CURR = 'USD'
+from config.config import Config
 
 class CoinMarketCap:
+    conf = None
+    URL_PRICE_LIST = None
+
+    def __init__(self):
+        self.conf = Config()
+
+        # API urls
+        self.URL_PRICE_LIST = self.conf.get_config('cmc_params', 'url_prices')
 
     # region Get prices
 
     def get_price_list(self, format=False):
-        response = self.query_coinmarketcap(URL_PRICE_LIST, False)
+        response = self.query_coinmarketcap(self.URL_PRICE_LIST, False)
         if format:
             return list(response.keys())
         else:
