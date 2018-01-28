@@ -5,6 +5,7 @@ import tzlocal
 conf = Config()
 DATE_FORMAT = conf.get_config('cryptocompare_params', 'date_format')
 
+
 # Format a unix timestamp ex : 1515926107 to timestamp format for database PostgreSQL
 def format_linux_timestamp_to_db(integer_timestamp):
     unix_timestamp = float(integer_timestamp)

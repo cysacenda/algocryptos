@@ -52,7 +52,7 @@ def __strip_ending(string):
 def __number_of_subscribers(bytecode, after_date=None):
     strdate = ''
     start_collecting_date_ok = True
-    if(after_date != None):
+    if(after_date is not None):
         strdate = after_date.strftime('%Y-%m-%d')
         start_collecting_date_ok = False
 

@@ -62,7 +62,7 @@ class CryptoCompare:
         return self.__get_data_manage_errors(data,url)
 
     def __get_data_manage_errors(self, data, url):
-        if (data != None):
+        if (data is not None):
             if ('Data' not in data.keys()):
                 time.sleep(5)
                 data = self.query_cryptocompare(url)
@@ -97,7 +97,8 @@ class CryptoCompare:
 
     # region Utils
 
-    def query_cryptocompare(self, url, errorCheck=True):
+    @staticmethod
+    def query_cryptocompare(url, errorCheck=True):
         try:
             response = requests.get(url).json()
         except Exception as e:
@@ -108,7 +109,8 @@ class CryptoCompare:
             return None
         return response
 
-    def format_parameter(self, parameter):
+    @staticmethod
+    def format_parameter(parameter):
         if isinstance(parameter, list):
             return ','.join(parameter)
         else:

@@ -13,18 +13,19 @@ procM = ProcessManager()
 
 # Logging params
 logging.basicConfig(filename='dataimporter.log',
-                    format=conf.get_config('log_params','log_format'))
+                    format=conf.get_config('log_params', 'log_format'))
 
 logging.warning("DataImporter started")
 
 # If process can't start because other processes running
 IdCurrentProcess = conf.get_config('process_params', 'data_importer_process_id')
-if(not procM.start_process(IdCurrentProcess, 'DataImporter', sys.argv)):
+if (not procM.start_process(IdCurrentProcess, 'DataImporter', sys.argv)):
     sys.exit(1)
 
 try:
     if __name__ == '__main__':
-        parser = argparse.ArgumentParser(description="Outil permettant l'analyse des données marchés et réseaux sociaux pour les cryptocurrencies")
+        parser = argparse.ArgumentParser(
+            description="Outil permettant l'analyse des données marchés et réseaux sociaux pour les cryptocurrencies")
         parser.add_argument('-c', '--coins', dest="coins", help='Get coin list from Cryptocompare and insert in BDD',
                             action='store_true')
         parser.add_argument('-p', '--prices', dest="prices", help='Insert current prices into BDD', action='store_true')

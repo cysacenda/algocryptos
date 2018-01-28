@@ -3,11 +3,13 @@ from config.config import Config
 from dbaccess.dbconnection import DbConnection
 import time
 
+
 class ProcessManager:
     dbconn = None
     conf = None
     RUNNING = None
     WAITING = None
+
 
     def __init__(self):
         self.conf = Config()
@@ -15,10 +17,11 @@ class ProcessManager:
         self.RUNNING = self.conf.get_config('process_params','status_running')
         self.WAITING = self.conf.get_config('process_params', 'status_waiting')
 
+
     # When starting a process
     def start_process(self, idProcess, name, args, retry_count=0):
         # If no args => Error => Kill process
-        if(args == None or len(args) < 2):
+        if(args is None or len(args) < 2):
             logging.error("start_process - blocking processes running")
             return False
 
@@ -28,7 +31,7 @@ class ProcessManager:
 
         # Check if blocking processes are running (SQL perspective, not linux processes)
         rows = self.dbconn.get_query_result('Select * from process_params where "IdProcess" IN (' + str(blockingprocesses) + ') and "Status" = ' + "'" + self.RUNNING + "';")
-        if(rows != None and len(rows) > 0):
+        if(rows is not None and len(rows) > 0):
             # Check if process should be placed in Waiting
             if(retry_count == 0):
                 if(self.should_be_waiting(idProcess, concatname)):
@@ -53,9 +56,11 @@ class ProcessManager:
         # If not
         return True
 
+
     # When ending a process
     def stop_process(self, idProcess):
         return self.dbconn.exexute_query('Delete from process_params where "IdProcess" = ' + str(idProcess) + ' and "Status" = '+ "'" + self.RUNNING + "'" + ';') == 0
+
 
     # If process there for too long (shouldn't be), delete process from table
     def delete_old_processes(self):
@@ -68,7 +73,8 @@ class ProcessManager:
         squeryselect = 'Select * from process_params where "IdProcess" = ' + str(idProcess) + '\n'
         squeryselect += 'and "Name" = ' + "'" + name + "'"
         rows = self.dbconn.get_query_result(squeryselect)
-        return (rows == None or len(rows) == 0)
+        return (rows is None or len(rows) == 0)
+
 
     def insert_process(self, idProcess, name, status):
         squeryinsert = 'INSERT INTO process_params ("IdProcess", "Name", "Status", "timestamp")\n'
@@ -78,6 +84,7 @@ class ProcessManager:
         squeryinsert += "'" + status + "',"
         squeryinsert += 'current_timestamp)'
         self.dbconn.exexute_query(squeryinsert)
+
 
     def update_process(self, idProcess, name):
         squeryupdate = 'UPDATE process_params SET "Status" = ' + "'" + self.RUNNING + "',\n"

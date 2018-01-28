@@ -25,7 +25,8 @@ class CoinMarketCap:
 
     # region Utils
 
-    def query_coinmarketcap(self, url,errorCheck=True):
+    @staticmethod
+    def query_coinmarketcap(url, errorCheck=True):
         try:
             response = requests.get(url).json()
         except Exception as e:
@@ -36,7 +37,8 @@ class CoinMarketCap:
             return None
         return response
 
-    def format_parameter(self, parameter):
+    @staticmethod
+    def format_parameter(parameter):
         if isinstance(parameter, list):
             return ','.join(parameter)
         else:

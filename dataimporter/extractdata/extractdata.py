@@ -11,6 +11,7 @@ from datetime import datetime
 conf = Config()
 MINIMUM_MARKET_CAP_USD = conf.get_config('market_params', 'minimum_market_cap_usd')
 
+
 # region Coins list
 
 # Cryptocompare : Insert coins list into BDD
@@ -20,6 +21,7 @@ def extract_crytopcompare_coins():
     dbconn.exexute_query("Delete from coins;")
     dbconn.exexute_query(__create_query_coins())
     logging.warning("extract_crytopcompare_coins - end")
+
 
 # Cryptocompare : Get coins list and create insert query for BDD
 # TODO : Add system which insert / update depending on information already in DB
@@ -48,6 +50,7 @@ def __create_query_coins():
     insertquery += ';'
     return insertquery
 
+
 # endregion
 
 # region Coins current prices
@@ -59,6 +62,7 @@ def extract_coinmarketcap_prices():
     dbconn.exexute_query(__create_query_prices())
     logging.warning("extract_coinmarketcap_prices - end")
 
+
 def __create_query_prices():
     logging.warning("create_query_prices - start")
     coinmarket = CoinMarketCap()
@@ -68,7 +72,7 @@ def __create_query_prices():
     insertquery += 'VALUES \n('
 
     for entry in data:
-        #TODO : For the moment, do not take into account cryptos with ' in name
+        # TODO : For the moment, do not take into account cryptos with ' in name
         if (not str(entry['name']).__contains__("'")):
             if (not insertquery.endswith('(')):
                 insertquery += ',\n('
@@ -76,42 +80,42 @@ def __create_query_prices():
             insertquery += "'" + entry['name'] + "',"
             insertquery += entry['rank'] + ","
 
-            if entry['price_usd'] == None:
+            if entry['price_usd'] is None:
                 insertquery += 'NULL' + ","
             else:
                 insertquery += entry['price_usd'] + ","
 
-            if entry['price_btc'] == None:
+            if entry['price_btc'] is None:
                 insertquery += 'NULL' + ","
             else:
                 insertquery += entry['price_btc'] + ","
 
-            if entry['24h_volume_usd'] == None:
+            if entry['24h_volume_usd'] is None:
                 insertquery += 'NULL' + ","
             else:
                 insertquery += entry['24h_volume_usd'] + ","
 
-            if entry['market_cap_usd'] == None:
+            if entry['market_cap_usd'] is None:
                 insertquery += 'NULL' + ","
             else:
                 insertquery += entry['market_cap_usd'] + ","
 
-            if entry['percent_change_1h'] == None:
+            if entry['percent_change_1h'] is None:
                 insertquery += 'NULL' + ","
             else:
                 insertquery += entry['percent_change_1h'] + ","
 
-            if entry['percent_change_24h'] == None:
+            if entry['percent_change_24h'] is None:
                 insertquery += 'NULL' + ","
             else:
                 insertquery += entry['percent_change_24h'] + ","
 
-            if entry['percent_change_7d'] == None:
+            if entry['percent_change_7d'] is None:
                 insertquery += 'NULL' + ","
             else:
                 insertquery += entry['percent_change_7d'] + ","
 
-            if entry['last_updated'] == None:
+            if entry['last_updated'] is None:
                 insertquery += 'NULL'
             else:
                 insertquery += "'" + utils.format_linux_timestamp_to_db(float(entry['last_updated'])) + "'"
@@ -122,7 +126,6 @@ def __create_query_prices():
     return insertquery
 
 
-
 def extract_coinmarketcap_historical_prices():
     logging.warning("extract_coinmarketcap_histo_prices - start")
     dbconn = DbConnection()
@@ -130,7 +133,6 @@ def extract_coinmarketcap_historical_prices():
     dbconn.exexute_query(__create_add_ids("histo_prices"))
     remove_useless_prices("histo_prices")
     logging.warning("extract_coinmarketcap_histo_prices - end")
-
 
 
 def __create_query_historical_prices():
@@ -149,22 +151,22 @@ def __create_query_historical_prices():
             insertquery += "'" + entry['symbol'] + "',"
             insertquery += "'" + entry['name'] + "',"
 
-            if entry['price_usd'] == None:
+            if entry['price_usd'] is None:
                 insertquery += 'NULL' + ","
             else:
                 insertquery += entry['price_usd'] + ","
 
-            if entry['price_btc'] == None:
+            if entry['price_btc'] is None:
                 insertquery += 'NULL' + ","
             else:
                 insertquery += entry['price_btc'] + ","
 
-            if entry['24h_volume_usd'] == None:
+            if entry['24h_volume_usd'] is None:
                 insertquery += 'NULL' + ","
             else:
                 insertquery += entry['24h_volume_usd'] + ","
 
-            if entry['market_cap_usd'] == None:
+            if entry['market_cap_usd'] is None:
                 insertquery += 'NULL' + ","
             else:
                 insertquery += entry['market_cap_usd'] + ","
@@ -174,6 +176,7 @@ def __create_query_historical_prices():
     insertquery += ';'
     logging.warning("create_historical_query_prices - end")
     return insertquery
+
 
 # endregion
 
@@ -188,12 +191,14 @@ def remove_useless_prices_coins():
 
 def remove_useless_prices(table):
     dbconn = DbConnection()
-    dbconn.exexute_query("delete from " + table + " where market_cap_usd < {} or market_cap_usd is null".format(MINIMUM_MARKET_CAP_USD))
+    dbconn.exexute_query(
+        "delete from " + table + " where market_cap_usd < {} or market_cap_usd is null".format(MINIMUM_MARKET_CAP_USD))
 
 
 def remove_useless_coins():
     dbconn = DbConnection()
-    dbconn.exexute_query('delete from coins where "CoinName" not in (select "Name" from prices) AND "Symbol" not in (select symbol from prices)')
+    dbconn.exexute_query(
+        'delete from coins where "CoinName" not in (select "Name" from prices) AND "Symbol" not in (select symbol from prices)')
 
 
 def delete_excluded_coins():
@@ -203,7 +208,8 @@ def delete_excluded_coins():
     dbconn.exexute_query('delete from coins where "IdCryptoCompare" in (select * from excluded_coins);')
     logging.warning("delete_excluded_coins - end")
 
-#endregion
+
+# endregion
 
 # region Add Ids
 
@@ -232,8 +238,8 @@ def add_ids():
     """""
     logging.warning("add_ids - end")
 
-def __create_add_ids(table):
 
+def __create_add_ids(table):
     update_query = 'UPDATE ' + table + ' as ta\n'
     update_query += 'SET "IdCryptoCompare" = co."IdCryptoCompare"\n'
     update_query += 'FROM coins as co\n'
@@ -245,9 +251,10 @@ def __create_add_ids(table):
     update_query += 'WHERE co."CoinName" = ta."Name" AND ta."IdCryptoCompare" IS NULL;'
     return update_query;
 
+
 # endregion
 
-#region Coins socials stats
+# region Coins socials stats
 
 def extract_cryptocompare_social():
     logging.warning("extract_cryptocompare_social - start")
@@ -274,7 +281,8 @@ def __create_cryptocompare_social_infos(coin_id, data):
 
     # Twitter
     if ('name' in data['Twitter'].keys()):
-        insertquery_socialinfos += "'" + utils.format_linux_timestamp_to_db(float(data['Twitter']['account_creation'])) + "',"
+        insertquery_socialinfos += "'" + utils.format_linux_timestamp_to_db(
+            float(data['Twitter']['account_creation'])) + "',"
         insertquery_socialinfos += "'" + data['Twitter']['name'].replace('"', '').replace("'", "") + "',"
         insertquery_socialinfos += "'" + data['Twitter']['link'] + "',"
     else:
@@ -284,7 +292,8 @@ def __create_cryptocompare_social_infos(coin_id, data):
     if ('name' in data['Reddit'].keys() and data['Reddit']['name'] != 'undefined'):
         insertquery_socialinfos += "'" + data['Reddit']['name'] + "',"
         insertquery_socialinfos += "'" + data['Reddit']['link'] + "',"
-        insertquery_socialinfos += "'" + utils.format_linux_timestamp_to_db(float(data['Reddit']['community_creation'])) + "',"
+        insertquery_socialinfos += "'" + utils.format_linux_timestamp_to_db(
+            float(data['Reddit']['community_creation'])) + "',"
     else:
         insertquery_socialinfos += "NULL, NULL, NULL,"
 
@@ -311,7 +320,8 @@ def create_cryptocompare_social_stats(coin_id, data):
         insertquery_socialinfos += "0,"
 
     # Reddit
-    if ('posts_per_day' in data['Reddit'].keys() and 'comments_per_day' in data['Reddit'].keys() and 'active_users' in data['Reddit'].keys() and 'subscribers' in data['Reddit'].keys()):
+    if ('posts_per_day' in data['Reddit'].keys() and 'comments_per_day' in data['Reddit'].keys() and 'active_users' in
+            data['Reddit'].keys() and 'subscribers' in data['Reddit'].keys()):
         insertquery_socialinfos += str(data['Reddit']['posts_per_day']) + ","
         insertquery_socialinfos += str(data['Reddit']['comments_per_day']) + ","
         insertquery_socialinfos += str(data['Reddit']['active_users']) + ","
@@ -332,7 +342,8 @@ def create_cryptocompare_social_stats(coin_id, data):
     insertquery_socialinfos += ');'
     return insertquery_socialinfos
 
-#endregion
+
+# endregion
 
 # region Reddit
 
@@ -355,13 +366,13 @@ def extract_reddit_data():
         # region Récupération historique (scraping redditmetrics.com)
 
         # Si aucun historique, on récupère tout
-        if(row[2] == None):
+        if (row[2] is None):
             subscribers, dates = reddit.get_subscribers_histo(row[1])
-            if(not not subscribers):
+            if (not not subscribers):
                 dbconn.exexute_query(__create_query_reddit_stats(row[0], subscribers, dates))
 
         # Si historique partiel, on essaye de récupérer l'historique aux dates manquantes
-        elif((datetime.now().astimezone() - row[2]).days >= 2):
+        elif ((datetime.now().astimezone() - row[2]).days >= 2):
             subscribers, dates = reddit.get_subscribers_histo(row[1], after_date=row[2])
             if (not not subscribers):
                 dbconn.exexute_query(__create_query_reddit_stats(row[0], subscribers, dates))
@@ -392,6 +403,7 @@ def __create_query_reddit_stats(idCoin, subscribers, dates):
     insertquery_reddit_stats += ';'
     return insertquery_reddit_stats
 
+
 def __create_query_reddit_real_time(coin_id, dictInfos):
     reddit_real_time = ''
 
@@ -405,15 +417,16 @@ def __create_query_reddit_real_time(coin_id, dictInfos):
         reddit_real_time += ');'
     return reddit_real_time
 
+
 # endregion
 
-#region Trading pairs & histo volumes, prices
+# region Trading pairs & histo volumes, prices
 
 def extract_histo_ohlcv():
     logging.warning("extract_histo_ohlcv - start")
     # Get coins id to be retrieved from APIs
     dbconn = DbConnection()
-    req =  'select co."IdCryptoCompare", co."Symbol", max(hi."timestamp")  from coins as co\n'
+    req = 'select co."IdCryptoCompare", co."Symbol", max(hi."timestamp")  from coins as co\n'
     req += 'left outer join histo_volumes as hi on (co."IdCryptoCompare" = hi."IdCoinCryptoCompare")\n'
     req += 'group by co."IdCryptoCompare", co."Symbol"'
     rows = dbconn.get_query_result(req)
@@ -427,7 +440,7 @@ def __extract_histo_ohlcv_for_coin(coin_id, symbol, lastdate):
     dict_dates_volumes = {}
     data = __get_trading_pairs_for_crypto(symbol)
 
-    if(data != None):
+    if (data is not None):
         for key in data:
             __get_histo_ohlcv_for_pair(dict_dates_volumes, symbol, key['toSymbol'], lastdate)
 
@@ -442,14 +455,15 @@ def __get_trading_pairs_for_crypto(symbol):
     data = cryptocomp.get_trading_pairs(symbol)
     return data
 
+
 def __get_histo_ohlcv_for_pair(dict_dates_volumes, symbolFrom, symbolTo, lastdate):
     cryptocomp = CryptoCompare()
     limit = 2000
 
     # If data already in database, retrieve only needed data
-    if(lastdate != None):
-        limit = int(((datetime.now().astimezone() - lastdate).total_seconds())/3600) - 1
-        if(limit == 0):
+    if (lastdate is not None):
+        limit = int(((datetime.now().astimezone() - lastdate).total_seconds()) / 3600) - 1
+        if (limit == 0):
             limit = 1
 
     data = cryptocomp.get_histo_hour_pair(symbolFrom, symbolTo, limit)
@@ -473,4 +487,4 @@ def __create_query_histo_ohlcv(coin_id, data):
     insertquery += ';'
     return insertquery
 
-#endregion
+# endregion
