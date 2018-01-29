@@ -1,9 +1,9 @@
 import requests
 import time
-import datetime
 from config.config import Config
 from ratelimit import rate_limited
 import logging
+
 
 class CryptoCompare:
     conf = None
@@ -38,9 +38,9 @@ class CryptoCompare:
 
     # region Retrieve infos from CryptoCompare
 
-    def get_coin_list(self, format=False):
+    def get_coin_list(self, format_response=False):
         response = self.query_cryptocompare(self.URL_COIN_LIST, False)['Data']
-        if format:
+        if format_response:
             return list(response.keys())
         else:
             return response
@@ -59,14 +59,14 @@ class CryptoCompare:
     def get_histo_hour_pair(self, symbol1, symbol2, limit):
         url = self.URL_HISTO_HOUR_PAIR.format(symbol1, symbol2, limit)
         data = self.query_cryptocompare(url)
-        return self.__get_data_manage_errors(data,url)
+        return self.__get_data_manage_errors(data, url)
 
     def __get_data_manage_errors(self, data, url):
-        if (data is not None):
-            if ('Data' not in data.keys()):
+        if data is not None:
+            if 'Data' not in data.keys():
                 time.sleep(5)
                 data = self.query_cryptocompare(url)
-            if ('Data' not in data.keys()):
+            if 'Data' not in data.keys():
                 return None
             return data['Data']
         else:
@@ -80,7 +80,8 @@ class CryptoCompare:
     def get_historical_price(self, coin, timestamp=time.time()):
         if isinstance(timestamp, datetime.datetime):
             timestamp = time.mktime(timestamp.timetuple())
-        return self.query_cryptocompare(self.URL_HIST_PRICE.format(coin, self.format_parameter(self.CURR), int(timestamp)))
+        return self.query_cryptocompare(self.URL_HIST_PRICE.format(
+        coin, self.format_parameter(self.CURR), int(timestamp)))
 
     def get_price(self, coin, full=False):
         if full:
@@ -98,13 +99,13 @@ class CryptoCompare:
     # region Utils
 
     @staticmethod
-    def query_cryptocompare(url, errorCheck=True):
+    def query_cryptocompare(url, error_check=True):
         try:
             response = requests.get(url).json()
         except Exception as e:
             logging.error("Error getting information from cryptocompare. " + str(e))
             return None
-        if errorCheck and 'Response' in response.keys() and response['Response'] != 'Success':
+        if error_check and 'Response' in response.keys() and response['Response'] != 'Success':
             logging.error("[ERROR] " + response['Message'])
             return None
         return response

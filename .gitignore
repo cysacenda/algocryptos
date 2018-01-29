@@ -13,11 +13,3 @@ dist
 
 #Others
 *.log
-dataimporter/coinmarketcap/__pycache__/
-dataimporter/config/__pycache__/
-dataimporter/cryptocompare/__pycache__/
-dataimporter/dbaccess/__pycache__/
-dataimporter/extractdata/__pycache__/
-dataimporter/processmanager/__pycache__/
-dataimporter/reddit/__pycache__/
-dataimporter/utils/__pycache__/

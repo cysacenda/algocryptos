@@ -19,7 +19,7 @@ logging.warning("DataImporter started")
 
 # If process can't start because other processes running
 IdCurrentProcess = conf.get_config('process_params', 'data_importer_process_id')
-if (not procM.start_process(IdCurrentProcess, 'DataImporter', sys.argv)):
+if not procM.start_process(IdCurrentProcess, 'DataImporter', sys.argv):
     sys.exit(1)
 
 try:
@@ -30,7 +30,7 @@ try:
                             action='store_true')
         parser.add_argument('-p', '--prices', dest="prices", help='Insert current prices into BDD', action='store_true')
         parser.add_argument('-d', '--deleteMeaninglessCoins', dest="deleteMeaninglessCoins",
-                            help='Delete coins and prices that are judged useless (market cap to low, no match between CMC & Cryptocompare names)',
+                            help='Delete coins and prices that are judged useless',
                             action='store_true')
         parser.add_argument('-s', '--socialStats', dest="socialStats", help='Insert current prices into BDD',
                             action='store_true')
@@ -43,52 +43,53 @@ try:
                             help='Insert current prices into historical database', action='store_true')
         args = parser.parse_args()
 
-        if (args.coins):
+        if args.coins:
             # -----------------------------------------------
             # Get coin list from Cryptocompare and insert in BDD
             # -----------------------------------------------
             extractdata.extract_crytopcompare_coins()
 
-        if (args.prices):
+        if args.prices:
             # -----------------------------------------------
             # Get prices for coins from CoinMarketCap and insert in BDD
             # -----------------------------------------------
             extractdata.extract_coinmarketcap_prices()
 
-        if (args.deleteMeaninglessCoins):
+        if args.deleteMeaninglessCoins:
             # -----------------------------------------------
-            # Delete coins and prices that are judged useless (market cap to low, no match between CMC & Cryptocompare names)
+            # Delete coins and prices that are judged useless (market cap to low, no match between CMC
+            # & Cryptocompare names)
             # Add CryptoCompare Ids to prices (retrieved from CMC so without Ids)
             # -----------------------------------------------
             extractdata.remove_useless_prices_coins()
             extractdata.add_ids()
             extractdata.delete_excluded_coins()
 
-        if (args.socialStats):
+        if args.socialStats:
             # -----------------------------------------------
             # Social infos & stats from Cryptocompare
             # -----------------------------------------------
             extractdata.extract_cryptocompare_social()
 
-        if (args.reddit):
+        if args.reddit:
             # -----------------------------------------------
             # Social stats from Redditmetric / reddit/subreddit/about.json
             # -----------------------------------------------
             extractdata.extract_reddit_data()
 
-        if (args.histoohlcv):
+        if args.histoohlcv:
             # -----------------------------------------------
             # Histo OHLCV (V only for the moment)
             # -----------------------------------------------
             extractdata.extract_histo_ohlcv()
 
-        if (args.histoprices):
+        if args.histoprices:
             # -----------------------------------------------
             # Get prices for coins from CoinMarketCap and insert in histo_prices
             # -----------------------------------------------
             extractdata.extract_coinmarketcap_historical_prices()
 
-        if (args.full):
+        if args.full:
             # -----------------------------------------------
             # Get everything (Useful for first-timer)
             # -----------------------------------------------
