@@ -46,6 +46,7 @@ class ProcessManager:
                 return self.start_process(idProcess, name, args, retry_count + 1)
             else:
                 logging.error("start_process - blocking processes running")
+                self.stop_process(idProcess, self.WAITING)
                 return False
         else:
             if(retry_count > 0):
@@ -58,8 +59,8 @@ class ProcessManager:
 
 
     # When ending a process
-    def stop_process(self, idProcess):
-        return self.dbconn.exexute_query('Delete from process_params where "IdProcess" = ' + str(idProcess) + ' and "Status" = '+ "'" + self.RUNNING + "'" + ';') == 0
+    def stop_process(self, idProcess, status=RUNNING):
+        return self.dbconn.exexute_query('Delete from process_params where "IdProcess" = ' + str(idProcess) + ' and "Status" = '+ "'" + status + "'" + ';') == 0
 
 
     # If process there for too long (shouldn't be), delete process from table
