@@ -5,7 +5,7 @@ setup(
     version='0.0.1',
     packages=['dataimporter', 'algokpi', 'dataimporter/utils', 'dataimporter/config', 'dataimporter/reddit',
               'dataimporter/dbaccess', 'dataimporter/extractdata', 'dataimporter/coinmarketcap',
-              'dataimporter/cryptocompare'],
+              'dataimporter/cryptocompare', 'dataimporter/processmanager'],
     package_dir={'algokpi': 'algokpi', 'dataimporter': 'dataimporter'},
     install_requires=['requests', 'configparser', 'ratelimit', 'psycopg2', 'tzlocal'],
     url='',

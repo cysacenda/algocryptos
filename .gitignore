@@ -3,8 +3,13 @@
 
 #Pycharm
 .idea/workspace.xml
+.idea/algocryptos_scripts.iml
+.idea/misc.xml
 
 #Setup
 algocryptos.egg-info
 build
 dist
+
+#Others
+*.log

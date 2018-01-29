@@ -59,7 +59,9 @@ class ProcessManager:
 
 
     # When ending a process
-    def stop_process(self, idProcess, status=RUNNING):
+    def stop_process(self, idProcess, status=None):
+        if(status is None):
+            status = self.RUNNING
         return self.dbconn.exexute_query('Delete from process_params where "IdProcess" = ' + str(idProcess) + ' and "Status" = '+ "'" + status + "'" + ';') == 0
 
 

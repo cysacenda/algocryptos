@@ -23,8 +23,9 @@ Outil permettant l'analyse des données marchés et réseaux sociaux pour les cr
             - 3 / createTables
     - Python :
         - Paramétrer Python dans l'IDE : File / Setting / Project Interpreter / Add Local et choisir installation Python locale
-        - Installer les librairies manquantes Python dans le Terminal de Pycharm via la commande "python setup.py install" 
-        - installer le token github / sinon utilisation possible login / mdp
+        - Installer les librairies manquantes Python dans le Terminal de Pycharm via la commande "python setup.py install"
+        - Ouvrir dataimporter/main.py dans Pycharm. Si encadré jaune en haut demandant l'installation de librairies manquantes => GO
+        - Installer le token github / sinon utilisation possible login / mdp
     - Fronting / Node / Angular :
         - Faire un install du package.json
         - Utiliser les scripts du package.json via Webstorm pour builder le node, starter le node et starter l'angular
@@ -59,6 +60,7 @@ Outil permettant l'analyse des données marchés et réseaux sociaux pour les cr
     - VCS / Update
     
 ##Régler problème en production
+- Process manager, il se peut (en théorie non mais on ne sais jamais), qu'un process reste inscrit
 - Process manager, il se peut (en théorie non mais on ne sais jamais), qu'un process reste inscrit
 dans la table process_params ce qui aura pour effet de bloquer les autres traitements.
 Il est possible d'appeler cet api http://localhost:3000/api/params/resetprocesses pour vider la table
