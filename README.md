@@ -65,3 +65,15 @@ Outil permettant l'analyse des données marchés et réseaux sociaux pour les cr
 dans la table process_params ce qui aura pour effet de bloquer les autres traitements.
 Il est possible d'appeler cet api http://localhost:3000/api/params/resetprocesses pour vider la table
 et permettre aux traitements de se lancer correctement
+
+## Deployment
+- Python : Git clone repository + install : to be completed
+- Angular : https://angular.io/guide/deployment
+    -Pré-requis : Installer Node et installer le package.json : npm install
+    -Dans repo algocryptos_web : 
+        -src/environments/environment.prod.ts : si nécessaire, maj url API vers serveur node api
+        -Lancer la commande pour builder le projet : ng build --prod
+        -Récupérer le contenu du dossier dist/ et le copier sur le serveur web (Apache, etc.)
+- Node :
+    -To be completed : npm install à faire aussi
+        
