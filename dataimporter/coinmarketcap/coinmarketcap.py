@@ -34,7 +34,7 @@ class CoinMarketCap:
             logging.error("Error getting prices information from CMC. " + str(e))
             return None
         if error_check and 'Response' in response.keys():
-            logging.error("[ERROR] " + response['Message'])
+            logging.warning("[WARNING] " + response['Message'])
             return None
         return response
 
