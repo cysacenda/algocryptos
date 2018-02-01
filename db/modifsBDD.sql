@@ -30,7 +30,8 @@ COMMENT ON TABLE public.histo_prices
 
 -- Table: public.kpi_reddit_subscribers
 
-DROP TABLE public.kpi_reddit_subscribers;
+ALTER TABLE kpi_reddit_subscribers
+RENAME TO kpi_reddit_subscribers_histo;
 
 CREATE TABLE public.kpi_reddit_subscribers
 (
@@ -59,26 +60,6 @@ COMMENT ON TABLE public.kpi_reddit_subscribers
     IS 'Contains one line per cryptocurency with kpis on reddit subscribers, store only last kpi calcul';
 
 
--- Table: public.kpi_reddit_subscribers
-
-DROP TABLE public.kpi_reddit_subscribers;
-CREATE TABLE public.kpi_reddit_subscribers_histo
-(
-    "IdCryptoCompare" bigint,
-    subscribers_1d_trend double precision,
-    subscribers_3d_trend double precision,
-    subscribers_7d_trend double precision,
-    subscribers_15d_trend double precision,
-    subscribers_30d_trend double precision,
-    subscribers_60d_trend double precision,
-    subscribers_90d_trend double precision,
-    "timestamp" timestamp with time zone
-)
-WITH (
-    OIDS = FALSE
-)
-TABLESPACE pg_default;
-
 ALTER TABLE public.kpi_reddit_subscribers_histo
     OWNER to postgres;
 
@@ -91,7 +72,6 @@ COMMENT ON TABLE public.kpi_reddit_subscribers_histo
 
 -- Table: public.process_params
 
-DROP TABLE public.process_params;
 CREATE TABLE public.process_params
 (
     "IdProcess" integer NOT NULL,
