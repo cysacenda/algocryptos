@@ -1,3 +1,4 @@
+from coinmarketcap import coinmarketcap
 from dbaccess.dbconnection import DbConnection
 from cryptocompare.cryptocompare import CryptoCompare
 from coinmarketcap.coinmarketcap import CoinMarketCap
@@ -444,16 +445,17 @@ def extract_histo_ohlcv():
     # Get coins id to be retrieved from APIs
     dbconn = DbConnection()
     req = 'select co."IdCryptoCompare", co."Symbol", max(hi."timestamp")  from coins as co\n'
-    req += 'left outer join histo_volumes as hi on (co."IdCryptoCompare" = hi."IdCoinCryptoCompare")\n'
+    req += 'left outer join histo_ohlcv as hi on (co."IdCryptoCompare" = hi."IdCoinCryptoCompare")\n'
     req += 'group by co."IdCryptoCompare", co."Symbol"'
     rows = dbconn.get_query_result(req)
     for row in rows:
-        __extract_histo_ohlcv_for_coin(row[0], row[1], row[2])
+        __extract_histo_volumes_for_coin(row[0], row[1], row[2])
+        __extract_histo_ohlc_for_coin(row[0], row[1], row[2])
 
     logging.warning("extract_histo_ohlcv - end")
 
 
-def __extract_histo_ohlcv_for_coin(coin_id, symbol, lastdate):
+def __extract_histo_volumes_for_coin(coin_id, symbol, lastdate):
     dict_dates_volumes = {}
     data = __get_trading_pairs_for_crypto(symbol)
 
@@ -464,8 +466,24 @@ def __extract_histo_ohlcv_for_coin(coin_id, symbol, lastdate):
         # if found values
         if dict_dates_volumes:
             dbconn = DbConnection()
-            dbconn.exexute_query(__create_query_histo_ohlcv(coin_id, dict_dates_volumes))
+            dbconn.exexute_query(__create_query_histo_v(coin_id, dict_dates_volumes))
 
+def __extract_histo_ohlc_for_coin(coin_id, symbol, lastdate):
+    cryptocomp = CryptoCompare()
+    limit = 2000
+
+    # If data already in database, retrieve only needed data
+    if lastdate is not None:
+        limit = int(((datetime.now().astimezone() - lastdate).total_seconds()) / 3600) - 1
+        if limit == 0:
+            limit = 1
+
+    data = cryptocomp.get_histo_hour_pair(symbol, conf.get_config('cryptocompare_params', 'default_currency'), limit)
+
+    dbconn = DbConnection()
+    updatequery = __create_query_histo_ohlc(coin_id, data)
+    if updatequery != '':
+        dbconn.exexute_query(updatequery)
 
 def __get_trading_pairs_for_crypto(symbol):
     cryptocomp = CryptoCompare()
@@ -491,9 +509,9 @@ def __get_histo_ohlcv_for_pair(dict_dates_volumes, symbol_from, symbol_to, lastd
             dict_dates_volumes[int(key['time'])] = key['volumefrom']
 
 
-def __create_query_histo_ohlcv(coin_id, data):
-    insertquery = 'INSERT INTO public.histo_volumes ("IdCoinCryptoCompare", ' \
-                  '"1h_volumes_aggregated_pairs", "timestamp")\n'
+def __create_query_histo_v(coin_id, data):
+    insertquery = 'INSERT INTO public.histo_ohlcv ("IdCoinCryptoCompare", ' \
+                  '"volume_aggregated", "timestamp")\n'
     insertquery += 'VALUES \n('
     for key in data:
         if not insertquery.endswith('('):
@@ -504,5 +522,20 @@ def __create_query_histo_ohlcv(coin_id, data):
         insertquery += ')'
     insertquery += ';'
     return insertquery
+
+# TODO
+def __create_query_histo_ohlc(coin_id, data):
+    updatequery = ''
+    if data is not None:
+        for key in data:
+            updatequery += 'UPDATE public.histo_ohlcv SET\n'
+            updatequery += '"open" =' + utils.float_to_str(key['open']) + ', '
+            updatequery += '"high" =' + utils.float_to_str(key['high']) + ', '
+            updatequery += '"low" =' + utils.float_to_str(key['low']) + ', '
+            updatequery += '"close" =' + utils.float_to_str(key['close']) + '\n'
+            updatequery += 'WHERE "IdCoinCryptoCompare" = ' + str(coin_id) + "\n"
+            updatequery += 'AND "timestamp" = ' + "'" + utils.format_linux_timestamp_to_db(float(key['time'])) + "'"
+            updatequery += ';\n'
+        return updatequery
 
 # endregion

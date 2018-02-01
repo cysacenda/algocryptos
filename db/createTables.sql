@@ -155,14 +155,18 @@ COMMENT ON TABLE public.social_stats_reddit
 
 
 
--- Table: public.histo_volumes
+-- Table: public.histo_ohlcv
 
--- DROP TABLE public.histo_volumes;
+-- DROP TABLE public.histo_ohlcv;
 
-CREATE TABLE public.histo_volumes
+CREATE TABLE public.histo_ohlcv
 (
     "IdCoinCryptoCompare" bigint NOT NULL,
-    "1h_volumes_aggregated_pairs" double precision,
+    "open" double precision,
+    "high" double precision,
+    "low" double precision,
+    "close" double precision,
+    "volume_aggregated" double precision,
     "timestamp" timestamp with time zone
 )
 WITH (
@@ -170,14 +174,14 @@ WITH (
 )
 TABLESPACE pg_default;
 
-ALTER TABLE public.histo_volumes
+ALTER TABLE public.histo_ohlcv
     OWNER to postgres;
 
-GRANT ALL ON TABLE public.histo_volumes TO dbuser;
-GRANT ALL ON TABLE public.histo_volumes TO postgres;
+GRANT ALL ON TABLE public.histo_ohlcv TO dbuser;
+GRANT ALL ON TABLE public.histo_ohlcv TO postgres;
 
-COMMENT ON TABLE public.histo_volumes
-    IS 'Contains one line per cryptocurrency per date per hour with informations on the volumes of the cryptocurrency, data comes from CryptoCompare and volumes are calculated on an aggregate of main trading pairs (so it s not the global volume, but we are looking for trends, so ok';
+COMMENT ON TABLE public.histo_ohlcv
+    IS 'Contains one line per cryptocurrency per date per hour with informations on OHLC and the volumes of the cryptocurrency, data comes from CryptoCompare and volumes are calculated on an aggregate of main trading pairs (so it s not the global volume, but we are looking for trends, so ok';
 
 
 -- Table: public.excluded_coins
