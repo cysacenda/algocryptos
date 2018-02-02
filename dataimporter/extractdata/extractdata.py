@@ -8,6 +8,7 @@ import utils
 import logging
 import time
 from datetime import datetime
+import athindex
 
 conf = Config()
 MINIMUM_MARKET_CAP_USD = conf.get_config('market_params', 'minimum_market_cap_usd')
@@ -537,5 +538,8 @@ def __create_query_histo_ohlc(coin_id, data):
             updatequery += 'AND "timestamp" = ' + "'" + utils.format_linux_timestamp_to_db(float(key['time'])) + "'"
             updatequery += ';\n'
     return updatequery
+
+def extract_athindexes():
+    athindex.get_athindex()
 
 # endregion

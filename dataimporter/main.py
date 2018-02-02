@@ -41,6 +41,8 @@ try:
                             action='store_true')
         parser.add_argument('-hp', '--histoprices', dest="histoprices",
                             help='Insert current prices into historical database', action='store_true')
+        parser.add_argument('-ath', '--athprices', dest="athprices",
+                            help='Insert ath prices into db', action='store_true')
         args = parser.parse_args()
 
         if args.coins:
@@ -88,6 +90,9 @@ try:
             # Get prices for coins from CoinMarketCap and insert in histo_prices
             # -----------------------------------------------
             extractdata.extract_coinmarketcap_historical_prices()
+
+        if(args.athprices):
+            extractdata.extract_athindexes()
 
         if args.full:
             # -----------------------------------------------
