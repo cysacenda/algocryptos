@@ -536,6 +536,6 @@ def __create_query_histo_ohlc(coin_id, data):
             updatequery += 'WHERE "IdCoinCryptoCompare" = ' + str(coin_id) + "\n"
             updatequery += 'AND "timestamp" = ' + "'" + utils.format_linux_timestamp_to_db(float(key['time'])) + "'"
             updatequery += ';\n'
-        return updatequery
+    return updatequery
 
 # endregion

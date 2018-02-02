@@ -106,7 +106,7 @@ class CryptoCompare:
             logging.error("Error getting information from cryptocompare. " + str(e))
             return None
         if error_check and 'Response' in response.keys() and response['Response'] != 'Success':
-            logging.error("[ERROR] " + response['Message'])
+            logging.warning("[ERROR] " + response['Message'])
             return None
         return response
 
