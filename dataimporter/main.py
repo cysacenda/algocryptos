@@ -91,7 +91,7 @@ try:
             # -----------------------------------------------
             extractdata.extract_coinmarketcap_historical_prices()
 
-        if(args.athprices):
+        if args.athprices:
             extractdata.extract_athindexes()
 
         if args.full:

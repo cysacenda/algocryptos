@@ -540,6 +540,10 @@ def __create_query_histo_ohlc(coin_id, data):
     return updatequery
 
 def extract_athindexes():
-    athindex.get_athindex()
+    squery = athindex.get_athindex_query()
+    if squery != '':
+        dbconn = DbConnection()
+        dbconn.exexute_query(squery)
+
 
 # endregion

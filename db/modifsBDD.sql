@@ -1,93 +1,34 @@
--- Table: public.kpi_reddit_subscribers
+DROP TABLE public.prices;
 
-ALTER TABLE kpi_reddit_subscribers
-RENAME TO kpi_reddit_subscribers_histo;
-
-CREATE TABLE public.kpi_reddit_subscribers
+CREATE TABLE public.prices
 (
     "IdCryptoCompare" bigint,
-    subscribers_1d_trend double precision,
-    subscribers_3d_trend double precision,
-    subscribers_7d_trend double precision,
-    subscribers_15d_trend double precision,
-    subscribers_30d_trend double precision,
-    subscribers_60d_trend double precision,
-    subscribers_90d_trend double precision,
-    "timestamp" timestamp with time zone
-)
-WITH (
-    OIDS = FALSE
-)
-TABLESPACE pg_default;
-
-ALTER TABLE public.kpi_reddit_subscribers
-    OWNER to postgres;
-
-GRANT ALL ON TABLE public.kpi_reddit_subscribers TO dbuser;
-GRANT ALL ON TABLE public.kpi_reddit_subscribers TO postgres;
-
-COMMENT ON TABLE public.kpi_reddit_subscribers
-    IS 'Contains one line per cryptocurency with kpis on reddit subscribers, store only last kpi calcul';
-
-
-ALTER TABLE public.kpi_reddit_subscribers_histo
-    OWNER to postgres;
-
-GRANT ALL ON TABLE public.kpi_reddit_subscribers_histo TO dbuser;
-GRANT ALL ON TABLE public.kpi_reddit_subscribers_histo TO postgres;
-
-COMMENT ON TABLE public.kpi_reddit_subscribers_histo
-    IS 'Contains one line per cryptocurency with kpis on reddit subscribers, store all historic of KPI';
-
-
--- Table: public.process_params
-
-CREATE TABLE public.process_params
-(
-    "IdProcess" integer NOT NULL,
+    Symbol character varying(9) COLLATE pg_catalog."default" NOT NULL,
     "Name" text COLLATE pg_catalog."default",
-    "Status" text COLLATE pg_catalog."default",
-	"timestamp" timestamp with time zone
+    Rank integer,
+    Price_usd double precision,
+    Price_btc double precision,
+    "24h_volume_usd" double precision,
+    Market_cap_usd double precision,
+    Percent_change_1h double precision,
+    Percent_change_24h double precision,
+    Percent_change_7d double precision,
+    Prices_ath_usd double precision,
+    Ath_date timestamp with time zone,
+    Last_updated timestamp with time zone
+    -- CONSTRAINT prices_pkey PRIMARY KEY (Symbol)
 )
 WITH (
     OIDS = FALSE
 )
 TABLESPACE pg_default;
 
-ALTER TABLE public.process_params
+ALTER TABLE public.prices
     OWNER to postgres;
 
-GRANT ALL ON TABLE public.process_params TO dbuser;
-GRANT ALL ON TABLE public.process_params TO postgres;
+GRANT ALL ON TABLE public.prices TO dbuser;
+GRANT ALL ON TABLE public.prices TO postgres;
 
-COMMENT ON TABLE public.process_params
-    IS 'Allow to avoid some processes to run at the same time';
+COMMENT ON TABLE public.prices
+    IS 'Contains one line per cryptocurrency, data comes from CoinMarketCap';
 
-
--- Table: public.histo_ohlcv
-
-DROP TABLE public.histo_volumes;
-
-CREATE TABLE public.histo_ohlcv
-(
-    "IdCoinCryptoCompare" bigint NOT NULL,
-    "open" double precision,
-    "high" double precision,
-    "low" double precision,
-    "close" double precision,
-    "volume_aggregated" double precision,
-    "timestamp" timestamp with time zone
-)
-WITH (
-    OIDS = FALSE
-)
-TABLESPACE pg_default;
-
-ALTER TABLE public.histo_ohlcv
-    OWNER to postgres;
-
-GRANT ALL ON TABLE public.histo_ohlcv TO dbuser;
-GRANT ALL ON TABLE public.histo_ohlcv TO postgres;
-
-COMMENT ON TABLE public.histo_ohlcv
-    IS 'Contains one line per cryptocurrency per date per hour with informations on OHLC and the volumes of the cryptocurrency, data comes from CryptoCompare and volumes are calculated on an aggregate of main trading pairs (so it s not the global volume, but we are looking for trends, so ok';
