@@ -2,7 +2,7 @@ import datetime
 import extractdata
 import logging
 import argparse
-from config.config import Config
+from  config.config import Config
 from processmanager import ProcessManager
 import sys
 

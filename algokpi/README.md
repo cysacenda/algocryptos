@@ -1,15 +1,15 @@
 # AlgoKPI
-Module de calcul des KPI à partir des données brutes importées par le module DataImpoter en base de données
+Module de calcul des KPI à partir des donnees brutes importees par le module DataImpoter en base de donnees
 
 ## NB
-Réutiliser les modules déjà créés dans dataimporter (à voir par la suite si on remonte d'un cran les modules partagés) :
+Reutiliser les modules dejà crees dans dataimporter (à voir par la suite si on remonte d'un cran les modules partages) :
 - logging
 - config
 - dbaccess
 - utils
 
 ## Structuration du module
-Isolation des différentes fonctionnalités dans des packages / dossiers
+Isolation des differentes fonctionnalites dans des packages / dossiers
 
 ### Packages / Fichiers :
 - 
