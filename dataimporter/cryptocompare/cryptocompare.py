@@ -1,6 +1,6 @@
 import requests
 import time
-from config.config import Config
+from commons.config import Config
 from ratelimit import rate_limited
 import logging
 

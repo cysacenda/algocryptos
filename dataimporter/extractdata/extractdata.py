@@ -1,8 +1,7 @@
-from coinmarketcap import coinmarketcap
-from dbaccess.dbconnection import DbConnection
+from commons.dbaccess import DbConnection
 from cryptocompare.cryptocompare import CryptoCompare
 from coinmarketcap.coinmarketcap import CoinMarketCap
-from config.config import Config
+from commons.config import Config
 import reddit
 import utils
 import logging

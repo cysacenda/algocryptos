@@ -1,5 +1,5 @@
-from dataimporter.dbaccess import DbConnection
-from dataimporter.config import Config
+from commons.dbaccess import DbConnection
+from commons.config import Config
 import logging
 from datetime import datetime
 

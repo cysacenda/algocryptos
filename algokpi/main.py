@@ -3,8 +3,8 @@ import logging
 from kpi_reddit import calcul_reddit_kpi
 import argparse
 import sys
-from dataimporter.config import Config
-from dataimporter.processmanager import ProcessManager
+from commons.config import Config
+from commons.processmanager import ProcessManager
 
 # Configuration
 conf = Config()

@@ -1,6 +1,6 @@
 import requests
 import logging
-from config.config import Config
+from commons.config import Config
 
 
 class CoinMarketCap:

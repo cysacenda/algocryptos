@@ -1,7 +1,5 @@
 from urllib import request
-from config.config import Config
-import requests
-from ratelimit import rate_limited
+from commons.config import Config
 import logging
 
 conf = Config()

@@ -2,8 +2,8 @@ import datetime
 import extractdata
 import logging
 import argparse
-from  config.config import Config
-from processmanager import ProcessManager
+from commons.config import Config
+from commons.processmanager import ProcessManager
 import sys
 
 # Configuration
