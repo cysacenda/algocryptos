@@ -1,10 +1,10 @@
+import sys
 import datetime
 import extractdata
 import logging
 import argparse
 from commons.config import Config
 from commons.processmanager import ProcessManager
-import sys
 
 # Configuration
 conf = Config()

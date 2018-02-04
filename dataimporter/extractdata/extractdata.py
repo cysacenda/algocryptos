@@ -3,7 +3,7 @@ from cryptocompare.cryptocompare import CryptoCompare
 from coinmarketcap.coinmarketcap import CoinMarketCap
 from commons.config import Config
 import reddit
-import utils
+from commons.utils import utils
 import logging
 import time
 from datetime import datetime
