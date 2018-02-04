@@ -45,8 +45,6 @@ CREATE TABLE public.prices
     Percent_change_1h double precision,
     Percent_change_24h double precision,
     Percent_change_7d double precision,
-    Prices_ath_usd double precision,
-    Ath_date timestamp with time zone,
     Last_updated timestamp with time zone
     -- CONSTRAINT prices_pkey PRIMARY KEY (Symbol)
 )
@@ -353,3 +351,33 @@ GRANT ALL ON TABLE public.process_params TO postgres;
 
 COMMENT ON TABLE public.process_params
     IS 'Allow to avoid some processes to run at the same time';
+
+-- Table: public.ath_prices
+
+-- DROP TABLE public.ath_prices;
+
+CREATE TABLE public.ath_prices
+(
+    "IdCryptoCompare" bigint,
+    "Name" text COLLATE pg_catalog."default",
+    Prices_ath_usd double precision,
+    Ath_date timestamp with time zone,
+    Last_updated timestamp with time zone
+    -- CONSTRAINT prices_pkey PRIMARY KEY (Symbol)
+)
+WITH (
+    OIDS = FALSE
+)
+TABLESPACE pg_default;
+
+ALTER TABLE public.ath_prices
+    OWNER to postgres;
+
+GRANT ALL ON TABLE public.ath_prices TO dbuser;
+GRANT ALL ON TABLE public.ath_prices TO postgres;
+
+COMMENT ON TABLE public.ath_prices
+    IS 'Contains one line per cryptocurrency with ATH et ATH date';
+
+
+

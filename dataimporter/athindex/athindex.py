@@ -25,7 +25,6 @@ def __get_page_source(url):
 
 def __parsedata(byte_code):
     update_query = ''
-    # TODO : Create update querys en masse
     num_current_crypto = 1
     data = byte_code.rsplit('\\n')
     start_collecting = False
@@ -45,9 +44,10 @@ def __parsedata(byte_code):
     return update_query
 
 def createQueryUpdate(crypto, ath, date_ath):
-    update_query = 'UPDATE public.prices SET\n'
+    update_query = 'UPDATE public.ath_prices SET\n'
     update_query += 'prices_ath_usd = ' + ath + ',\n'
-    update_query += 'ath_date = ' + "'" + date_ath + "'\n"
+    update_query += 'ath_date = ' + "'" + date_ath + "',\n"
+    update_query += 'last_updated = current_timestamp\n'
     update_query += 'WHERE "Name" = ' + "'" + crypto + "';\n"
     return update_query
 

@@ -540,9 +540,19 @@ def __create_query_histo_ohlc(coin_id, data):
     return updatequery
 
 def extract_athindexes():
+    dbconn = DbConnection()
+
+    # Delete existing ATH
+    dbconn.exexute_query('DELETE FROM ath_prices')
+
+    # Insert lines without ath et ath_date
+    insert_query = 'insert into ath_prices("IdCryptoCompare", "Name")\n'
+    insert_query += 'select "IdCryptoCompare", "Name" from prices'
+    dbconn.exexute_query(insert_query)
+
+    # Updates ath et ath_date
     squery = athindex.get_athindex_query()
     if squery != '':
-        dbconn = DbConnection()
         dbconn.exexute_query(squery)
 
 
