@@ -108,6 +108,7 @@ try:
             extractdata.extract_cryptocompare_social()
             extractdata.extract_reddit_data()
             extractdata.extract_histo_ohlcv()
+            extractdata.extract_athindexes()
 
 except Exception as e:
     logging.error('Uncatched error :' + str(e))
