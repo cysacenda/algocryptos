@@ -67,6 +67,8 @@ Il est possible d'appeler cet api http://localhost:3000/api/params/resetprocesse
 et permettre aux traitements de se lancer correctement
 
 ## Deployment
+- Dev : Update requirements.txt with command :
+    - pip freeze > requirements.txt
 - Python : Git clone repository + install : to be completed
 - Angular : https://angular.io/guide/deployment
     -Pré-requis : Installer Node et installer le package.json : npm install
@@ -76,4 +78,6 @@ et permettre aux traitements de se lancer correctement
         -Récupérer le contenu du dossier dist/ et le copier sur le serveur web (Apache, etc.)
 - Node :
     -To be completed : npm install à faire aussi
-        
+    
+    
+/home/ec2-user/test/VirtEnvTest/bin/pip3.6 install /home/ec2-user/test/algocryptos_scripts/algokpi    
