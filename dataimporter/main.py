@@ -1,3 +1,4 @@
+import datetime
 import extractdata
 import logging
 import argparse
@@ -11,8 +12,10 @@ conf = Config()
 # Process manager
 procM = ProcessManager()
 
+
 # Logging params
-logging.basicConfig(filename='dataimporter.log',
+today = datetime.datetime.now().strftime("%Y-%m-%d")
+logging.basicConfig(filename='dataimporter_' + today + '.log',
                     format=conf.get_config('log_params', 'log_format'))
 
 logging.warning("DataImporter started")

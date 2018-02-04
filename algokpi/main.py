@@ -1,3 +1,4 @@
+import datetime
 import logging
 from config.config import Config
 from kpi_reddit import calcul_reddit_kpi
@@ -12,7 +13,8 @@ conf = Config()
 procM = ProcessManager()
 
 # Logging params
-logging.basicConfig(filename='algokpi.log',
+today = datetime.datetime.now().strftime("%Y-%m-%d")
+logging.basicConfig(filename='algokpi_' + today + '.log',
                     format=conf.get_config('log_params', 'log_format'))
 
 logging.warning("AlgoKPI Started")

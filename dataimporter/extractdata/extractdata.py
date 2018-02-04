@@ -540,6 +540,7 @@ def __create_query_histo_ohlc(coin_id, data):
     return updatequery
 
 def extract_athindexes():
+    logging.warning("extract_athindexes - start")
     dbconn = DbConnection()
 
     # Delete existing ATH
@@ -555,5 +556,6 @@ def extract_athindexes():
     if squery != '':
         dbconn.exexute_query(squery)
 
+    logging.warning("extract_athindexes - end")
 
 # endregion
