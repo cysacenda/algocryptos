@@ -18,8 +18,6 @@ today = datetime.datetime.now().strftime("%Y-%m-%d")
 logging.basicConfig(filename='dataimporter_' + today + '.log',
                     format=conf.get_config('log_params', 'log_format'))
 
-logging.warning("DataImporter started")
-
 # If process can't start because other processes running
 IdCurrentProcess = conf.get_config('process_params', 'data_importer_process_id')
 if not procM.start_process(IdCurrentProcess, 'DataImporter', sys.argv):
@@ -114,6 +112,4 @@ except Exception as e:
     logging.error('Uncatched error :' + str(e))
 
 # Stop process
-procM.stop_process(IdCurrentProcess)
-
-logging.warning("DataImporter ended")
+procM.stop_process(IdCurrentProcess, 'DataImporter', sys.argv)

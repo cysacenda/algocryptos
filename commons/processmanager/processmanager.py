@@ -20,10 +20,13 @@ class ProcessManager:
     def start_process(self, process_id, name, args, retry_count=0):
         # If no args => Error => Kill process
         if args is None or len(args) < 2:
-            logging.error("start_process - blocking processes running")
+            logging.error("start_process - no args")
             return False
 
         concatname = name + " " + str(args[1])
+        logging.warning("------------------------------")
+        logging.warning("START PROCESS - " + concatname)
+
         self.delete_old_processes()
         blockingprocesses = self.conf.get_config('process_params', str(process_id))
 
@@ -45,7 +48,7 @@ class ProcessManager:
                 return self.start_process(process_id, name, args, retry_count + 1)
             else:
                 logging.error("start_process - blocking processes running")
-                self.stop_process(process_id, self.WAITING)
+                self.stop_process(process_id, name, args, self.WAITING)
                 return False
         else:
             if retry_count > 0:
@@ -57,7 +60,10 @@ class ProcessManager:
         return True
 
     # When ending a process
-    def stop_process(self, process_id, status=None):
+    def stop_process(self, process_id, name, args, status=None):
+        concatname = name + " " + str(args[1])
+        logging.warning("STOP PROCESS - " + concatname)
+        logging.warning("------------------------------")
         if status is None:
             status = self.RUNNING
         return self.dbconn.exexute_query('Delete from process_params where "IdProcess" = ' + str(

@@ -17,8 +17,6 @@ today = datetime.datetime.now().strftime("%Y-%m-%d")
 logging.basicConfig(filename='algokpi_' + today + '.log',
                     format=conf.get_config('log_params', 'log_format'))
 
-logging.warning("AlgoKPI Started")
-
 # If process can't start because other processes running
 IdCurrentProcess = conf.get_config('process_params', 'algokpi_process_id')
 if not procM.start_process(IdCurrentProcess, 'AlgoKPI', sys.argv):
@@ -38,6 +36,4 @@ except Exception as e:
     logging.error('Uncatched error :' + str(e))
 
 # Stop process
-procM.stop_process(IdCurrentProcess)
-
-logging.warning("AlgoKPI ended")
+procM.stop_process(IdCurrentProcess, 'AlgoKPI', sys.argv)
