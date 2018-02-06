@@ -146,7 +146,6 @@ INSERT INTO social_infos_manual VALUES (341267,'RedPulseToken');
 INSERT INTO social_infos_manual VALUES (341328,'zeusshield');
 INSERT INTO social_infos_manual VALUES (345420,'revain_org');
 INSERT INTO social_infos_manual VALUES (345510,'modum_io');
-INSERT INTO social_infos_manual VALUES (347235,'btg');
 INSERT INTO social_infos_manual VALUES (350048,'BlueCrypto');
 INSERT INTO social_infos_manual VALUES (351720,'LUXCoin');
 INSERT INTO social_infos_manual VALUES (360827,'DovuTokenSale');
