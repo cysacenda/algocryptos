@@ -17,7 +17,6 @@ class CryptoCompare:
     URL_TRADING_PAIRS = None
     URL_HISTO_HOUR_PAIR = None
     CURR = None
-    MAX_TRADING_PAIRS_FOR_CRYPTO = None
 
     def __init__(self):
         self.conf = Config()
@@ -28,7 +27,6 @@ class CryptoCompare:
         self.URL_HIST_PRICE = self.conf.get_config('cryptocompare_params', 'url_hist_price')
         self.URL_SOCIAL_STATS = self.conf.get_config('cryptocompare_params', 'url_social_stats')
         self.URL_TRADING_PAIRS = self.conf.get_config('cryptocompare_params', 'url_trading_pairs')
-        self.MAX_TRADING_PAIRS_FOR_CRYPTO = self.conf.get_config('cryptocompare_params', 'max_trading_pairs_for_crypto')
         self.URL_HISTO_HOUR_PAIR = self.conf.get_config('cryptocompare_params', 'url_histo_hour_pair')
 
         # DEFAULTS
@@ -50,8 +48,8 @@ class CryptoCompare:
         return self.query_cryptocompare(self.URL_SOCIAL_STATS.format(coin_id))['Data']
 
     @rate_limited(0.04)
-    def get_trading_pairs(self, symbol):
-        url = self.URL_TRADING_PAIRS.format(symbol, self.MAX_TRADING_PAIRS_FOR_CRYPTO)
+    def get_trading_pairs(self, symbol, max_trading_pairs):
+        url = self.URL_TRADING_PAIRS.format(symbol, max_trading_pairs)
         data = self.query_cryptocompare(url)
         return self.__get_data_manage_errors(data, url)
 
@@ -106,7 +104,7 @@ class CryptoCompare:
             logging.error("Error getting information from cryptocompare. " + str(e))
             return None
         if error_check and 'Response' in response.keys() and response['Response'] != 'Success':
-            logging.warning("[ERROR] " + response['Message'])
+            logging.warning(response['Message'])
             return None
         return response
 

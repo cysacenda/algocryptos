@@ -379,5 +379,26 @@ GRANT ALL ON TABLE public.ath_prices TO postgres;
 COMMENT ON TABLE public.ath_prices
     IS 'Contains one line per cryptocurrency with ATH et ATH date';
 
+-- Table: public.top_cryptos
+
+-- DROP TABLE public.top_cryptos;
+
+CREATE TABLE public.top_cryptos
+(
+    "IdCryptoCompare" bigint
+)
+WITH (
+    OIDS = FALSE
+)
+TABLESPACE pg_default;
+
+ALTER TABLE public.top_cryptos
+    OWNER to postgres;
+
+GRANT ALL ON TABLE public.top_cryptos TO dbuser;
+GRANT ALL ON TABLE public.top_cryptos TO postgres;
+
+COMMENT ON TABLE public.top_cryptos
+    IS 'Contains one line per cryptocurrency which are top currencies (usefull for trading pairs count)';
 
 

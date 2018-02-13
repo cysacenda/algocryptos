@@ -444,20 +444,23 @@ def extract_histo_ohlcv():
     logging.warning("extract_histo_ohlcv - start")
     # Get coins id to be retrieved from APIs
     dbconn = DbConnection()
-    req = 'select co."IdCryptoCompare", co."Symbol", max(hi."timestamp")  from coins as co\n'
+    req = 'select co."IdCryptoCompare", co."Symbol", max(hi."timestamp"),\n'
+    req += 'case when tp."IdCryptoCompare" is null then false else true end as top_crypto \n'
+    req += 'from coins as co\n'
+    req += 'left outer join top_cryptos as tp on (co."IdCryptoCompare" = tp."IdCryptoCompare")\n'
     req += 'left outer join histo_ohlcv as hi on (co."IdCryptoCompare" = hi."IdCoinCryptoCompare")\n'
-    req += 'group by co."IdCryptoCompare", co."Symbol"'
+    req += 'group by co."IdCryptoCompare", co."Symbol", co."SortOrder", top_crypto'
     rows = dbconn.get_query_result(req)
     for row in rows:
-        __extract_histo_volumes_for_coin(row[0], row[1], row[2])
+        __extract_histo_volumes_for_coin(row[0], row[1], row[2], row[3])
         __extract_histo_ohlc_for_coin(row[0], row[1], row[2])
 
     logging.warning("extract_histo_ohlcv - end")
 
 
-def __extract_histo_volumes_for_coin(coin_id, symbol, lastdate):
+def __extract_histo_volumes_for_coin(coin_id, symbol, lastdate, is_topcrypto):
     dict_dates_volumes = {}
-    data = __get_trading_pairs_for_crypto(symbol)
+    data = __get_trading_pairs_for_crypto(symbol, is_topcrypto)
 
     if data is not None:
         for key in data:
@@ -485,9 +488,16 @@ def __extract_histo_ohlc_for_coin(coin_id, symbol, lastdate):
     if updatequery != '':
         dbconn.exexute_query(updatequery)
 
-def __get_trading_pairs_for_crypto(symbol):
+def __get_trading_pairs_for_crypto(symbol, is_topcrypto):
+    # Main cryptos : more trading pairs taken into account
+    param = 'max_trading_pairs_for_crypto'
+    if is_topcrypto:
+        param = 'max_trading_pairs_for_top_crypto'
+
+    max_trading_pairs_for_crytpto = conf.get_config('cryptocompare_params', param)
+
     cryptocomp = CryptoCompare()
-    data = cryptocomp.get_trading_pairs(symbol)
+    data = cryptocomp.get_trading_pairs(symbol, max_trading_pairs_for_crytpto)
     return data
 
 
