@@ -23,6 +23,10 @@ class ProcessManager:
             logging.error("start_process - no args")
             return False
 
+        #if help, ok
+        if args[1] == '-h':
+            return True
+
         concatname = name + " " + str(args[1])
         logging.warning("------------------------------")
         logging.warning("START PROCESS - " + concatname)
