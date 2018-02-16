@@ -12,7 +12,7 @@ URL_REDDIT_END = conf.get_config('reddit_params', 'url_reddit_end')
 
 # region Scraping https://www.reddit.com/r/###SUBREDDIT_NAME###/about.json
 
-@rate_limited(0.01)
+@rate_limited(0.03)
 def get_reddit_infos_real_time(subreddit):
     url = URL_REDDIT_START + subreddit + URL_REDDIT_END
     try:
@@ -27,7 +27,7 @@ def get_reddit_infos_real_time(subreddit):
 
 # region Scraping redditmetrics.com
 
-@rate_limited(0.01)
+@rate_limited(0.03)
 def get_subscribers_histo(subreddit, after_date=None):
     byte_code = __get_page_source(URL_REDDITMETRIC, subreddit)
     return __number_of_subscribers(byte_code, after_date)
