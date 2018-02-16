@@ -33,6 +33,7 @@ try:
         if args.reddit:
             calcul_reddit_kpi.calcul_kpi_subscribers_trend()
 except Exception as e:
+    procM.isError()
     logging.error('Uncatched error :' + str(e))
 
 # Stop process

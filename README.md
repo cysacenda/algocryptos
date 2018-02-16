@@ -91,3 +91,8 @@ https://www.dabapps.com/blog/introduction-to-pip-and-virtualenv-python/
 dans la table process_params ce qui aura pour effet de bloquer les autres traitements.
 Il est possible d'appeler cet api http://localhost:3000/api/params/resetprocesses pour vider la table
 et permettre aux traitements de se lancer correctement
+
+## Lancer traitements sur serveur via connexion SSH
+- source algocryptos_scripts/venv/bin/activate
+- export PYTHONPATH=$PYTHONPATH:/home/ec2-user/prod/algocryptos_scripts
+- python /home/ec2-user/prod/algocryptos_scripts/dataimporter/main.py -r

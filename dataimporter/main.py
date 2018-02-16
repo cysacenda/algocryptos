@@ -109,6 +109,7 @@ try:
             extractdata.extract_athindexes()
 
 except Exception as e:
+    procM.isError()
     logging.error('Uncatched error :' + str(e))
 
 # Stop process
