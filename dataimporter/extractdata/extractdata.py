@@ -56,6 +56,7 @@ def __create_query_coins():
 # endregion
 
 # region Coins current prices
+
 # TODO : Add system which insert / update depending on information already in DB
 def extract_coinmarketcap_prices():
     logging.warning("extract_coinmarketcap_prices - start")
@@ -533,7 +534,6 @@ def __create_query_histo_v(coin_id, data):
     insertquery += ';'
     return insertquery
 
-# TODO
 def __create_query_histo_ohlc(coin_id, data):
     updatequery = ''
     if data is not None:

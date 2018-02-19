@@ -92,7 +92,18 @@ dans la table process_params ce qui aura pour effet de bloquer les autres traite
 Il est possible d'appeler cet api http://localhost:3000/api/params/resetprocesses pour vider la table
 et permettre aux traitements de se lancer correctement
 
-## Lancer traitements sur serveur via connexion SSH
+## EC2 : Lancer traitements sur serveur via connexion SSH
 - source algocryptos_scripts/venv/bin/activate
 - export PYTHONPATH=$PYTHONPATH:/home/ec2-user/prod/algocryptos_scripts
 - python /home/ec2-user/prod/algocryptos_scripts/dataimporter/main.py -r
+- killer tous les traitements python : pkill -f python
+
+## EC2 : Executer des commandes SQL sur RDS via EC2
+- psql -h algocryptos.c592sqstvfao.eu-west-3.rds.amazonaws.com -d algocryptos -U algocryptouser
+- \dp : voir les tables de la base de données
+- select * from coins; // Attention du ; sinon ne fonctinone pas
+- psql -h algocryptos.c592sqstvfao.eu-west-3.rds.amazonaws.com -d algocryptos -U algocryptouser -f file.sql => Lancer les requêtes d'un fichier
+
+## EC2 : Divers
+- Monitorer Node : pm2 monit
+- Modifier la crontab : crontab -e

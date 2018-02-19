@@ -30,6 +30,7 @@ class DbConnection:
             return None
 
         rows = cursor.fetchall()
+        cursor.close()
         return rows
 
     def exexute_query(self, query):
@@ -37,7 +38,11 @@ class DbConnection:
         try:
             cursor.execute(query)
             self.conn.commit()
+            cursor.close()
             return 0
         except Exception as e:
             logging.error("Error : " + str(e) + " - " + "Error while executing query : " + query)
             return -1
+
+    def __del__(self):
+        self.conn.close()
