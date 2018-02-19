@@ -146,6 +146,9 @@ TABLESPACE pg_default;
 ALTER TABLE public.social_stats_reddit
     OWNER to postgres;
 
+CREATE INDEX social_stats_reddit_index
+ON social_stats_reddit ("IdCoinCryptoCompare");
+
 GRANT ALL ON TABLE public.social_stats_reddit TO dbuser;
 GRANT ALL ON TABLE public.social_stats_reddit TO postgres;
 
@@ -428,3 +431,31 @@ GRANT ALL ON TABLE public.process_params_histo TO postgres;
 
 COMMENT ON TABLE public.process_params_histo
     IS 'Historical data of processes with status';
+
+-- Table: public.social_stats_reddit_histo
+
+-- DROP TABLE public.social_stats_reddit_histo;
+
+CREATE TABLE public.social_stats_reddit_histo
+(
+    "IdCoinCryptoCompare" bigint,
+    "Reddit_subscribers" bigint,
+    "Reddit_active_users" bigint,
+    "timestamp" timestamp with time zone
+)
+WITH (
+    OIDS = FALSE
+)
+TABLESPACE pg_default;
+
+ALTER TABLE public.social_stats_reddit_histo
+    OWNER to postgres;
+
+CREATE INDEX social_stats_reddit_histo_index
+ON social_stats_reddit_histo ("IdCoinCryptoCompare");
+
+GRANT ALL ON TABLE public.social_stats_reddit_histo TO dbuser;
+GRANT ALL ON TABLE public.social_stats_reddit_histo TO postgres;
+
+COMMENT ON TABLE public.social_stats_reddit_histo
+    IS 'Contains one line per cryptocurrency per date with statistic on th subreddit of the cryptocurrency, data comes from redditmetrics.com (historical data) and reddit.com/subredditname/about.json for real time data';

@@ -70,7 +70,7 @@ def calcul_kpi_subscribers_trend():
     deletequery = 'delete from kpi_reddit_subscribers'
     dbconn.exexute_query(deletequery)
 
-    # Save in histo
+    # Retrieve last from histo
     insertquery2 = 'INSERT INTO public.kpi_reddit_subscribers\n'
     insertquery2 += 'select * from kpi_reddit_subscribers_histo\n'
     insertquery2 += 'where "timestamp" > current_timestamp  - interval ' + "'1 hour'"

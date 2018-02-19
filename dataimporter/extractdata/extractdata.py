@@ -378,7 +378,6 @@ def extract_reddit_data():
     query_select += 'group by co."IdCryptoCompare", reddit_agr;'
     rows = dbconn.get_query_result(query_select)
 
-    # TODO : utiliser url_limit_second / url_limit_hout pour limiter le nombre d'appels / periode
     for row in rows:
         # region Recuperation historique (scraping redditmetrics.com)
 
@@ -402,11 +401,22 @@ def extract_reddit_data():
 
         # endregion
 
+    # Empty table containing last infos (already saved in histo)
+    deletequery = 'delete from social_stats_reddit'
+    dbconn.exexute_query(deletequery)
+
+    # Retrieve last from histo
+    insertquery2 = 'INSERT INTO public.social_stats_reddit\n'
+    insertquery2 += 'select * from social_stats_reddit_histo\n'
+    insertquery2 += 'where "timestamp" > current_timestamp  - interval ' + "'1 hour'"
+
+    dbconn.exexute_query(insertquery2)
+
     logging.warning("import_reddit_histo - end")
 
 
 def __create_query_reddit_stats(coin_id, subscribers, dates):
-    insertquery_reddit_stats = 'INSERT INTO public.social_stats_reddit("IdCoinCryptoCompare", ' \
+    insertquery_reddit_stats = 'INSERT INTO public.social_stats_reddit_histo("IdCoinCryptoCompare", ' \
                                '"Reddit_subscribers", "timestamp")\n'
     insertquery_reddit_stats += 'VALUES\n('
     for value, integ in enumerate(subscribers):
@@ -426,7 +436,7 @@ def __create_query_reddit_real_time(coin_id, dict_infos):
     reddit_real_time = ''
 
     if 'subscribers' in dict_infos.keys() and 'active_user_count' in dict_infos.keys():
-        reddit_real_time = 'INSERT INTO public.social_stats_reddit ("IdCoinCryptoCompare", ' \
+        reddit_real_time = 'INSERT INTO public.social_stats_reddit_histo ("IdCoinCryptoCompare", ' \
                            '"Reddit_subscribers", "Reddit_active_users", "timestamp")\n'
         reddit_real_time += 'VALUES \n('
         reddit_real_time += str(coin_id) + ','
@@ -541,6 +551,10 @@ def __create_query_histo_ohlc(coin_id, data, dict_dates_volumes):
             insertquery += "'" + utils.format_linux_timestamp_to_db(float(key['time'])) + "');\n"
     return insertquery
 
+# endregion
+
+# region ATH
+
 def extract_athindexes():
     logging.warning("extract_athindexes - start")
     dbconn = DbConnection()
@@ -560,4 +574,4 @@ def extract_athindexes():
 
     logging.warning("extract_athindexes - end")
 
-# endregion
+# endregion ATH

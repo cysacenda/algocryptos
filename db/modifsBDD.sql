@@ -21,3 +21,42 @@ COMMENT ON TABLE public.process_params_histo
 
 ALTER TABLE social_infos_manual ADD COLUMN "Twitter_link" text COLLATE pg_catalog."default";
 ALTER TABLE social_infos_manual ADD COLUMN "Facebook_link" text COLLATE pg_catalog."default";
+
+
+--------------
+
+CREATE INDEX social_stats_reddit_histo_index
+ON social_stats_reddit_histo ("IdCoinCryptoCompare");
+
+--------------
+
+ALTER TABLE social_stats_reddit RENAME TO social_stats_reddit_histo;
+
+
+--------------
+
+CREATE TABLE public.social_stats_reddit
+(
+    "IdCoinCryptoCompare" bigint,
+    "Reddit_subscribers" bigint,
+    "Reddit_active_users" bigint,
+    "timestamp" timestamp with time zone
+)
+WITH (
+    OIDS = FALSE
+)
+TABLESPACE pg_default;
+
+ALTER TABLE public.social_stats_reddit
+    OWNER to postgres;
+
+CREATE INDEX social_stats_reddit_index
+ON social_stats_reddit ("IdCoinCryptoCompare");
+
+GRANT ALL ON TABLE public.social_stats_reddit TO dbuser;
+GRANT ALL ON TABLE public.social_stats_reddit TO postgres;
+
+
+COMMENT ON TABLE public.social_stats_reddit
+    IS 'Contains one line per cryptocurrency per date with statistic on th subreddit of the cryptocurrency, data comes from redditmetrics.com (historical data) and reddit.com/subredditname/about.json for real time data';
+
