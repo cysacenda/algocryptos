@@ -40,9 +40,9 @@ class ProcessManager:
         self.__delete_old_processes()
         blockingprocesses = self.conf.get_config('process_params', str(process_id))
 
-        # Check if blocking processes are running (SQL perspective, not linux processes)
-        rows = self.dbconn.get_query_result('Select * from process_params where "IdProcess" IN (' + str(
-            blockingprocesses) + ') and "Status" = ' + "'" + self.RUNNING + "';")
+        # Check if blocking processes are running (SQL perspective, not linux processes - should be equivalent btw)
+        rows = self.dbconn.get_query_result('Select * from process_params where ("IdProcess" IN (' + str(
+            blockingprocesses) + ') and "Status" = ' + "'" + self.RUNNING + "')" + 'OR("Name" = \'' + concatname + "')")
         if rows is not None and len(rows) > 0:
             # Check if process should be placed in Waiting
             if retry_count == 0:
