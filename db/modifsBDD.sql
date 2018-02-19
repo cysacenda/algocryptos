@@ -18,3 +18,6 @@ GRANT ALL ON TABLE public.process_params_histo TO postgres;
 
 COMMENT ON TABLE public.process_params_histo
     IS 'Historical data of processes with status';
+
+ALTER TABLE social_infos_manual ADD COLUMN "Twitter_link" text COLLATE pg_catalog."default";
+ALTER TABLE social_infos_manual ADD COLUMN "Facebook_link" text COLLATE pg_catalog."default";
