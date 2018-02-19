@@ -453,13 +453,13 @@ def extract_histo_ohlcv():
     req += 'group by co."IdCryptoCompare", co."Symbol", co."SortOrder", top_crypto'
     rows = dbconn.get_query_result(req)
     for row in rows:
-        __extract_histo_volumes_for_coin(row[0], row[1], row[2], row[3])
-        __extract_histo_ohlc_for_coin(row[0], row[1], row[2])
+        dict_dates_volumes = __get_histo_volumes_for_coin(row[0], row[1], row[2], row[3])
+        __extract_histo_ohlc_for_coin(row[0], row[1], row[2], dict_dates_volumes)
 
     logging.warning("extract_histo_ohlcv - end")
 
 
-def __extract_histo_volumes_for_coin(coin_id, symbol, lastdate, is_topcrypto):
+def __get_histo_volumes_for_coin(coin_id, symbol, lastdate, is_topcrypto):
     dict_dates_volumes = {}
     data = __get_trading_pairs_for_crypto(symbol, is_topcrypto)
 
@@ -467,12 +467,14 @@ def __extract_histo_volumes_for_coin(coin_id, symbol, lastdate, is_topcrypto):
         for key in data:
             __get_histo_ohlcv_for_pair(dict_dates_volumes, symbol, key['toSymbol'], lastdate)
 
-        # if found values
-        if dict_dates_volumes:
-            dbconn = DbConnection()
-            dbconn.exexute_query(__create_query_histo_v(coin_id, dict_dates_volumes))
+    return dict_dates_volumes;
 
-def __extract_histo_ohlc_for_coin(coin_id, symbol, lastdate):
+        # if found values
+        #if dict_dates_volumes:
+            #dbconn = DbConnection()
+            #dbconn.exexute_query(__create_query_histo_v(coin_id, dict_dates_volumes))
+
+def __extract_histo_ohlc_for_coin(coin_id, symbol, lastdate, dict_dates_volumes):
     cryptocomp = CryptoCompare()
     limit = 2000
 
@@ -485,9 +487,9 @@ def __extract_histo_ohlc_for_coin(coin_id, symbol, lastdate):
     data = cryptocomp.get_histo_hour_pair(symbol, conf.get_config('cryptocompare_params', 'default_currency'), limit)
 
     dbconn = DbConnection()
-    updatequery = __create_query_histo_ohlc(coin_id, data)
-    if updatequery != '':
-        dbconn.exexute_query(updatequery)
+    insertquery = __create_query_histo_ohlc(coin_id, data, dict_dates_volumes)
+    if insertquery != '':
+        dbconn.exexute_query(insertquery)
 
 def __get_trading_pairs_for_crypto(symbol, is_topcrypto):
     # Main cryptos : more trading pairs taken into account
@@ -519,34 +521,25 @@ def __get_histo_ohlcv_for_pair(dict_dates_volumes, symbol_from, symbol_to, lastd
         else:
             dict_dates_volumes[int(key['time'])] = key['volumefrom']
 
-
-def __create_query_histo_v(coin_id, data):
-    insertquery = 'INSERT INTO public.histo_ohlcv ("IdCoinCryptoCompare", ' \
-                  '"volume_aggregated", "timestamp")\n'
-    insertquery += 'VALUES \n('
-    for key in data:
-        if not insertquery.endswith('('):
-            insertquery += ',\n('
-        insertquery += str(coin_id) + ','
-        insertquery += str(data[key]) + ','
-        insertquery += "'" + utils.format_linux_timestamp_to_db(float(key)) + "'"
-        insertquery += ')'
-    insertquery += ';'
-    return insertquery
-
-def __create_query_histo_ohlc(coin_id, data):
-    updatequery = ''
+def __create_query_histo_ohlc(coin_id, data, dict_dates_volumes):
+    insertquery = ''
     if data is not None:
         for key in data:
-            updatequery += 'UPDATE public.histo_ohlcv SET\n'
-            updatequery += '"open" =' + utils.float_to_str(key['open']) + ', '
-            updatequery += '"high" =' + utils.float_to_str(key['high']) + ', '
-            updatequery += '"low" =' + utils.float_to_str(key['low']) + ', '
-            updatequery += '"close" =' + utils.float_to_str(key['close']) + '\n'
-            updatequery += 'WHERE "IdCoinCryptoCompare" = ' + str(coin_id) + "\n"
-            updatequery += 'AND "timestamp" = ' + "'" + utils.format_linux_timestamp_to_db(float(key['time'])) + "'"
-            updatequery += ';\n'
-    return updatequery
+            insertquery += 'INSERT INTO public.histo_ohlcv ("IdCoinCryptoCompare", ' \
+                  '"open", "high", "low", "close", "volume_aggregated", "timestamp")\n'
+            insertquery += 'VALUES(' + str(coin_id) + ', '
+            insertquery += utils.float_to_str(key['open']) + ', '
+            insertquery += utils.float_to_str(key['high']) + ', '
+            insertquery += utils.float_to_str(key['low']) + ', '
+            insertquery += utils.float_to_str(key['close']) + ', '
+
+            if int(key['time']) in dict_dates_volumes.keys():
+                insertquery += utils.float_to_str(dict_dates_volumes[int(key['time'])]) + ', '
+            else:
+                insertquery += 'Null, '
+
+            insertquery += "'" + utils.format_linux_timestamp_to_db(float(key['time'])) + "');\n"
+    return insertquery
 
 def extract_athindexes():
     logging.warning("extract_athindexes - start")
