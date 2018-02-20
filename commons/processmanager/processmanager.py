@@ -78,8 +78,9 @@ class ProcessManager:
             status = self.RUNNING
         # Save process info into historic
         self.__insert_process(process_id, concatname, self.ERROR if self.isError else self.SUCCESS, True)
-        return self.dbconn.exexute_query('Delete from process_params where "IdProcess" = ' + str(
-            process_id) + ' and "Status" = ' + "'" + status + "'" + ';') == 0
+        squery = 'Delete from process_params where "IdProcess" = ' + str(process_id)
+        squery += ' and "Status" = ' + "'" + status + "'" + ' and "Name" = ' + "'" + concatname + "'" + ';'
+        return self.dbconn.exexute_query(squery) == 0
 
     # If process there for too long (shouldn't be), delete process from table
     def __delete_old_processes(self):

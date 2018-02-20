@@ -575,3 +575,34 @@ def extract_athindexes():
     logging.warning("extract_athindexes - end")
 
 # endregion ATH
+
+# region Global data
+
+# CMC global data
+def extract_cmc_global_data():
+    logging.warning("extract_cmc_global_data - start")
+    dbconn = DbConnection()
+    dbconn.exexute_query("Delete from global_data;")
+    dbconn.exexute_query(__create_query_global_data())
+    logging.warning("extract_cmc_global_data - end")
+
+
+# CMC : CMC global data and create insert query for BDD
+# TODO : Add system which insert / update depending on information already in DB
+def __create_query_global_data():
+    coinmarket = CoinMarketCap()
+    data = coinmarket.get_global_data()
+    if data is None:
+        raise Exception('__create_query_global_data - No data')
+
+    insertquery = 'INSERT INTO public.global_data (total_market_cap_usd,' \
+                  'total_24h_volume_usd, bitcoin_percentage_of_market_cap, "timestamp")\n'
+    insertquery += 'VALUES ('
+    insertquery += str(data['total_market_cap_usd'] / 1000000000) + ', '
+    insertquery += str(data['total_24h_volume_usd'] / 1000000000) + ', '
+    insertquery += str(data['bitcoin_percentage_of_market_cap']) + ', '
+    insertquery += 'current_timestamp);'
+    return insertquery
+
+
+# endregion
