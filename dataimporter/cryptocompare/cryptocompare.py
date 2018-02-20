@@ -43,17 +43,17 @@ class CryptoCompare:
         else:
             return response
 
-    @rate_limited(0.2)
+    @rate_limited(4, 1)
     def get_socialstats(self, coin_id):
         return self.query_cryptocompare(self.URL_SOCIAL_STATS.format(coin_id))['Data']
 
-    @rate_limited(0.04)
+    @rate_limited(10, 1)
     def get_trading_pairs(self, symbol, max_trading_pairs):
         url = self.URL_TRADING_PAIRS.format(symbol, max_trading_pairs)
         data = self.query_cryptocompare(url)
         return self.__get_data_manage_errors(data, url)
 
-    @rate_limited(0.1)
+    @rate_limited(10, 1)
     def get_histo_hour_pair(self, symbol1, symbol2, limit):
         url = self.URL_HISTO_HOUR_PAIR.format(symbol1, symbol2, limit)
         data = self.query_cryptocompare(url)

@@ -479,11 +479,6 @@ def __get_histo_volumes_for_coin(coin_id, symbol, lastdate, is_topcrypto):
 
     return dict_dates_volumes;
 
-        # if found values
-        #if dict_dates_volumes:
-            #dbconn = DbConnection()
-            #dbconn.exexute_query(__create_query_histo_v(coin_id, dict_dates_volumes))
-
 def __extract_histo_ohlc_for_coin(coin_id, symbol, lastdate, dict_dates_volumes):
     cryptocomp = CryptoCompare()
     limit = 2000
@@ -535,20 +530,23 @@ def __create_query_histo_ohlc(coin_id, data, dict_dates_volumes):
     insertquery = ''
     if data is not None:
         for key in data:
-            insertquery += 'INSERT INTO public.histo_ohlcv ("IdCoinCryptoCompare", ' \
-                  '"open", "high", "low", "close", "volume_aggregated", "timestamp")\n'
-            insertquery += 'VALUES(' + str(coin_id) + ', '
-            insertquery += utils.float_to_str(key['open']) + ', '
-            insertquery += utils.float_to_str(key['high']) + ', '
-            insertquery += utils.float_to_str(key['low']) + ', '
-            insertquery += utils.float_to_str(key['close']) + ', '
+            date = utils.format_linux_timestamp_to_datetime(float(key['time']))
+            # Do not take into account unfinished period
+            if (datetime.now().astimezone() - date).seconds > 60 * 60:
+                insertquery += 'INSERT INTO public.histo_ohlcv ("IdCoinCryptoCompare", ' \
+                      '"open", "high", "low", "close", "volume_aggregated", "timestamp")\n'
+                insertquery += 'VALUES(' + str(coin_id) + ', '
+                insertquery += utils.float_to_str(key['open']) + ', '
+                insertquery += utils.float_to_str(key['high']) + ', '
+                insertquery += utils.float_to_str(key['low']) + ', '
+                insertquery += utils.float_to_str(key['close']) + ', '
 
-            if int(key['time']) in dict_dates_volumes.keys():
-                insertquery += utils.float_to_str(dict_dates_volumes[int(key['time'])]) + ', '
-            else:
-                insertquery += 'Null, '
+                if int(key['time']) in dict_dates_volumes.keys():
+                    insertquery += utils.float_to_str(dict_dates_volumes[int(key['time'])]) + ', '
+                else:
+                    insertquery += 'Null, '
 
-            insertquery += "'" + utils.format_linux_timestamp_to_db(float(key['time'])) + "');\n"
+                insertquery += "'" + utils.format_linux_timestamp_to_db(float(key['time'])) + "');\n"
     return insertquery
 
 # endregion
