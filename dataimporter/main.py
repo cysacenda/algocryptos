@@ -44,8 +44,6 @@ try:
                             help='Insert current prices into historical database', action='store_true')
         parser.add_argument('-ath', '--athprices', dest="athprices",
                             help='Insert ath prices into db', action='store_true')
-        parser.add_argument('-g', '--globaldata', dest="globaldata",
-                            help='Insert globaldata into db', action='store_true')
         args = parser.parse_args()
 
         if args.coins:
@@ -59,6 +57,7 @@ try:
             # Get prices for coins from CoinMarketCap and insert in BDD
             # -----------------------------------------------
             extractdata.extract_coinmarketcap_prices()
+            extractdata.extract_cmc_global_data()
 
         if args.deleteMeaninglessCoins:
             # -----------------------------------------------
@@ -96,9 +95,6 @@ try:
 
         if args.athprices:
             extractdata.extract_athindexes()
-
-        if args.globaldata:
-            extractdata.extract_cmc_global_data()
 
         if args.full:
             # -----------------------------------------------
