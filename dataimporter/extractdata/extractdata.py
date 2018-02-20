@@ -372,7 +372,7 @@ def extract_reddit_data():
     query_select += 'from coins as co\n'
     query_select += 'left outer join social_infos_manual som on (co."IdCryptoCompare" = som."IdCoinCryptoCompare")\n'
     query_select += 'left outer join social_infos so on (co."IdCryptoCompare" = so."IdCoinCryptoCompare")\n'
-    query_select += 'left outer join social_stats_reddit ss on (so."IdCoinCryptoCompare" = ss."IdCoinCryptoCompare")\n'
+    query_select += 'left outer join social_stats_reddit_histo ss on (so."IdCoinCryptoCompare" = ss."IdCoinCryptoCompare")\n'
     query_select += 'where CASE WHEN som."Reddit_name" IS NULL THEN so."Reddit_name" ELSE som."Reddit_name" END ' \
                     'is not null\n'
     query_select += 'group by co."IdCryptoCompare", reddit_agr;'

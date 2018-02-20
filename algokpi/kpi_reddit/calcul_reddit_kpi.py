@@ -15,7 +15,7 @@ def calcul_kpi_subscribers_trend():
     dbconn = DbConnection()
 
     # Get all cryptos for which we have to calculate KPIs
-    rows = dbconn.get_query_result('select distinct "IdCoinCryptoCompare" from social_stats_reddit')
+    rows = dbconn.get_query_result('select distinct "IdCoinCryptoCompare" from social_stats_reddit_histo')
 
     # For each crypto, calculate KPIs
     for row in rows:
@@ -103,14 +103,14 @@ def __calcul_kpi_subscribers_trend(coin_id, days, text):
 def __create_query_subscribers_trend(coin_id, period):
     # Get today's infos + infos from 30d ago
     squery = '(select "IdCoinCryptoCompare", "Reddit_subscribers", "Reddit_active_users", '
-    squery += '"timestamp" from social_stats_reddit\n'
+    squery += '"timestamp" from social_stats_reddit_histo\n'
     squery += 'where "IdCoinCryptoCompare" = ' + "'" + str(coin_id) + "'\n"
     squery += "and timestamp > CURRENT_TIMESTAMP - interval '" + period + "'\n"
     squery += 'order by timestamp asc\n'
     squery += 'LIMIT 1)\n'
     squery += 'UNION ALL\n'
     squery += '(select "IdCoinCryptoCompare", "Reddit_subscribers", "Reddit_active_users", '
-    squery += '"timestamp" from social_stats_reddit\n'
+    squery += '"timestamp" from social_stats_reddit_histo\n'
     squery += 'where "IdCoinCryptoCompare" = ' + "'" + str(coin_id) + "'\n"
     squery += "and timestamp > CURRENT_TIMESTAMP - interval '" + period + "'\n"
     squery += 'order by timestamp desc\n'
