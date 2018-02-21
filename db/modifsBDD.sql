@@ -86,3 +86,9 @@ GRANT ALL ON TABLE public.global_data TO postgres;
 
 COMMENT ON TABLE public.global_data
     IS 'Contains global data from CMC like global market cap etc.';
+
+--------------------
+
+DELETE FROM histo_ohlcv;
+
+--------------------
