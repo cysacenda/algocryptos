@@ -9,6 +9,7 @@ conf = Config()
 # region Subscribers
 
 # % increase
+# TODO : Refaire avec Pandas + interpolation (time?) pour données manquantes
 def calcul_kpi_subscribers_trend():
     logging.warning("calcul_kpi_subscribers_trend - start")
 

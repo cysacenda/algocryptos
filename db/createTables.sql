@@ -483,3 +483,34 @@ GRANT ALL ON TABLE public.global_data TO postgres;
 
 COMMENT ON TABLE public.global_data
     IS 'Contains global data from CMC like global market cap etc.';
+
+
+-- DROP TABLE public.kpi_market_volumes;
+
+CREATE TABLE public.kpi_market_volumes
+(
+    "IdCoinCryptoCompare" bigint,
+    "volume_mean_last_1h_vs_30d" double precision,
+    "volume_mean_last_3h_30d" double precision,
+    "volume_mean_last_6h_30d" double precision,
+    "volume_mean_last_12h_30d" double precision,
+    "volume_mean_last_24h_30d" double precision,
+    "volume_mean_last_3d_30d" double precision,
+    "volume_mean_last_7d_30d" double precision,
+    "timestamp" timestamp with time zone default current_timestamp
+)
+WITH (
+    OIDS = FALSE
+)
+TABLESPACE pg_default;
+
+ALTER TABLE public.kpi_market_volumes
+    OWNER to postgres;
+
+GRANT ALL ON TABLE public.kpi_market_volumes TO dbuser;
+GRANT ALL ON TABLE public.kpi_market_volumes TO postgres;
+
+COMMENT ON TABLE public.kpi_market_volumes
+    IS 'Contains market kpis about volumes.';
+
+
