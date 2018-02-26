@@ -1,4 +1,5 @@
 from commons.config import Config
+from commons.utils import utils
 import logging
 import pandas.io.sql as psql
 import pandas as pd
@@ -12,8 +13,7 @@ def calcul_kpi_volumes_trend():
 
     # region Retrieve data from database
 
-    # TODO : Replace with info from config file
-    connection = create_engine('postgresql://dbuser:algocryptos@localhost:5432/algocryptos')
+    connection = create_engine(utils.get_connection_string())
 
     # get data with query
     squery = 'select \"IdCoinCryptoCompare\", volume_aggregated as volume_mean_last_30d, timestamp from histo_ohlcv hi\n'
@@ -72,4 +72,3 @@ def calcul_kpi_volumes_trend():
     # endregion
 
     logging.warning("calcul_kpi_volumes_trend - end")
-

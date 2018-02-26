@@ -25,3 +25,12 @@ def format_linux_timestamp_to_datetime(integer_timestamp):
 def float_to_str(f):
     d1 = ctx.create_decimal(repr(f))
     return format(d1, 'f')
+
+def get_connection_string():
+    dbhost = conf.get_config('db', 'dbhost')
+    dbname = conf.get_config('db', 'dbname')
+    dbuser = conf.get_config('db', 'dbuser')
+    dbpassword = conf.get_config('db', 'dbpassword')
+    dbport = conf.get_config('db', 'dbport')
+    # 'postgresql://dbuser:algocryptos@localhost:5432/algocryptos'
+    return 'postgresql://' + dbuser + ':' + dbpassword + '@' + dbhost + ':' + dbport + '/' + dbname
