@@ -1,126 +1,75 @@
-from commons.dbaccess import DbConnection
 from commons.config import Config
 import logging
-from datetime import datetime
+import pandas.io.sql as psql
+import pandas as pd
+from sqlalchemy import create_engine
+from datetime import datetime, timedelta
 
 conf = Config()
 
-
-# region Volumes
-
-# % increase
 def calcul_kpi_volumes_trend():
     logging.warning("calcul_kpi_volumes_trend - start")
 
-    dbconn = DbConnection()
+    # region Retrieve data from database
 
-    # Get all cryptos for which we have to calculate KPIs
-    rows = dbconn.get_query_result('select distinct "IdCoinCryptoCompare" from histo_ohlcv')
+    # TODO : Replace with info from config file
+    connection = create_engine('postgresql://dbuser:algocryptos@localhost:5432/algocryptos')
 
-    # For each crypto, calculate KPIs
-    for row in rows:
-        'select * from histo_ohlcv'
-        'where "IdCoinCryptoCompare" = 283116'
-        'and timestamp < CURRENT_TIMESTAMP - interval \'1 hour\''
-        'order by timestamp desc limit 24*30'
-    # TODO : Numpy / Panda
+    # get data with query
+    squery = 'select \"IdCoinCryptoCompare\", volume_aggregated as volume_mean_last_30d, timestamp from histo_ohlcv hi\n'
+    squery += 'inner join coins co on (co."IdCryptoCompare" = hi."IdCoinCryptoCompare")\n'
+    squery += 'where hi.timestamp > CURRENT_TIMESTAMP - interval \'30 days\'\n'
+    squery += 'and hi.volume_aggregated is not null\n'
+    squery += 'order by hi.timestamp'
 
-        increase_1h = __calcul_kpi_volumes_trend(row[0], 1, 'days')
-        increase_3h = __calcul_kpi_volumes_trend(row[0], 3, 'days')
-        increase_6h = __calcul_kpi_volumes_trend(row[0], 7, 'days')
-        increase_12h = __calcul_kpi_volumes_trend(row[0], 15, 'days')
-        increase_24h = __calcul_kpi_volumes_trend(row[0], 30, 'days')
-        increase_3d = __calcul_kpi_volumes_trend(row[0], 60, 'days')
-        increase_7d = __calcul_kpi_volumes_trend(row[0], 90, 'days')
+    df = psql.read_sql_query(squery, connection)
 
-        if (increase_1h is not None or increase_3h is not None or increase_6h is not None
-                or increase_12h is not None or increase_24h is not None
-                or increase_3d is not None or increase_7d is not None):
-            insertquery = 'INSERT INTO public.kpi_reddit_subscribers_histo ("IdCryptoCompare",'
-            if increase_1h is not None:
-                insertquery += 'subscribers_1d_trend, '
-            if increase_3h is not None:
-                insertquery += 'subscribers_3d_trend, '
-            if increase_6h is not None:
-                insertquery += 'subscribers_7d_trend, '
-            if increase_12h is not None:
-                insertquery += 'subscribers_15d_trend, '
-            if increase_24h is not None:
-                insertquery += 'subscribers_30d_trend, '
-            if increase_3d is not None:
-                insertquery += 'subscribers_60d_trend, '
-            if increase_7d is not None:
-                insertquery += 'subscribers_90d_trend, '
-            insertquery += '"timestamp")\n'
-            insertquery += 'VALUES \n('
-            insertquery += str(row[0]) + ','
-            if increase_1h is not None:
-                insertquery += str(increase_1h) + ','
-            if increase_3h is not None:
-                insertquery += str(increase_3h) + ','
-            if increase_6h is not None:
-                insertquery += str(increase_6h) + ','
-            if increase_12h is not None:
-                insertquery += str(increase_12h) + ','
-            if increase_24h is not None:
-                insertquery += str(increase_24h) + ','
-            if increase_3d is not None:
-                insertquery += str(increase_3d) + ','
-            if increase_7d is not None:
-                insertquery += str(increase_7d) + ','
+    # endregion
 
-            insertquery += 'current_timestamp)'
-            dbconn.exexute_query(insertquery)
+    # region Manipulate data into panda dataframe
 
-    # Empty table containing last KPIs (already saved in histo)
-    deletequery = 'delete from kpi_reddit_subscribers'
-    dbconn.exexute_query(deletequery)
+    # set index on column timestamp
+    df.set_index('timestamp', inplace=True)
 
-    # Save in histo
-    insertquery2 = 'INSERT INTO public.kpi_reddit_subscribers\n'
-    insertquery2 += 'select * from kpi_reddit_subscribers_histo\n'
-    insertquery2 += 'where "timestamp" > current_timestamp  - interval ' + "'1 hour'"
+    # 30d mean
+    df2 = df.groupby('IdCoinCryptoCompare').mean()
 
-    dbconn.exexute_query(insertquery2)
+    # working with utc because timestamp retrieved into panda DataFrame are in UTC
+    date_after = datetime.utcnow()
+
+    # 1h/3h/6h/12h/24h/3d/7d
+    arr = [1, 3, 6, 12, 24, 24 * 3, 24 * 7]
+    for elt in arr:
+        # elt+1 because : dataimporter -O at 15:05 get volumes for 14:00-15:00 period with timestamp = 14:00.
+        # algokpi -v at 15:10 => need 13:10 (so minus 2h) to get volumes for pediod
+        date_before = date_after - timedelta(hours=elt + 1)  # elt => to be changed with timezone ?
+        df_tmp = df.truncate(before=date_before, after=date_after).groupby('IdCoinCryptoCompare').mean()
+
+        # rename column to avoid conflicts
+        df_tmp.columns = ['col' + str(elt)]
+        df2 = df2.join(df_tmp)
+        df2['col' + str(elt)] = (df2['col' + str(elt)] - df2['volume_mean_last_30d']) / df2['volume_mean_last_30d']
+
+    df2.columns = ['volume_mean_last_30d', 'volume_mean_last_1h_vs_30d', 'volume_mean_last_3h_30d',
+                   'volume_mean_last_6h_30d', 'volume_mean_last_12h_30d', 'volume_mean_last_24h_30d',
+                   'volume_mean_last_3d_30d', 'volume_mean_last_7d_30d']
+    df2 = df2.drop('volume_mean_last_30d', 1)
+    df2.dropna(axis=0, thresh=3, inplace=True)
+
+    # endregion
+
+    # region Save data into database
+
+    # empty table
+    connection.execute('delete from kpi_market_volumes')
+
+    # insert data into database (last kpis table)
+    df2.to_sql(name='kpi_market_volumes', con=connection, if_exists='append', index=True)
+
+    # insert data into database (table with historical data)
+    connection.execute('insert into kpi_market_volumes_histo select * from kpi_market_volumes')
+
+    # endregion
 
     logging.warning("calcul_kpi_volumes_trend - end")
 
-
-def __calcul_kpi_volumes_trend(coin_id, days, text):
-    period = str(days + 1) + ' ' + text
-    squery_select = __create_query_subscribers_trend(coin_id, period)
-    dbconn = DbConnection()
-    rows = dbconn.get_query_result(squery_select)
-
-    # datetime.now().astimezone() - rows[0][3]
-    if len(rows) == 2 and rows[0][1] != 0:
-        date_today = rows[1][3]
-        date_past = rows[0][3]
-        if date_today is not None and date_past is not None and date_today != date_past:
-            diff_days_today = (datetime.now().astimezone() - date_today).days
-            diff_days_past = (datetime.now().astimezone() - date_past).days
-            if diff_days_today == 0 and abs(diff_days_past - days) < 2:
-                # increase = (ValueAfter-ValueBefore)/(ValueBefore)
-                return (rows[1][1] - rows[0][1]) / (rows[0][1])
-
-    return None
-
-
-def __create_query_subscribers_trend(coin_id, period):
-    # Get today's infos + infos from 30d ago
-    squery = '(select "IdCoinCryptoCompare", "Reddit_subscribers", "Reddit_active_users", '
-    squery += '"timestamp" from social_stats_reddit_histo\n'
-    squery += 'where "IdCoinCryptoCompare" = ' + "'" + str(coin_id) + "'\n"
-    squery += "and timestamp > CURRENT_TIMESTAMP - interval '" + period + "'\n"
-    squery += 'order by timestamp asc\n'
-    squery += 'LIMIT 1)\n'
-    squery += 'UNION ALL\n'
-    squery += '(select "IdCoinCryptoCompare", "Reddit_subscribers", "Reddit_active_users", '
-    squery += '"timestamp" from social_stats_reddit_histo\n'
-    squery += 'where "IdCoinCryptoCompare" = ' + "'" + str(coin_id) + "'\n"
-    squery += "and timestamp > CURRENT_TIMESTAMP - interval '" + period + "'\n"
-    squery += 'order by timestamp desc\n'
-    squery += 'LIMIT 1)\n'
-    return squery
-
-# endregion

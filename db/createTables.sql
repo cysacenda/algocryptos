@@ -514,3 +514,30 @@ COMMENT ON TABLE public.kpi_market_volumes
     IS 'Contains market kpis about volumes.';
 
 
+-- DROP TABLE public.kpi_market_volumes_histo;
+
+CREATE TABLE public.kpi_market_volumes_histo
+(
+    "IdCoinCryptoCompare" bigint,
+    "volume_mean_last_1h_vs_30d" double precision,
+    "volume_mean_last_3h_30d" double precision,
+    "volume_mean_last_6h_30d" double precision,
+    "volume_mean_last_12h_30d" double precision,
+    "volume_mean_last_24h_30d" double precision,
+    "volume_mean_last_3d_30d" double precision,
+    "volume_mean_last_7d_30d" double precision,
+    "timestamp" timestamp with time zone default current_timestamp
+)
+WITH (
+    OIDS = FALSE
+)
+TABLESPACE pg_default;
+
+ALTER TABLE public.kpi_market_volumes_histo
+    OWNER to postgres;
+
+GRANT ALL ON TABLE public.kpi_market_volumes_histo TO dbuser;
+GRANT ALL ON TABLE public.kpi_market_volumes_histo TO postgres;
+
+COMMENT ON TABLE public.kpi_market_volumes_histo
+    IS 'Contains historical data of market kpis about volumes.';

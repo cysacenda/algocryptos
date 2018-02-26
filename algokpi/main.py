@@ -1,6 +1,7 @@
 import datetime
 import logging
 from kpi_reddit import calcul_reddit_kpi
+from kpi_market import calcul_volumes_kpi
 import argparse
 import sys
 from commons.config import Config
@@ -28,10 +29,15 @@ try:
             description="Outil permettant l'analyse des donnees marches et reseaux sociaux pour les cryptocurrencies")
         parser.add_argument('-r', '--reddit', dest="reddit", help='Calcul KPIs related to Reddit',
                             action='store_true')
+        parser.add_argument('-v', '--volumes', dest="volumes", help='Calcul KPIs related to market volumes',
+                            action='store_true')
         args = parser.parse_args()
 
         if args.reddit:
             calcul_reddit_kpi.calcul_kpi_subscribers_trend()
+
+        if args.volumes:
+            calcul_volumes_kpi.calcul_kpi_volumes_trend()
 except Exception as e:
     procM.isError()
     logging.error('Uncatched error :' + str(e))
