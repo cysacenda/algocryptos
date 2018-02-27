@@ -39,6 +39,13 @@ drop table excluded_coins;
 drop table kpi_reddit_subscribers;
 drop table process_params;
 drop table ath_prices;
+drop table top_cryptos;
+drop table process_params_histo;
+drop table kpi_reddit_subscribers_histo;
+drop table global_data;
+drop table kpi_market_volumes;
+drop table kpi_market_volumes_histo;
+drop table social_stats_reddit_histo;
 
 -- Tailles de toutes les tables de la base de données
 SELECT *, pg_size_pretty(total_bytes) AS total
