@@ -33,7 +33,7 @@ try:
         parser.add_argument('-d', '--deleteMeaninglessCoins', dest="deleteMeaninglessCoins",
                             help='Delete coins and prices that are judged useless',
                             action='store_true')
-        parser.add_argument('-s', '--socialStats', dest="socialStats", help='Insert current prices into BDD',
+        parser.add_argument('-s', '--socialStats', dest="socialStats", help='Insert infos related to social network (reddit, etc.) into BDD',
                             action='store_true')
         parser.add_argument('-r', '--reddit', dest="reddit", help='Social stats from Redditmetric', action='store_true')
         parser.add_argument('-f', '--full', dest="full", help='Get everything (Useful for first-timer)',

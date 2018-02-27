@@ -251,3 +251,17 @@ insert into top_cryptos("IdCryptoCompare") values (172091);
 insert into top_cryptos("IdCryptoCompare") values (347235);
 insert into top_cryptos("IdCryptoCompare") values (3807);
 insert into top_cryptos("IdCryptoCompare") values (166503);
+
+insert into process_description ("Name", "Description") values ('DataImporter -cpd', 'Update coins list and prices');
+insert into process_description ("Name", "Description") values ('DataImporter -o', 'Update OHLCV information (periods of 1 hour)');
+insert into process_description ("Name", "Description") values ('DataImporter -r', 'Update Reddit statistics (number of subscribers)');
+insert into process_description ("Name", "Description") values ('DataImporter -g', 'Update global infos (global market cap, 24h volumes)');
+insert into process_description ("Name", "Description") values ('DataImporter -s', 'Update social stats (information relatives to twitter, Reddit linked to one cryptocurrency)');
+insert into process_description ("Name", "Description") values ('DataImporter -hp', 'Update price historic');
+insert into process_description ("Name", "Description") values ('DataImporter -ath', 'Update all time high for each cryptocurrency');
+insert into process_description ("Name", "Description") values ('AlgoKPI -v', 'Calcul kpi related to volumes');
+insert into process_description ("Name", "Description") values ('AlgoKPI -r', 'Calcul kpi related to reddit subscribers');
+
+
+
+

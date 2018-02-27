@@ -12,3 +12,4 @@ PYTHONPATH=$PYTHONPATH:/home/ec2-user/prod/algocryptos_scripts/
 0-59/5  0,2-23   *       *       *       /home/ec2-user/prod/algocryptos_scripts/venv/bin/python /home/ec2-user/prod/algocryptos_scripts/dataimporter/main.py -cpd
 
 45      1        *       *       *       /home/ec2-user/prod/algocryptos_scripts/venv/bin/python /home/ec2-user/prod/algocryptos_scripts/algokpi/main.py -r
+21      0,2-23/1 *       *       *       /home/ec2-user/prod/algocryptos_scripts/venv/bin/python /home/ec2-user/prod/algocryptos_scripts/algokpi/main.py -v

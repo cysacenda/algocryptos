@@ -541,3 +541,25 @@ GRANT ALL ON TABLE public.kpi_market_volumes_histo TO postgres;
 
 COMMENT ON TABLE public.kpi_market_volumes_histo
     IS 'Contains historical data of market kpis about volumes.';
+
+
+-- DROP TABLE public.process_description;
+
+CREATE TABLE public.process_description
+(
+    "Name" text COLLATE pg_catalog."default",
+    "Description" text COLLATE pg_catalog."default"
+)
+WITH (
+    OIDS = FALSE
+)
+TABLESPACE pg_default;
+
+ALTER TABLE public.process_description
+    OWNER to postgres;
+
+GRANT ALL ON TABLE public.process_description TO dbuser;
+GRANT ALL ON TABLE public.process_description TO postgres;
+
+COMMENT ON TABLE public.process_description
+    IS 'Contains description of processes.';
