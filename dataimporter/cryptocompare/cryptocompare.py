@@ -16,6 +16,7 @@ class CryptoCompare:
     URL_SOCIAL_STATS = None
     URL_TRADING_PAIRS = None
     URL_HISTO_HOUR_PAIR = None
+    URL_HISTO_DAY_PAIR = None
     CURR = None
 
     def __init__(self):
@@ -28,6 +29,7 @@ class CryptoCompare:
         self.URL_SOCIAL_STATS = self.conf.get_config('cryptocompare_params', 'url_social_stats')
         self.URL_TRADING_PAIRS = self.conf.get_config('cryptocompare_params', 'url_trading_pairs')
         self.URL_HISTO_HOUR_PAIR = self.conf.get_config('cryptocompare_params', 'url_histo_hour_pair')
+        self.URL_HISTO_DAY_PAIR = self.conf.get_config('cryptocompare_params', 'url_histo_day_pair')
 
         # DEFAULTS
         self.CURR = self.conf.get_config('cryptocompare_params', 'default_currency')
@@ -59,10 +61,16 @@ class CryptoCompare:
         data = self.query_cryptocompare(url)
         return self.__get_data_manage_errors(data, url)
 
+    @rate_limited(10, 1)
+    def get_histo_day_pair(self, symbol1, symbol2, limit):
+        url = self.URL_HISTO_DAY_PAIR.format(symbol1, symbol2, limit)
+        data = self.query_cryptocompare(url)
+        return self.__get_data_manage_errors(data, url)
+
     def __get_data_manage_errors(self, data, url):
         if data is not None:
             if 'Data' not in data.keys():
-                time.sleep(5)
+                time.sleep(1)
                 data = self.query_cryptocompare(url)
             if 'Data' not in data.keys():
                 return None
