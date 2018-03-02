@@ -563,3 +563,31 @@ GRANT ALL ON TABLE public.process_description TO postgres;
 
 COMMENT ON TABLE public.process_description
     IS 'Contains description of processes.';
+
+-- Table: public.lower_higher_prices
+
+-- DROP TABLE public.lower_higher_prices;
+
+CREATE TABLE public.lower_higher_prices
+(
+    "IdCryptoCompare" bigint,
+    price_low_15d double precision,
+    date_low_15d timestamp with time zone,
+    price_low_1m double precision,
+    date_low_1m timestamp with time zone
+    --TODO : A finir
+    -- CONSTRAINT prices_pkey PRIMARY KEY (Symbol)
+)
+WITH (
+    OIDS = FALSE
+)
+TABLESPACE pg_default;
+
+ALTER TABLE public.lower_higher_prices
+    OWNER to postgres;
+
+GRANT ALL ON TABLE public.lower_higher_prices TO dbuser;
+GRANT ALL ON TABLE public.lower_higher_prices TO postgres;
+
+COMMENT ON TABLE public.lower_higher_prices
+    IS 'Contains one line per cryptocurrency with lowers and highers on different periods';
