@@ -11,7 +11,7 @@ class ProcessManager:
     WAITING = None
     SUCCESS = None
     ERROR = None
-    isError = None
+    IsError = None
 
     def __init__(self):
         self.conf = Config()
@@ -20,7 +20,7 @@ class ProcessManager:
         self.WAITING = self.conf.get_config('process_params', 'status_waiting')
         self.SUCCESS = self.conf.get_config('process_params', 'status_success')
         self.ERROR = self.conf.get_config('process_params', 'status_error')
-        self.isError = False
+        self.IsError = False
 
     # When starting a process
     def start_process(self, process_id, name, args, retry_count=0):
@@ -77,7 +77,7 @@ class ProcessManager:
         if status is None:
             status = self.RUNNING
         # Save process info into historic
-        self.__insert_process(process_id, concatname, self.ERROR if self.isError else self.SUCCESS, True)
+        self.__insert_process(process_id, concatname, self.ERROR if self.IsError else self.SUCCESS, True)
         squery = 'Delete from process_params where "IdProcess" = ' + str(process_id)
         squery += ' and "Status" = ' + "'" + status + "'" + ' and "Name" = ' + "'" + concatname + "'" + ';'
         return self.dbconn.exexute_query(squery) == 0
@@ -113,5 +113,5 @@ class ProcessManager:
         squeryupdate += 'WHERE "IdProcess" = ' + str(process_id) + ' AND "Name" = ' + "'" + name + "'"
         self.dbconn.exexute_query(squeryupdate)
 
-    def isError(self):
-        self.isError = True
+    def setIsError(self):
+        self.IsError = True

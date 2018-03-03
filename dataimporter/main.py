@@ -94,7 +94,7 @@ try:
             extractdata.extract_coinmarketcap_historical_prices()
 
         if args.athprices:
-            extractdata.extract_athindexes()
+            extractdata.extract_lower_higher_prices()
 
         if args.full:
             # -----------------------------------------------
@@ -107,10 +107,10 @@ try:
             extractdata.extract_cryptocompare_social()
             extractdata.extract_reddit_data()
             extractdata.extract_histo_ohlcv()
-            extractdata.extract_athindexes()
+            extractdata.extract_lower_higher_prices()
 
 except Exception as e:
-    procM.isError()
+    procM.setIsError()
     logging.error('Uncatched error :' + str(e))
 
 # Stop process

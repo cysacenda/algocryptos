@@ -14,3 +14,6 @@ dist
 #Others
 *.log
 venv
+
+#Jupyter
+*-checkpoint.ipynb

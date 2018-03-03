@@ -357,33 +357,6 @@ GRANT ALL ON TABLE public.process_params TO postgres;
 COMMENT ON TABLE public.process_params
     IS 'Allow to avoid some processes to run at the same time';
 
--- Table: public.ath_prices
-
--- DROP TABLE public.ath_prices;
-
-CREATE TABLE public.ath_prices
-(
-    "IdCryptoCompare" bigint,
-    "Name" text COLLATE pg_catalog."default",
-    Prices_ath_usd double precision,
-    Ath_date timestamp with time zone,
-    Last_updated timestamp with time zone
-    -- CONSTRAINT prices_pkey PRIMARY KEY (Symbol)
-)
-WITH (
-    OIDS = FALSE
-)
-TABLESPACE pg_default;
-
-ALTER TABLE public.ath_prices
-    OWNER to postgres;
-
-GRANT ALL ON TABLE public.ath_prices TO dbuser;
-GRANT ALL ON TABLE public.ath_prices TO postgres;
-
-COMMENT ON TABLE public.ath_prices
-    IS 'Contains one line per cryptocurrency with ATH et ATH date';
-
 -- Table: public.top_cryptos
 
 -- DROP TABLE public.top_cryptos;
@@ -574,9 +547,28 @@ CREATE TABLE public.lower_higher_prices
     price_low_15d double precision,
     date_low_15d timestamp with time zone,
     price_low_1m double precision,
-    date_low_1m timestamp with time zone
-    --TODO : A finir
-    -- CONSTRAINT prices_pkey PRIMARY KEY (Symbol)
+    date_low_1m timestamp with time zone,
+    price_low_3m double precision,
+    date_low_3m timestamp with time zone,
+    price_low_6m double precision,
+    date_low_6m timestamp with time zone,
+    price_low_1y double precision,
+    date_low_1y timestamp with time zone,
+    price_low_5y double precision,
+    date_low_5y timestamp with time zone,
+    price_high_15d double precision,
+    date_high_15d timestamp with time zone,
+    price_high_1m double precision,
+    date_high_1m timestamp with time zone,
+    price_high_3m double precision,
+    date_high_3m timestamp with time zone,
+    price_high_6m double precision,
+    date_high_6m timestamp with time zone,
+    price_high_1y double precision,²
+    date_high_1y timestamp with time zone,
+    price_high_5y double precision,
+    date_high_5y timestamp with time zone,
+    timestamp timestamp with time zone default current_timestamp
 )
 WITH (
     OIDS = FALSE

@@ -6,8 +6,10 @@ import reddit
 from commons.utils import utils
 import logging
 import time
-from datetime import datetime
-import athindex
+from datetime import datetime, timedelta
+from sqlalchemy import create_engine
+import pandas as pd
+import json
 
 conf = Config()
 MINIMUM_MARKET_CAP_USD = conf.get_config('market_params', 'minimum_market_cap_usd')
@@ -468,7 +470,6 @@ def extract_histo_ohlcv():
 
     logging.warning("extract_histo_ohlcv - end")
 
-
 def __get_histo_volumes_for_coin(coin_id, symbol, lastdate, is_topcrypto):
     dict_dates_volumes = {}
     data = __get_trading_pairs_for_crypto(symbol, is_topcrypto)
@@ -553,24 +554,68 @@ def __create_query_histo_ohlc(coin_id, data, dict_dates_volumes):
 
 # region ATH
 
-def extract_athindexes():
-    logging.warning("extract_athindexes - start")
+def extract_lower_higher_prices():
+    logging.warning("extract_lower_higher_prices - start")
+
     dbconn = DbConnection()
+    dbconn.exexute_query('Delete from lower_higher_prices;')
+    rows = dbconn.get_query_result('select "IdCryptoCompare", "Symbol" from coins')
 
-    # Delete existing ATH
-    dbconn.exexute_query('DELETE FROM ath_prices')
+    connection = create_engine(utils.get_connection_string())
+    for row in rows:
+        __get_query_lower_higher_prices_for_coin(connection, row[0], row[1])
 
-    # Insert lines without ath et ath_date
-    insert_query = 'insert into ath_prices("IdCryptoCompare", "Name")\n'
-    insert_query += 'select "IdCryptoCompare", "Name" from prices'
-    dbconn.exexute_query(insert_query)
+    logging.warning("extract_lower_higher_prices - end")
 
-    # Updates ath et ath_date
-    squery = athindex.get_athindex_query()
-    if squery != '':
-        dbconn.exexute_query(squery)
+def __get_query_lower_higher_prices_for_coin(connection, coin_id, symbol):
+    cryptocomp = CryptoCompare()
+    data = cryptocomp.get_histo_day_pair(symbol)
 
-    logging.warning("extract_athindexes - end")
+    # get data via API
+    data = json.loads(data)
+    df = pd.DataFrame(data["Data"])
+
+    if not df.empty:
+        # delete useless columns
+        df.drop(['close', 'open', 'volumefrom', 'volumeto'], axis=1, inplace=True)
+
+        # convert todatetime
+        df['time'] = pd.to_datetime(df['time'], unit='s')
+
+        # set index on column timestamp
+        df.set_index('time', inplace=True)
+
+        # drop rows with 0 only
+        columns = ['low', 'high']
+        df = df.replace(0, pd.np.nan).dropna(axis=0, how='any', subset=columns).fillna(0).astype(float)
+
+        # df to insert into db
+        df_final = pd.DataFrame()
+        df_final['IdCryptoCompare'] = [coin_id]
+
+        # df columns
+        columns_arr = ['price_low_15d', 'date_low_15d', 'price_high_15d', 'date_high_15d',
+                       'price_low_1m', 'date_low_1m', 'price_high_1m', 'date_high_1m',
+                       'price_low_3m', 'date_low_3m', 'price_high_3m', 'date_high_3m',
+                       'price_low_6m', 'date_low_6m', 'price_high_6m', 'date_high_6m',
+                       'price_low_1y', 'date_low_1y', 'price_high_1y', 'date_high_1y',
+                       'price_low_5y', 'date_low_5y', 'price_high_5y', 'date_high_5y']
+
+        # 15d/1m/3m/6m/12m/all
+        arr = [15, 30, 3 * 30, 6 * 30, 12 * 30, 2000]
+        date_after = datetime.now()
+        i = 0
+        for elt in arr:
+            date_before = date_after - timedelta(days=elt)
+            df_tmp = df.truncate(before=date_before, after=date_after)
+            df_final[columns_arr[i]] = [df_tmp.low.min()]
+            df_final[columns_arr[i + 1]] = [df_tmp.low.idxmin()]
+            df_final[columns_arr[i + 2]] = [df_tmp.high.max()]
+            df_final[columns_arr[i + 3]] = [df_tmp.high.idxmax()]
+            i += 4
+
+        df_final.to_sql(name='lower_higher_prices', con=connection, if_exists='append', index=False)
+
 
 # endregion ATH
 

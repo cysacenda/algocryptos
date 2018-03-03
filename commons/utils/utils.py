@@ -20,7 +20,6 @@ def format_linux_timestamp_to_datetime(integer_timestamp):
     local_timezone = tzlocal.get_localzone()  # get pytz timezone
     return datetime.fromtimestamp(unix_timestamp, local_timezone)
 
-
 # Convert the given float to a string, without resorting to scientific notation
 def float_to_str(f):
     d1 = ctx.create_decimal(repr(f))

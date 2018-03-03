@@ -62,10 +62,10 @@ class CryptoCompare:
         return self.__get_data_manage_errors(data, url)
 
     @rate_limited(10, 1)
-    def get_histo_day_pair(self, symbol1, symbol2, limit):
-        url = self.URL_HISTO_DAY_PAIR.format(symbol1, symbol2, limit)
-        data = self.query_cryptocompare(url)
-        return self.__get_data_manage_errors(data, url)
+    def get_histo_day_pair(self, symbol1):
+        url = self.URL_HISTO_DAY_PAIR.format(symbol1, self.CURR, 2000)
+        data = self.query_cryptocompare(url, False, False)
+        return data.content
 
     def __get_data_manage_errors(self, data, url):
         if data is not None:
@@ -80,34 +80,14 @@ class CryptoCompare:
 
     # endregion
 
-    # region Useless for the moment
-
-    """""
-    def get_historical_price(self, coin, timestamp=time.time()):
-        if isinstance(timestamp, datetime.datetime):
-            timestamp = time.mktime(timestamp.timetuple())
-        return self.query_cryptocompare(self.URL_HIST_PRICE.format(
-        coin, self.format_parameter(self.CURR), int(timestamp)))
-
-    def get_price(self, coin, full=False):
-        if full:
-            return self.query_cryptocompare(self.URL_PRICE_MULTI_FULL.format(self.format_parameter(coin),
-                self.format_parameter(self.CURR)))
-        if isinstance(coin, list):
-            return self.query_cryptocompare(self.URL_PRICE_MULTI.format(self.format_parameter(coin),
-                self.format_parameter(self.CURR)))
-        else:
-            return self.query_cryptocompare(self.URL_PRICE.format(coin, self.format_parameter(self.CURR)))
-    """""
-
-    # endregion
-
     # region Utils
 
     @staticmethod
-    def query_cryptocompare(url, error_check=True):
+    def query_cryptocompare(url, error_check=True, json_format=True):
         try:
-            response = requests.get(url).json()
+            response = requests.get(url)
+            if json_format:
+                response = response.json()
         except Exception as e:
             logging.error("Error getting information from cryptocompare. " + str(e))
             return None

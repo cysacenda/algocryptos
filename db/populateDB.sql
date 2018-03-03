@@ -82,7 +82,6 @@ INSERT INTO social_infos_manual VALUES (177139,'CoinDash');
 INSERT INTO social_infos_manual VALUES (177175,'district0x');
 INSERT INTO social_infos_manual VALUES (177863,'santiment');
 INSERT INTO social_infos_manual VALUES (179164,'MetalPay');
-INSERT INTO social_infos_manual VALUES (179896,'populous_platform');
 INSERT INTO social_infos_manual VALUES (179926,'suncontract');
 INSERT INTO social_infos_manual VALUES (179990,'RialtoAI');
 INSERT INTO social_infos_manual VALUES (180013,'OpenANX');

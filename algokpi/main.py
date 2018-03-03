@@ -39,7 +39,7 @@ try:
         if args.volumes:
             calcul_volumes_kpi.calcul_kpi_volumes_trend()
 except Exception as e:
-    procM.isError()
+    procM.setIsError()
     logging.error('Uncatched error :' + str(e))
 
 # Stop process
