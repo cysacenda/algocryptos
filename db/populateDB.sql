@@ -257,7 +257,7 @@ insert into process_description ("Name", "Description") values ('DataImporter -r
 insert into process_description ("Name", "Description") values ('DataImporter -g', 'Update global infos (global market cap, 24h volumes)');
 insert into process_description ("Name", "Description") values ('DataImporter -s', 'Update social stats (information relatives to twitter, Reddit linked to one cryptocurrency)');
 insert into process_description ("Name", "Description") values ('DataImporter -hp', 'Update price historic');
-insert into process_description ("Name", "Description") values ('DataImporter -ath', 'Update all time high for each cryptocurrency');
+insert into process_description ("Name", "Description") values ('DataImporter -ath', 'Update higher & lower for each cryptocurrency');
 insert into process_description ("Name", "Description") values ('AlgoKPI -v', 'Calcul kpi related to volumes');
 insert into process_description ("Name", "Description") values ('AlgoKPI -r', 'Calcul kpi related to reddit subscribers');
 
