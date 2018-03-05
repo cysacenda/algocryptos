@@ -88,3 +88,35 @@ DROP TABLE public.ath_prices;
 
 DELETE FROM social_infos_manual WHERE "IdCoinCryptoCompare" = 179896;
 INSERT INTO social_infos_manual VALUES (179896,'populous_platform');
+
+
+-----------------
+
+DROP TABLE public.kpi_reddit_subscribers;
+
+CREATE TABLE public.kpi_reddit_subscribers
+(
+    "IdCryptoCompare" bigint,
+    subscribers_1d_trend double precision,
+    subscribers_3d_trend double precision,
+    subscribers_7d_trend double precision,
+    subscribers_15d_trend double precision,
+    subscribers_30d_trend double precision,
+    subscribers_60d_trend double precision,
+    subscribers_90d_trend double precision,
+    "timestamp" timestamp with time zone default current_timestamp
+)
+WITH (
+    OIDS = FALSE
+)
+TABLESPACE pg_default;
+
+ALTER TABLE public.kpi_reddit_subscribers
+    OWNER to postgres;
+
+GRANT ALL ON TABLE public.kpi_reddit_subscribers TO dbuser;
+GRANT ALL ON TABLE public.kpi_reddit_subscribers TO postgres;
+
+COMMENT ON TABLE public.kpi_reddit_subscribers
+    IS 'Contains one line per cryptocurency with kpis on reddit subscribers, store only last kpi calcul';
+

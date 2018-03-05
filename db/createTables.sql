@@ -272,7 +272,6 @@ COMMENT ON TABLE public.histo_prices
 
 -- DROP TABLE public.kpi_reddit_subscribers;
 
-
 CREATE TABLE public.kpi_reddit_subscribers
 (
     "IdCryptoCompare" bigint,
@@ -283,7 +282,7 @@ CREATE TABLE public.kpi_reddit_subscribers
     subscribers_30d_trend double precision,
     subscribers_60d_trend double precision,
     subscribers_90d_trend double precision,
-    "timestamp" timestamp with time zone
+    "timestamp" timestamp with time zone default current_timestamp
 )
 WITH (
     OIDS = FALSE
