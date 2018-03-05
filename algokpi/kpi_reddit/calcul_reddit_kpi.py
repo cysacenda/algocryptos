@@ -1,121 +1,81 @@
-from commons.dbaccess import DbConnection
 from commons.config import Config
+from commons.utils import utils
 import logging
-from datetime import datetime
+import pandas.io.sql as psql
+import pandas as pd
+from datetime import datetime, timedelta, date
+from sqlalchemy import create_engine
 
 conf = Config()
 
 
 # region Subscribers
 
-# % increase
-# TODO : Refaire avec Pandas + interpolation (time?) pour données manquantes
 def calcul_kpi_subscribers_trend():
     logging.warning("calcul_kpi_subscribers_trend - start")
 
-    dbconn = DbConnection()
+    connection = create_engine(utils.get_connection_string())
 
-    # Get all cryptos for which we have to calculate KPIs
-    rows = dbconn.get_query_result('select distinct "IdCoinCryptoCompare" from social_stats_reddit_histo')
+    # get data with query
+    squery = 'select so."IdCoinCryptoCompare" as "IdCryptoCompare", so."Reddit_subscribers", so."timestamp" from social_stats_reddit_histo so\n'
+    squery += 'inner join coins co on (co."IdCryptoCompare" = so."IdCoinCryptoCompare")\n'
+    squery += 'where so.timestamp > CURRENT_TIMESTAMP - interval \'90 days\';'
 
-    # For each crypto, calculate KPIs
-    for row in rows:
-        increase_1d = __calcul_kpi_subscribers_trend(row[0], 1, 'days')
-        increase_3d = __calcul_kpi_subscribers_trend(row[0], 3, 'days')
-        increase_7d = __calcul_kpi_subscribers_trend(row[0], 7, 'days')
-        increase_15d = __calcul_kpi_subscribers_trend(row[0], 15, 'days')
-        increase_30d = __calcul_kpi_subscribers_trend(row[0], 30, 'days')
-        increase_60d = __calcul_kpi_subscribers_trend(row[0], 60, 'days')
-        increase_90d = __calcul_kpi_subscribers_trend(row[0], 90, 'days')
+    df = psql.read_sql_query(squery, connection)
 
-        if (increase_1d is not None or increase_3d is not None or increase_7d is not None
-                or increase_15d is not None or increase_30d is not None
-                or increase_60d is not None or increase_90d is not None):
-            insertquery = 'INSERT INTO public.kpi_reddit_subscribers_histo ("IdCryptoCompare",'
-            if increase_1d is not None:
-                insertquery += 'subscribers_1d_trend, '
-            if increase_3d is not None:
-                insertquery += 'subscribers_3d_trend, '
-            if increase_7d is not None:
-                insertquery += 'subscribers_7d_trend, '
-            if increase_15d is not None:
-                insertquery += 'subscribers_15d_trend, '
-            if increase_30d is not None:
-                insertquery += 'subscribers_30d_trend, '
-            if increase_60d is not None:
-                insertquery += 'subscribers_60d_trend, '
-            if increase_90d is not None:
-                insertquery += 'subscribers_90d_trend, '
-            insertquery += '"timestamp")\n'
-            insertquery += 'VALUES \n('
-            insertquery += str(row[0]) + ','
-            if increase_1d is not None:
-                insertquery += str(increase_1d) + ','
-            if increase_3d is not None:
-                insertquery += str(increase_3d) + ','
-            if increase_7d is not None:
-                insertquery += str(increase_7d) + ','
-            if increase_15d is not None:
-                insertquery += str(increase_15d) + ','
-            if increase_30d is not None:
-                insertquery += str(increase_30d) + ','
-            if increase_60d is not None:
-                insertquery += str(increase_60d) + ','
-            if increase_90d is not None:
-                insertquery += str(increase_90d) + ','
+    # set index on column timestamp
+    df.set_index('timestamp', 'IdCryptoCompare', inplace=True)
 
-            insertquery += 'current_timestamp)'
-            dbconn.exexute_query(insertquery)
+    # group by crypto
+    df2 = df.groupby('IdCryptoCompare')
 
-    # Empty table containing last KPIs (already saved in histo)
-    deletequery = 'delete from kpi_reddit_subscribers'
-    dbconn.exexute_query(deletequery)
+    # resample with period 1D + interpolation for missing values
+    df2 = df2.resample('1D').agg({'Reddit_subscribers': 'max'}).interpolate()
+    df2['Reddit_subscribers'] = df2['Reddit_subscribers'].astype(int)
 
-    # Retrieve last from histo
-    insertquery2 = 'INSERT INTO public.kpi_reddit_subscribers\n'
-    insertquery2 += 'select * from kpi_reddit_subscribers_histo\n'
-    insertquery2 += 'where "timestamp" > current_timestamp  - interval ' + "'1 hour'"
+    # regroup by crypto
+    df3 = df2.groupby('IdCryptoCompare')
 
-    dbconn.exexute_query(insertquery2)
+    # get last value for each crypto
+    dftoday = df3.last()
+
+    # today's date
+    date_after = datetime.combine(date.today(), datetime.min.time())
+
+    # array of periods on which we want to calculate kpis
+    arr = [1, 3, 7, 15, 30, 60, 90]
+    for elt in arr:
+        date_before = date_after - timedelta(days=elt)
+
+        # manipulate dataframe
+        df_tmp = df2.reset_index(level=[0, 1])
+        df_tmp.set_index('timestamp', inplace=True)
+        df_tmp.sort_index(inplace=True)
+
+        # truncate dataframe to get data on a specific period
+        df_tmp = df_tmp.truncate(before=date_before, after=date_after).groupby('IdCryptoCompare').first()
+
+        # rename column to avoid problem
+        df_tmp.columns = ['col' + str(elt)]
+        dftoday = dftoday.join(df_tmp)
+        dftoday['col' + str(elt)] = (dftoday['Reddit_subscribers'] - dftoday['col' + str(elt)]) / dftoday[
+            'col' + str(elt)]
+
+    # rename columns
+    dftoday.columns = ['Reddit_subscribers', 'subscribers_1d_trend', 'subscribers_3d_trend', 'subscribers_7d_trend',
+                       'subscribers_15d_trend', 'subscribers_30d_trend', 'subscribers_60d_trend',
+                       'subscribers_90d_trend']
+    dftoday = dftoday.drop('Reddit_subscribers', 1)
+
+    # empty table
+    connection.execute('delete from kpi_reddit_subscribers')
+
+    # insert data into database (last kpis table)
+    dftoday.to_sql(name='kpi_reddit_subscribers', con=connection, if_exists='append', index=True)
+
+    # insert data into database (table with historical data)
+    connection.execute('insert into kpi_reddit_subscribers_histo select * from kpi_reddit_subscribers')
 
     logging.warning("calcul_kpi_subscribers_trend - end")
-
-
-def __calcul_kpi_subscribers_trend(coin_id, days, text):
-    period = str(days + 1) + ' ' + text
-    squery_select = __create_query_subscribers_trend(coin_id, period)
-    dbconn = DbConnection()
-    rows = dbconn.get_query_result(squery_select)
-
-    # datetime.now().astimezone() - rows[0][3]
-    if len(rows) == 2 and rows[0][1] != 0:
-        date_today = rows[1][3]
-        date_past = rows[0][3]
-        if date_today is not None and date_past is not None and date_today != date_past:
-            diff_days_today = (datetime.now().astimezone() - date_today).days
-            diff_days_past = (datetime.now().astimezone() - date_past).days
-            if diff_days_today == 0 and abs(diff_days_past - days) < 2:
-                # increase = (ValueAfter-ValueBefore)/(ValueBefore)
-                return (rows[1][1] - rows[0][1]) / (rows[0][1])
-
-    return None
-
-
-def __create_query_subscribers_trend(coin_id, period):
-    # Get today's infos + infos from 30d ago
-    squery = '(select "IdCoinCryptoCompare", "Reddit_subscribers", "Reddit_active_users", '
-    squery += '"timestamp" from social_stats_reddit_histo\n'
-    squery += 'where "IdCoinCryptoCompare" = ' + "'" + str(coin_id) + "'\n"
-    squery += "and timestamp > CURRENT_TIMESTAMP - interval '" + period + "'\n"
-    squery += 'order by timestamp asc\n'
-    squery += 'LIMIT 1)\n'
-    squery += 'UNION ALL\n'
-    squery += '(select "IdCoinCryptoCompare", "Reddit_subscribers", "Reddit_active_users", '
-    squery += '"timestamp" from social_stats_reddit_histo\n'
-    squery += 'where "IdCoinCryptoCompare" = ' + "'" + str(coin_id) + "'\n"
-    squery += "and timestamp > CURRENT_TIMESTAMP - interval '" + period + "'\n"
-    squery += 'order by timestamp desc\n'
-    squery += 'LIMIT 1)\n'
-    return squery
 
 # endregion
