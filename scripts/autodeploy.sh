@@ -3,7 +3,7 @@
 # Auteur    : Mickael A. CABREIRO
 # Date      : Mach 4th 2018	 
 # OS Testes : Raspian OS
-# Version   : 1.0
+# Version   : 1.1
 #-------------------------------------------------------------------------------------------------------------
 # DESCRIPTION
 #     This script is intended to be used to autodeploy the AlgoCrypto projec (Cyril SACENDA) 
@@ -32,6 +32,7 @@
 #=============================================================================================================
 # MODIFICATIONS
 #-------------------------------------------------------------------------------------------------------------
+#	Version 1.1 : Adding Cron management
 ##############################################################################################################
 
 #	Parameters 
@@ -39,7 +40,7 @@
 
 # Constants
 # ---------
-	readonly __PROG_VERS="1.0"
+	readonly __PROG_VERS="1.1"
 	readonly __DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 	readonly __PROG="${__DIR}/$(basename "${BASH_SOURCE[0]}")"
 	readonly __BASE="$(basename ${__PROG} .sh)"
@@ -66,6 +67,11 @@ __Git_Back=""
 
 __DB_HOST="algocryptos.c592sqstvfao.eu-west-3.rds.amazonaws.com"
 __DB_USER="algocryptouser"
+
+# Cron Parameters
+# ---------------
+NewCron="${__AppRootDir}/algocryptos_scripts/script/script.txt"
+
 # Functions
 # ---------
 
@@ -158,8 +164,8 @@ stopCron()
 	touch /tmp/emptyfile
 	if [ -f /tmp/emptyfile ]
 	then
-		crontab emptyfile
-		rm emptyfile
+		crontab /tmp/emptyfile
+		rm /tmp/emptyfile
 	else
 		echo "${__BASE} : ERROR : Crontab stop : Empty file not generated!"
 	fi
@@ -175,18 +181,22 @@ stopCron()
 # -------------------------------------------------------------------------
 releaseCron()
 {
-	local Filetoload="/tmp/emptyfile"
+	local Filetoload="/tmp/crontab_bkp${DATE}"
 
-	[ -z $1 ] && Filetoload=$1
+	echo "${__BASE} : DEBUG : deploy Cron #ARGS = $#"
+	# If a new file is provide using function parameter = means update
+	[ -n $1 ] && Filetoload="$1"
+	echo "${__BASE} : DEBUG : Filetoload=$1"
 	
-	echo "${__BASE} : INFO : Updating crontab unsng file${Filetoload=} ... ..."
+	echo "${__BASE} : INFO : Updating crontab unsng file ${Filetoload} ... ..."
 	
-	if [ -r $1]
+	if [ -r $Filetoload ]
 	then
-		$(crontab ${1})
+		$(crontab ${Filetoload})
 	else
 		echo "${__BASE} : ERROR : Update crontab - Unable to find source cron file:"
-		echo "${__BASE} : ERROR : '--> $1"
+		echo "${__BASE} : ERROR : '--> $Filetoload"
+		exit ${ERROR}
 	fi
 
 	echo "${__BASE} : SUCCESS : Crontab updated successfully."
@@ -244,15 +254,15 @@ DeployBackend()
 	then
 		# Parse file and substitute user postgre by Prod User
 		$(sed -i -e "s/postgres/$__DB_USER/g" "${AppBuilDir}/db/modifsBDD.sql")
-		$(psql -h ${__DB_HOST} -d algocryptos -U $__DB_USER -a -f "${AppBuilDir}/db/modifsBDD.sql")
+		#$(psql -h ${__DB_HOST} -d algocryptos -U $__DB_USER -a -f "${AppBuilDir}/db/modifsBDD.sql")
 	else
 		echo "${__BASE} : WARNING : File ${AppBuilDir}/db/modifsBDD.sql not found" 
 		echo "${__BASE} : WARNING : Skipping database adjustments..."
 	fi
 
-	# Reprise de la crontabi (si option de mise à jour non activée)
-	# ---------------------
-	[ $__DEPLOY_CRONi -eq 1] releaseCron  
+	# Reprise de la crontab (si option de mise à jour non activée)
+	# -------------------------------------------------------------
+	[ $__DEPLOY_CRON -eq 1 ] && releaseCron
 	set +xv
 }
 
@@ -318,10 +328,11 @@ DeployFront()
 echo "OPTIND : ${OPTIND}"
 # Parameters parsing
 # ------------------
-while getopts ":abfhV" option
+while getopts ":abcfhV" option
 do
 	# Without options it will do a full deployment unless, we reset to have a only on action
-	if [ $OPTIND -eq 1 ] 
+echo "OPTIND : in the getopts :  ${OPTIND}"
+	if [ $OPTIND -eq 2 ] 
 	then
 		__DEPLOY_FRONT=1
 		__DEPLOY_BACK=1
@@ -381,17 +392,25 @@ else
 	exit ${ERROR}
 fi
 
+echo "$__BASE : DEBUG : __DEPLOY_BACK = ${__DEPLOY_BACK}"
+echo "$__BASE : DEBUG : __DEPLOY_CRON = ${__DEPLOY_CRON}"
+echo "$__BASE : DEBUG : __DEPLOY_FRONT = ${__DEPLOY_FRONT}"
+
 if [ ${__DEPLOY_BACK} -eq 0 ]
 then
 	#deploy Backend following the define sequence
 	DeployBackend
-	echo "$__BASE : DEBUG : DEPLOY FRONT BACKEND"
+	echo "$__BASE : DEBUG : DEPLOY BACKEND option active"
 fi
 
 if [ ${__DEPLOY_CRON} -eq 0 ]
 then
 	#deploy Backend following the define sequence
 	echo "$__BASE : DEBUG : DEPLOY CRON"
+	stopCron	
+	NewCron="${__AppRootDir}/algocryptos_scripts/scripts/scripts.txt"
+	echo "$__BASE : DEBUG : DEPLOY CRON - NEWCRONFILE = ${NewCron}"
+	releaseCron ${NewCron}
 fi
 
 if [ ${__DEPLOY_FRONT} -eq 0 ]
@@ -401,3 +420,4 @@ then
 fi
 
 echo "Hello World!"
+#cat "${__DIR}/Logo.ascii"
