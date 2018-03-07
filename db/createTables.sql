@@ -563,7 +563,7 @@ CREATE TABLE public.lower_higher_prices
     date_high_3m timestamp with time zone,
     price_high_6m double precision,
     date_high_6m timestamp with time zone,
-    price_high_1y double precision,²
+    price_high_1y double precision,
     date_high_1y timestamp with time zone,
     price_high_5y double precision,
     date_high_5y timestamp with time zone,
