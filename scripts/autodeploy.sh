@@ -52,6 +52,7 @@
 
 # Error reporting
 	readonly DATE=`date +%Y%m%d`
+	readonly DATETIME=`date +'%Y%m%d_%H%M%S'`
 	readonly LOGFILE="autoDeploy_${DATE}.log" 
 #exec 3>&1 1>>${LOGFILE} 2>&1
 
@@ -70,7 +71,7 @@ __DB_USER="algocryptouser"
 
 # Cron Parameters
 # ---------------
-NewCron="${__AppRootDir}/algocryptos_scripts/script/script.txt"
+NewCron=""
 
 # Functions
 # ---------
@@ -101,7 +102,8 @@ SYNTAX
      (2) Display script version
            autodeploy.sh -V
      
-     (3) Autodeploy 
+     (3) autodeploy all components 
+     	   autodeploy.sh [-a] <Application Root Directory>
 
 OPTIONS
      -a
@@ -167,7 +169,7 @@ stopCron()
 		crontab /tmp/emptyfile
 		rm /tmp/emptyfile
 	else
-		echo "${__BASE} : ERROR : Crontab stop : Empty file not generated!"
+		echo "$__BASE [${LINENO}] : ERROR : Crontab stop : Empty file not generated!"
 	fi
 }
 
@@ -183,24 +185,25 @@ releaseCron()
 {
 	local Filetoload="/tmp/crontab_bkp${DATE}"
 
-	echo "${__BASE} : DEBUG : deploy Cron #ARGS = $#"
+	echo "$__BASE [${LINENO}] : DEBUG : deploy Cron #ARGS = $#"
 	# If a new file is provide using function parameter = means update
-	[ -n $1 ] && Filetoload="$1"
-	echo "${__BASE} : DEBUG : Filetoload=$1"
-	
-	echo "${__BASE} : INFO : Updating crontab unsng file ${Filetoload} ... ..."
+	if [ -n $1 ]  && [ $# -eq 1 ] 
+	then
+		Filetoload="$1"
+	fi
+
+	echo "$__BASE [${LINENO}] : INFO : Updating crontab unsng file ${Filetoload} ... ..."
 	
 	if [ -r $Filetoload ]
 	then
 		$(crontab ${Filetoload})
 	else
-		echo "${__BASE} : ERROR : Update crontab - Unable to find source cron file:"
-		echo "${__BASE} : ERROR : '--> $Filetoload"
+		echo "$__BASE [${LINENO}] : ERROR : Update crontab - Unable to find source cron file:"
+		echo "$__BASE [${LINENO}] : ERROR : '--> $Filetoload"
 		exit ${ERROR}
 	fi
 
-	echo "${__BASE} : SUCCESS : Crontab updated successfully."
-
+	echo "$__BASE [${LINENO}] : SUCCESS : Crontab updated successfully."
 }
 
 # -------------------------------------------------------------------------
@@ -213,25 +216,24 @@ releaseCron()
 # -------------------------------------------------------------------------
 DeployBackend()
 {
-	set -xv
 	local AppBuilDir=""
 	# Stop Cron - Avoid unforseen interaction
 	# ---------------------------------------
 	stopCron	
 
-	echo "${__BASE} : DEBUG : ${__AppRootDir} "
+	echo "$__BASE [${LINENO}] : DEBUG : ${__AppRootDir} "
 	if [ -n $__AppRootDir ] 
 	then
 		AppBuilDir="${__AppRootDir}/algocryptos_scripts"
 		if [ ! -d "${AppBuilDir}" ] && [ ! -d "${AppBuilDir}/.git" ]
 		then
-			echo "${__BASE} : ERROR : ${AppBuilDir} does not exist or is not a git local repository!"
-			echo "${__BASE} : ERROR : Please check you app root directory or initialise the git by:"
-			echo "${__BASE} : ERROR : '--> git clone <git repository>"
+			echo "$__BASE [${LINENO}] : ERROR : ${AppBuilDir} does not exist or is not a git local repository!"
+			echo "$__BASE [${LINENO}] : ERROR : Please check you app root directory or initialise the git by:"
+			echo "$__BASE [${LINENO}] : ERROR : '--> git clone <git repository>"
 			exit ${ERROR}
 		fi
 	else
-		echo "${__BASE} : ERROR : App Root Directory issue!"
+		echo "$__BASE [${LINENO}] : ERROR : App Root Directory issue!"
 		exit ${ERROR}
 	fi
 
@@ -239,7 +241,7 @@ DeployBackend()
 	cd "${AppBuilDir}"
 	git checkout .
 	git pull origin master
-	echo "${__BASE} : INFORMATION : DEPLOIEMENT DU BAKEND $(pwd)" 
+	echo "$__BASE [${LINENO}] : INFORMATION : DEPLOIEMENT DU BAKEND $(pwd)" 
 	
 	# Change DB config
 	# ----------------
@@ -256,14 +258,13 @@ DeployBackend()
 		$(sed -i -e "s/postgres/$__DB_USER/g" "${AppBuilDir}/db/modifsBDD.sql")
 		#$(psql -h ${__DB_HOST} -d algocryptos -U $__DB_USER -a -f "${AppBuilDir}/db/modifsBDD.sql")
 	else
-		echo "${__BASE} : WARNING : File ${AppBuilDir}/db/modifsBDD.sql not found" 
-		echo "${__BASE} : WARNING : Skipping database adjustments..."
+		echo "$__BASE [${LINENO}] : WARNING : File ${AppBuilDir}/db/modifsBDD.sql not found" 
+		echo "$__BASE [${LINENO}] : WARNING : Skipping database adjustments..."
 	fi
 
 	# Reprise de la crontab (si option de mise à jour non activée)
 	# -------------------------------------------------------------
 	[ $__DEPLOY_CRON -eq 1 ] && releaseCron
-	set +xv
 }
 
 # -------------------------------------------------------------------------
@@ -281,42 +282,138 @@ DeployFront()
 	local ToPushDir=""
 	local S3Bucket=""
 	local AppBuilDir=""
+	local AppFrontDir=""
 
+	if [ -n $__AppRootDir ]
+	then
+		AppFrontDir="${__AppRootDir}/algocryptos_web"
+		if [ -d ${AppFrontDir} ] && [ -d "${AppFrontDir}/.git" ]
+		then
+			echo "$__BASE [${LINENO}] : Application Front Directoryi ${AppFrontDir}"
+			if [ -d  "${AppFrontDir}/build" ]
+			then
+				AppBuilDir="${AppFrontDir}/build"
+			else
+				echo "$__BASE [${LINENO}] : ERROR : Frontend build Directory ${AppBuilDir} does not exist!"
+				echo "$__BASE [${LINENO}] : ERROR : Please check you app root directory or initialise the frontend git by:"
+				echo "$__BASE [${LINENO}] : ERROR : '--> git clone <git repository>"
+				exit ${ERROR}
+			fi
+		else
+			echo "$__BASE [${LINENO}] : ERROR : ${AppFrontDir} does not exist or is not a git local repository!"
+			echo "$__BASE [${LINENO}] : ERROR : Please check you app root directory or initialise the git by:"
+			echo "$__BASE [${LINENO}] : ERROR : '--> git clone <git repository>"
+			exit ${ERROR}
+		fi
+	else
+	      	echo "$__BASE [${LINENO}] : ERROR : App working directory set to ${__AppRootDir}"
+		exit ${ERROR}
+	fi
+	
 	# Retrieve Github
+	# ---------------
+	cd "${AppBuilDir}"
+	echo "$__BASE [${LINENO}] : INFORMATION : Front End - Git retrieval)" 
+	git checkout .
+	git pull origin master
+
 
 	# Stopping NodeJS
-	pm2 stop www
+	# ---------------
+	echo "$__BASE [${LINENO}] : INFORMATION : Arret du Serveur NodeJS !" 
+	### pm2 stop www
+	echo "$__BASE [${LINENO}] : DEBUG : Fake un of : pm2 stop www"
 
+	echo "$__BASE [${LINENO}] : INFORMATION : DEPLOIEMENT DU FRONTEND $(pwd)" 
+
+	# Backup OldDirectory in Case of Failback
+	# ---------------------------------------
+	########	echo "$__BASE [${LINENO}] : INFORMATION : Removing old backup file"
+
+	echo "$__BASE [${LINENO}] : INFORMATION : Backup Current Server and Front directory !"
+	echo "$__BASE [${LINENO}] : INFORMATION : Useful in case of failback"
+	
+	[ -d "${AppBuilDir}/server" ] && mv "${AppBuilDir}/server" "${AppBuilDir}/server_bkp_${DATETIME}" || echo "No ${AppBuilDir}/server found! skipping backup" 
+	[ -d "${AppBuilDir}/front" ] && mv "${AppBuilDir}/front" "${AppBuilDir}/front_bkp_${DATETIME}" || echo "No ${AppBuilDir}/front found! skipping backup" 
+
+	# Unzip build files
+	# -----------------
+
+	# FrontEnd
+	echo "$__BASE [${LINENO}] : DEBUG : running unzip  ${AppBuilDir}/front.zip -d front"
+	unzip "${AppBuilDir}/front.zip" -d front 
+	if [ "$(ls -1 "${AppBuilDir}/front" | wc -l)" -eq 1 ] && [ -d "${AppBuilDir}/front/front" ]
+	then
+		echo "$__BASE [${LINENO}] : WARNING : dupicate subdirectory"
+		echo "$__BASE [${LINENO}] : WARNING : moving All files from ${AppBuilDir}/front/front/"
+		echo "$__BASE [${LINENO}] : WARNING : to ${AppBuilDir}/front/"
+		$(mv "${AppBuilDir}/front/" "${AppBuilDir}/front2Del/")
+		$(mv "${AppBuilDir}/front2Del/front" "${AppBuilDir}/front/")
+		echo "$__BASE [${LINENO}] : WARNING : Removing ${AppBuilDir}/front/front/ directory"
+		rmdir "${AppBuilDir}/front2Del"
+
+	else
+		echo "$__BASE [${LINENO}] : INFORMATION : none duplicate directory"
+	fi
+
+	# Backend
+
+	echo "$__BASE [${LINENO}] : DEBUG : running unzip  ${AppBuilDir}/server.zip -d server"
+	unzip "${AppBuilDir}/server.zip" -d server 
+	echo "$__BASE [${LINENO}] : DEBUG : $(ls -1 "${AppBuilDir}/server" | wc -l)"
+
+	if [ "$(ls -1 "${AppBuilDir}/server" | wc -l)" -eq 1 ] && [ -d "${AppBuilDir}/server/server" ]
+	then
+		echo "$__BASE [${LINENO}] : WARNING : dupicate subdirectory"
+		echo "$__BASE [${LINENO}] : WARNING : moving All files from ${AppBuilDir}/server/server/"
+		echo "$__BASE [${LINENO}] : WARNING : to ${AppBuilDir}/server/"
+		$(mv "${AppBuilDir}/server/" "${AppBuilDir}/server2Del/")
+		$(mv "${AppBuilDir}/server2Del/server" "${AppBuilDir}/server/")
+		echo "$__BASE [${LINENO}] : WARNING : Removing ${AppBuilDir}/server/server/ directory"
+		rmdir "${AppBuilDir}/server2Del"
+
+	else
+		echo "$__BASE [${LINENO}] : INFORMATION : none duplicate directory"
+	fi
+
+	#unzip server.zip -d server
+
+
+	
 	#Checking if 3 agurments are passed to function
-	echo "$__BASE : DEBUG : $#"
-	echo "$__BASE : DEBUG : $__AppRootDir"
+	echo "$__BASE [${LINENO}] : DEBUG : $#"
+	echo "$__BASE [${LINENO}] : DEBUG : $__AppRootDir"
+
 	# We validate that a RootDirectory is set
 	if [ -n $__AppRootDir ] 
 	then
 		AppBuilDir="${__AppRootDir}/algocrypto_web/build"
-		if [ -n $2 ]
+
+		if [ $# -gt 0 ] && [ -n $1 ]
 		then
-			ToPushDir="${2}"
+			ToPushDir="${1}"
 		else
-			ToPushDir="./front"
+			ToPushDir="${AppBuilDir}/front"
 		fi
 
-		if [ -n $3 ]
+		if [ $# -gt 0 ] && [ -n $2 ]
 		then
-			S3Bucket="${3}"
+			S3Bucket="${2}"
 		else
 			S3Bucket="s3://algocrypto"
 		fi
-		aws s3 sync ${ToPushDir} ${S3Bucket} 
+		####	aws s3 sync ${ToPushDir} ${S3Bucket} 
+		echo "$__BASE [${LINENO}] : DEBUG : Fake un of : aws s3 sync ${ToPushDir} ${S3Bucket}"
 	else 
 
-		echo "$__BASE : ERROR : AWS Sync Not possible !!!"
-		echo "$__BASE : ERROR : App working directory set to ${__AppRootDir}"
+		echo "$__BASE [${LINENO}] : ERROR : AWS Sync Not possible !!!"
+		echo "$__BASE [${LINENO}] : ERROR : App working directory set to ${__AppRootDir}"
 		exit ${__ERROR}
 	fi
 
 	# starting NodeJs
-	pm2 start www
+	echo "$__BASE [${LINENO}] : DEBUG : Fake un of : pm2 start www"
+	###		pm2 start www
 	return ${SUCCESS}
 }
 ######################################################################################################
@@ -324,24 +421,23 @@ DeployFront()
 # MAIN - Script execution really Starts here
 #
 ##########################################################################################
-
+echo "$DATETIME"
 echo "OPTIND : ${OPTIND}"
 # Parameters parsing
 # ------------------
 while getopts ":abcfhV" option
 do
 	# Without options it will do a full deployment unless, we reset to have a only on action
-echo "OPTIND : in the getopts :  ${OPTIND}"
+	echo "OPTIND : in the getopts :  ${OPTIND}"
 	if [ $OPTIND -eq 2 ] 
 	then
 		__DEPLOY_FRONT=1
 		__DEPLOY_BACK=1
 		__DEPLOY_CRON=1
-		echo "$__BASE : DEBUG : The first debug infra!"
+		echo "$__BASE [${LINENO}] : DEBUG : The first debug infra!"
 	fi
 
-
-	echo "$__BASE : DEBUG : IN THE GETOPTS"
+	echo "$__BASE [${LINENO}] : DEBUG : IN THE GETOPTS"
 	case "${option}" in
 		a)
 			;;		# Deploy all part of AlgoCrypto Application
@@ -382,40 +478,42 @@ then
 	then
 		# Setting up the AppWorking root Directory - Root directory where subsequent applications have to be deployed
 		readonly __AppRootDir="$(cd $1  && pwd)"
-		echo "$__BASE : INFORMATION : App working directory set to ${__AppRootDir}"
+		echo "$__BASE [${LINENO}] : INFORMATION : App working directory set to ${__AppRootDir}"
 	else
-		echo "$__BASE : ERROR : $1 is not a directory or does not exists"
+		echo "$__BASE [${LINENO}] : ERROR : $1 is not a directory or does not exists"
 	fi
 else
-	echo "$__BASE : ERROR : Missing Mandatory argument working Directory"
-	echo "$__BASE : INFO  : '--> autodeploy.sh <App working directory>"
+	echo "$__BASE [${LINENO}] : ERROR : Missing Mandatory argument working Directory"
+	echo "$__BASE [${LINENO}] : INFO  : '--> autodeploy.sh <App working directory>"
 	exit ${ERROR}
 fi
 
-echo "$__BASE : DEBUG : __DEPLOY_BACK = ${__DEPLOY_BACK}"
-echo "$__BASE : DEBUG : __DEPLOY_CRON = ${__DEPLOY_CRON}"
-echo "$__BASE : DEBUG : __DEPLOY_FRONT = ${__DEPLOY_FRONT}"
+echo "$__BASE [${LINENO}] : DEBUG : __DEPLOY_BACK = ${__DEPLOY_BACK}"
+echo "$__BASE [${LINENO}] : DEBUG : __DEPLOY_CRON = ${__DEPLOY_CRON}"
+echo "$__BASE [${LINENO}] : DEBUG : __DEPLOY_FRONT = ${__DEPLOY_FRONT}"
 
 if [ ${__DEPLOY_BACK} -eq 0 ]
 then
 	#deploy Backend following the define sequence
 	DeployBackend
-	echo "$__BASE : DEBUG : DEPLOY BACKEND option active"
+	echo "$__BASE [${LINENO}] : DEBUG : DEPLOY BACKEND option active"
 fi
 
 if [ ${__DEPLOY_CRON} -eq 0 ]
 then
 	#deploy Backend following the define sequence
-	echo "$__BASE : DEBUG : DEPLOY CRON"
+	echo "$__BASE [${LINENO}] : DEBUG : DEPLOY CRON"
 	stopCron	
 	NewCron="${__AppRootDir}/algocryptos_scripts/scripts/scripts.txt"
-	echo "$__BASE : DEBUG : DEPLOY CRON - NEWCRONFILE = ${NewCron}"
+	echo "$__BASE [${LINENO}] : DEBUG : DEPLOY CRON - NEWCRONFILE = ${NewCron}"
 	releaseCron ${NewCron}
 fi
 
 if [ ${__DEPLOY_FRONT} -eq 0 ]
 then
-	echo "$__BASE : DEBUG : DEPLOY FRONT TEST"
+	echo "$__BASE [${LINENO}] : DEBUG : DEPLOY FRONT TEST"
+	DeployFront
+
 # - CMD -	DeployFront dirtest frontdir bucket
 fi
 
