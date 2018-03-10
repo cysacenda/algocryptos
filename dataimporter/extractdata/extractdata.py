@@ -589,32 +589,35 @@ def __get_query_lower_higher_prices_for_coin(connection, coin_id, symbol):
         columns = ['low', 'high']
         df = df.replace(0, pd.np.nan).dropna(axis=0, how='any', subset=columns).fillna(0).astype(float)
 
-        # df to insert into db
-        df_final = pd.DataFrame()
-        df_final['IdCryptoCompare'] = [coin_id]
+        #empty si les données renvoyées sont toutes nulles ou 0
+        if not df.empty:
 
-        # df columns
-        columns_arr = ['price_low_15d', 'date_low_15d', 'price_high_15d', 'date_high_15d',
-                       'price_low_1m', 'date_low_1m', 'price_high_1m', 'date_high_1m',
-                       'price_low_3m', 'date_low_3m', 'price_high_3m', 'date_high_3m',
-                       'price_low_6m', 'date_low_6m', 'price_high_6m', 'date_high_6m',
-                       'price_low_1y', 'date_low_1y', 'price_high_1y', 'date_high_1y',
-                       'price_low_5y', 'date_low_5y', 'price_high_5y', 'date_high_5y']
+            # df to insert into db
+            df_final = pd.DataFrame()
+            df_final['IdCryptoCompare'] = [coin_id]
 
-        # 15d/1m/3m/6m/12m/all
-        arr = [15, 30, 3 * 30, 6 * 30, 12 * 30, 2000]
-        date_after = datetime.now()
-        i = 0
-        for elt in arr:
-            date_before = date_after - timedelta(days=elt)
-            df_tmp = df.truncate(before=date_before, after=date_after)
-            df_final[columns_arr[i]] = [df_tmp.low.min()]
-            df_final[columns_arr[i + 1]] = [df_tmp.low.idxmin()]
-            df_final[columns_arr[i + 2]] = [df_tmp.high.max()]
-            df_final[columns_arr[i + 3]] = [df_tmp.high.idxmax()]
-            i += 4
+            # df columns
+            columns_arr = ['price_low_15d', 'date_low_15d', 'price_high_15d', 'date_high_15d',
+                           'price_low_1m', 'date_low_1m', 'price_high_1m', 'date_high_1m',
+                           'price_low_3m', 'date_low_3m', 'price_high_3m', 'date_high_3m',
+                           'price_low_6m', 'date_low_6m', 'price_high_6m', 'date_high_6m',
+                           'price_low_1y', 'date_low_1y', 'price_high_1y', 'date_high_1y',
+                           'price_low_5y', 'date_low_5y', 'price_high_5y', 'date_high_5y']
 
-        df_final.to_sql(name='lower_higher_prices', con=connection, if_exists='append', index=False)
+            # 15d/1m/3m/6m/12m/all
+            arr = [15, 30, 3 * 30, 6 * 30, 12 * 30, 2000]
+            date_after = datetime.now()
+            i = 0
+            for elt in arr:
+                date_before = date_after - timedelta(days=elt)
+                df_tmp = df.truncate(before=date_before, after=date_after)
+                df_final[columns_arr[i]] = [df_tmp.low.min()]
+                df_final[columns_arr[i + 1]] = [df_tmp.low.idxmin()]
+                df_final[columns_arr[i + 2]] = [df_tmp.high.max()]
+                df_final[columns_arr[i + 3]] = [df_tmp.high.idxmax()]
+                i += 4
+
+            df_final.to_sql(name='lower_higher_prices', con=connection, if_exists='append', index=False)
 
 
 # endregion ATH
