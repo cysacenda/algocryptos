@@ -107,3 +107,6 @@ et permettre aux traitements de se lancer correctement
 ## EC2 : Divers
 - Monitorer Node : pm2 monit
 - Modifier la crontab : crontab -e
+
+## EC2 : Déploiement
+- autodeploy.sh ~/prod
