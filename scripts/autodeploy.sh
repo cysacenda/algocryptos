@@ -127,7 +127,7 @@ OPTIONS
 RETURN CODES
      0 : All initiated deployments finished successfully
      1 : warning occurred
-
+     2: Error occured
 __CAT_EOF__
 }
 
@@ -256,11 +256,25 @@ DeployBackend()
 	then
 		# Parse file and substitute user postgre by Prod User
 		$(sed -i -e "s/postgres/$__DB_USER/g" "${AppBuilDir}/db/modifsBDD.sql")
-		#$(psql -h ${__DB_HOST} -d algocryptos -U $__DB_USER -a -f "${AppBuilDir}/db/modifsBDD.sql")
+		$(psql -h ${__DB_HOST} -d algocryptos -U $__DB_USER -a -f "${AppBuilDir}/db/modifsBDD.sql")
 	else
 		echo "$__BASE [${LINENO}] : WARNING : File ${AppBuilDir}/db/modifsBDD.sql not found" 
 		echo "$__BASE [${LINENO}] : WARNING : Skipping database adjustments..."
 	fi
+
+
+	# deploiement pip requirement 
+	# ---------------------------
+	
+	# !!!!!!!!	check requirements existance - 
+	if [ -e "${AppBuilDir}/requirements.txt" ]
+	then
+		$(sudo pip-3.6 install -r "${AppBuilDir}/requirements.txt") 
+	else
+		echo "$__BASE [${LINENO}] : ERROR : File ${AppBuilDir}/requirements.txt does not exists"
+	fi
+	
+	
 
 	# Reprise de la crontab (si option de mise à jour non activée)
 	# -------------------------------------------------------------
@@ -321,7 +335,7 @@ DeployFront()
 	# Stopping NodeJS
 	# ---------------
 	echo "$__BASE [${LINENO}] : INFORMATION : Arret du Serveur NodeJS !" 
-	### pm2 stop www
+	pm2 stop www
 	echo "$__BASE [${LINENO}] : DEBUG : Fake un of : pm2 stop www"
 
 	echo "$__BASE [${LINENO}] : INFORMATION : DEPLOIEMENT DU FRONTEND $(pwd)" 
@@ -387,7 +401,7 @@ DeployFront()
 	# We validate that a RootDirectory is set
 	if [ -n $__AppRootDir ] 
 	then
-		AppBuilDir="${__AppRootDir}/algocrypto_web/build"
+		AppBuilDir="${__AppRootDir}/algocryptos_web/build"
 
 		if [ $# -gt 0 ] && [ -n $1 ]
 		then
@@ -402,7 +416,7 @@ DeployFront()
 		else
 			S3Bucket="s3://algocrypto"
 		fi
-		####	aws s3 sync ${ToPushDir} ${S3Bucket} 
+		aws s3 sync ${ToPushDir} ${S3Bucket} 
 		echo "$__BASE [${LINENO}] : DEBUG : Fake un of : aws s3 sync ${ToPushDir} ${S3Bucket}"
 	else 
 
@@ -413,7 +427,7 @@ DeployFront()
 
 	# starting NodeJs
 	echo "$__BASE [${LINENO}] : DEBUG : Fake un of : pm2 start www"
-	###		pm2 start www
+		pm2 start www
 	return ${SUCCESS}
 }
 ######################################################################################################
