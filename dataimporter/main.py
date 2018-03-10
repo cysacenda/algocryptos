@@ -115,3 +115,5 @@ except Exception as e:
 
 # Stop process
 procM.stop_process(IdCurrentProcess, 'DataImporter', sys.argv)
+
+exit(1 if procM.IsError else 0)

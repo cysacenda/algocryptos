@@ -44,3 +44,5 @@ except Exception as e:
 
 # Stop process
 procM.stop_process(IdCurrentProcess, 'AlgoKPI', sys.argv)
+
+exit(1 if procM.IsError else 0)
