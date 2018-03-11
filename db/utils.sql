@@ -10,7 +10,16 @@ select * from histo_prices;
 select * from excluded_coins;
 select * from kpi_reddit_subscribers;
 select * from process_params;
-select * from ath_prices;
+select * from top_cryptos;
+select * from process_params_histo;
+select * from kpi_reddit_subscribers_histo;
+select * from global_data;
+select * from kpi_market_volumes;
+select * from kpi_market_volumes_histo;
+select * from social_stats_reddit_histo;
+select * from lower_higher_prices;
+select * from process_description;
+
 
 -- Truncate tables = delete en plus violent :p
 truncate table coins;
@@ -38,7 +47,6 @@ drop table histo_prices;
 drop table excluded_coins;
 drop table kpi_reddit_subscribers;
 drop table process_params;
-drop table ath_prices;
 drop table top_cryptos;
 drop table process_params_histo;
 drop table kpi_reddit_subscribers_histo;
@@ -46,6 +54,8 @@ drop table global_data;
 drop table kpi_market_volumes;
 drop table kpi_market_volumes_histo;
 drop table social_stats_reddit_histo;
+drop table lower_higher_prices;
+drop table process_description;
 
 -- Tailles de toutes les tables de la base de données
 SELECT *, pg_size_pretty(total_bytes) AS total

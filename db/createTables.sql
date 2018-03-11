@@ -214,13 +214,13 @@ COMMENT ON TABLE public.excluded_coins
 
 -- DROP TABLE public.social_infos_manual;
 
-
 CREATE TABLE public.social_infos_manual
 (
     "IdCoinCryptoCompare" bigint NOT NULL,
     "Reddit_name" text COLLATE pg_catalog."default",
     "Twitter_link" text COLLATE pg_catalog."default",
-    "Facebook_link" text COLLATE pg_catalog."default"
+    "Facebook_link" text COLLATE pg_catalog."default",
+    CONSTRAINT id_unique UNIQUE ("IdCoinCryptoCompare")
 )
 WITH (
     OIDS = FALSE
@@ -236,6 +236,7 @@ GRANT ALL ON TABLE public.social_infos_manual TO postgres;
 
 COMMENT ON TABLE public.social_infos_manual
     IS 'Contains one line per cryptocurrency with informations relatives to social networks of the cryptocurrency which are not provided by CryptoCompare and are retrieved manually by us';
+
 
 -- Table: public.histo_prices
 

@@ -22,3 +22,8 @@ GRANT ALL ON TABLE public.social_google_trend TO postgres;
 
 COMMENT ON TABLE public.social_google_trend
     IS 'Contains data from google trend per cryptocurrency';
+
+
+-- Add unique constraint in social infos manual
+
+ALTER TABLE social_infos_manual ADD CONSTRAINT id_unique UNIQUE ("IdCoinCryptoCompare");
