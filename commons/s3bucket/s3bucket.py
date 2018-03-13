@@ -8,6 +8,7 @@ secret_key = conf.get_config('s3_bucket', 'secret_key')
 bucket_name = conf.get_config('s3_bucket', 'bucket_name')
 filepath = conf.get_config('s3_bucket', 'filepath')
 
+# folder_name should be /assets : s3/assets
 def transfer_to_s3(folder_name):
     client = boto3.client('s3', aws_access_key_id=access_key, aws_secret_access_key=secret_key)
     transfer = S3Transfer(client)
