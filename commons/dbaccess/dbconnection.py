@@ -42,7 +42,7 @@ class DbConnection:
             return 0
         except Exception as e:
             logging.error("Error : " + str(e) + " - " + "Error while executing query : " + query)
-            return -1
+            raise
 
     def __del__(self):
         self.conn.close()

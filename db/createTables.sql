@@ -6,7 +6,7 @@ CREATE TABLE public.coins
 (
     "IdCryptoCompare" bigint,
     "Name" text COLLATE pg_catalog."default",
-    "Symbol" character varying(9) COLLATE pg_catalog."default",
+    "Symbol" varchar(20) COLLATE pg_catalog."default",
     "CoinName" text COLLATE pg_catalog."default",
     "TotalCoinSupply" text COLLATE pg_catalog."default",
     "SortOrder" integer,

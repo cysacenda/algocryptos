@@ -27,3 +27,8 @@ COMMENT ON TABLE public.social_google_trend
 -- Add unique constraint in social infos manual
 
 ALTER TABLE social_infos_manual ADD CONSTRAINT id_unique UNIQUE ("IdCoinCryptoCompare");
+
+-------------
+
+ALTER TABLE coins
+    ALTER COLUMN "Symbol" TYPE varchar(20);
