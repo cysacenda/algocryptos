@@ -44,6 +44,8 @@ try:
                             help='Insert current prices into historical database', action='store_true')
         parser.add_argument('-ath', '--athprices', dest="athprices",
                             help='Insert ath prices into db', action='store_true')
+        parser.add_argument('-gt', '--googletrend', dest="googletrend",
+                            help='Extract information from google trend', action='store_true')
         args = parser.parse_args()
 
         if args.coins:
@@ -95,6 +97,12 @@ try:
 
         if args.athprices:
             extractdata.extract_lower_higher_prices()
+
+        if args.googletrend:
+            # -----------------------------------------------
+            # Get information from google trend
+            # -----------------------------------------------
+            extractdata.extract_google_trend_info()
 
         if args.full:
             # -----------------------------------------------

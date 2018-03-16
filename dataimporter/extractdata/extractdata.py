@@ -1,15 +1,22 @@
+from random import randint
+
 from commons.dbaccess import DbConnection
 from cryptocompare.cryptocompare import CryptoCompare
 from coinmarketcap.coinmarketcap import CoinMarketCap
-from commons.config import Config
 import reddit
+import time
+import json
+from commons.config import Config
 from commons.utils import utils
 import logging
-import time
-from datetime import datetime, timedelta
-from sqlalchemy import create_engine
+import pandas.io.sql as psql
 import pandas as pd
-import json
+import numpy as np
+from datetime import datetime, timedelta, date
+from sqlalchemy import create_engine
+from pytrends.request import TrendReq
+from googletrend.googletrend import __get_info_google_trend
+from commons.processmanager import ProcessManager
 
 conf = Config()
 MINIMUM_MARKET_CAP_USD = conf.get_config('market_params', 'minimum_market_cap_usd')
@@ -649,6 +656,64 @@ def __create_query_global_data():
     insertquery += str(data['bitcoin_percentage_of_market_cap']) + ', '
     insertquery += 'current_timestamp);'
     return insertquery
+
+
+# endregion
+
+
+# region Google Trend
+
+def extract_google_trend_info():
+    # Process manager
+    procM = ProcessManager()
+
+    logging.warning("extract_google_trend_info - start")
+
+    standard = 'bitcoin'
+    df_to_db = None
+
+    pytrends = TrendReq(hl='en-US', tz=360)
+    connection = create_engine(utils.get_connection_string())
+
+    # get data with query
+    squery = 'SELECT "IdCryptoCompare", "Symbol" , "CoinName" \n'
+    squery += 'FROM coins'
+
+    df_coins = psql.read_sql_query(squery, connection)
+
+    df_to_db = None
+    count = 0
+
+    #For each coin
+    for coin_index, coin_row in df_coins.iterrows():
+
+        try:
+            #Get info from google trend
+            df_to_db = __get_info_google_trend(pytrends, df_to_db, standard, coin_row)
+            count += 1
+            logging.warning('Number of coins done :' + str(count))
+            #if (count % 10 == 0):
+                #break
+                # wait a random amount of time between requests to avoid bot detection
+                #time.sleep(randint(2, 5))
+                #logging.error('Count: :' + str(count))
+        except Exception as e:
+            procM.setIsError()
+            logging.error('Uncatched error :' + str(e))
+
+    #Delete in BDD - Do not keep the historical data
+    connection.execute('delete from social_google_trend')
+
+    #Insert in BDD
+    logging.warning("extract_google_trend_info - insert BDD")
+
+    if df_to_db is not None:
+        logging.warning("df_to_db not empty")
+        df_to_db.to_sql(name='social_google_trend', con=connection, if_exists='append', index=False)
+    else:
+        logging.warning("df_to_db empty")
+
+    logging.warning("extract_google_trend_info - end")
 
 
 # endregion

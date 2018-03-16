@@ -1,0 +1,1 @@
+from .googletrend import *
