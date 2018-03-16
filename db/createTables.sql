@@ -35,7 +35,7 @@ COMMENT ON TABLE public.coins
 CREATE TABLE public.prices
 (
     "IdCryptoCompare" bigint,
-    Symbol character varying(9) COLLATE pg_catalog."default" NOT NULL,
+    Symbol varchar(20) COLLATE pg_catalog."default" NOT NULL,
     "Name" text COLLATE pg_catalog."default",
     Rank integer,
     Price_usd double precision,
@@ -246,7 +246,7 @@ COMMENT ON TABLE public.social_infos_manual
 CREATE TABLE public.histo_prices
 (
     "IdCryptoCompare" bigint,
-    Symbol character varying(9) COLLATE pg_catalog."default" NOT NULL,
+    Symbol varchar(20) COLLATE pg_catalog."default" NOT NULL,
     "Name" text COLLATE pg_catalog."default",
     Price_usd double precision,
     Price_btc double precision,

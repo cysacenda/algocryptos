@@ -32,3 +32,9 @@ ALTER TABLE social_infos_manual ADD CONSTRAINT id_unique UNIQUE ("IdCoinCryptoCo
 
 ALTER TABLE coins
     ALTER COLUMN "Symbol" TYPE varchar(20);
+
+ALTER TABLE prices
+    ALTER COLUMN "Symbol" TYPE varchar(20);
+
+ALTER TABLE histo_prices
+    ALTER COLUMN "Symbol" TYPE varchar(20);
