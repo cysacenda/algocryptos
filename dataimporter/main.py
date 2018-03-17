@@ -46,6 +46,8 @@ try:
                             help='Insert ath prices into db', action='store_true')
         parser.add_argument('-gt', '--googletrend', dest="googletrend",
                             help='Extract information from google trend', action='store_true')
+        parser.add_argument('-img', '--images', dest="images",
+                            help='Generate images from prices / volumes infos', action='store_true')
         args = parser.parse_args()
 
         if args.coins:
@@ -103,6 +105,12 @@ try:
             # Get information from google trend
             # -----------------------------------------------
             extractdata.extract_google_trend_info()
+
+        if args.images:
+            # -----------------------------------------------
+            # Generate images from prices and volumes (7d)
+            # -----------------------------------------------
+            extractdata.generate_images_prices_volumes()
 
         if args.full:
             # -----------------------------------------------

@@ -17,6 +17,7 @@ from sqlalchemy import create_engine
 from pytrends.request import TrendReq
 from googletrend.googletrend import __get_info_google_trend
 from commons.processmanager import ProcessManager
+from matplot import matplot
 
 conf = Config()
 MINIMUM_MARKET_CAP_USD = conf.get_config('market_params', 'minimum_market_cap_usd')
@@ -715,5 +716,14 @@ def extract_google_trend_info():
 
     logging.warning("extract_google_trend_info - end")
 
+
+# endregion
+
+# region Generate images
+
+def generate_images_prices_volumes():
+    logging.warning("generate_images_prices_volumes - start")
+    matplot.generate_prices_volumes_images()
+    logging.warning("generate_images_prices_volumes - end")
 
 # endregion
