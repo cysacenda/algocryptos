@@ -15,8 +15,7 @@ conf = Config()
 local_images_path = utils.get_path_for_system(conf.get_config('s3_bucket', 'local_generated_images_path_linux'), conf.get_config('s3_bucket', 'local_generated_images_path'))
 
 def generate_prices_volumes_images():
-    logging.warning("--> Debug - start")
-    logging.warning("--> Working folder - " + os.getcwd())
+    logging.warning("generate_prices_volumes_images - start")
 
     connection = create_engine(utils.get_connection_string())
 
@@ -26,32 +25,22 @@ def generate_prices_volumes_images():
     squery += 'where timestamp > CURRENT_TIMESTAMP - interval \'7 days\''
     df = psql.read_sql_query(squery, connection)
 
-    logging.warning("--> Debug after read query")
-
     # set index on column timestamp
     df.set_index('timestamp', inplace = True)
 
     # change time scale to simplify
     #df2 = df.resample('4H').agg({'close': np.mean, 'volume_aggregated': np.sum})
 
-    logging.warning("--> Debug after set_index")
-
     # group by crypto
     df2 = df.groupby('IdCoinCryptoCompare')
-
-    logging.warning("--> Debug after group by")
 
     # Turn interactive plotting off
     plt.ioff()
 
-    logging.warning("--> Debug plt.ioff()")
-
     # For each crypto => generate image
     error_count = 0
     for name, dfgroup in df2:
-        logging.warning("--> Before try")
         try:
-            logging.warning("--> After try")
             fig = plt.figure()
             dfgroup.close.plot(legend=False, color='red', linewidth=5).axis('off')
             dfgroup.volume_aggregated.plot(secondary_y=True, style='grey', linestyle='-', linewidth=2).axis('off')
@@ -68,3 +57,5 @@ def generate_prices_volumes_images():
         # Process manager
         procM = ProcessManager()
         procM.setIsError()
+
+    logging.warning("generate_prices_volumes_images - end")

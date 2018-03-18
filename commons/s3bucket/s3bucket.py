@@ -15,8 +15,6 @@ transfer = S3Transfer(client)
 
 def transfer_folder_content_to_s3(local_path, s3_path):
     logging.warning("transfer_folder_content_to_s3 - start")
-    logging.warning('os.getcwd - ' + os.getcwd())
-    logging.warning('local_path - ' + local_path)
     dir = utils.get_path_for_system_spe(os.getcwd(), local_path)
     os.chdir(dir)
     for root, dirs, files in os.walk(".", topdown=False):
