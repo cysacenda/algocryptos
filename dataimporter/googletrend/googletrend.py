@@ -15,7 +15,7 @@ from sqlalchemy import create_engine
 from pytrends.request import TrendReq
 
 @rate_limited(5, 1)
-def __get_info_google_trend(pytrends, df_to_db, standard, coin_row):
+def get_info_google_trend(pytrends, df_to_db, standard, coin_row):
 
     #Lower case everything
     coin_id = coin_row['IdCryptoCompare']  # Exemple : 7605

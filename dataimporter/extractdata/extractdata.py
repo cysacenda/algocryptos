@@ -15,7 +15,7 @@ import numpy as np
 from datetime import datetime, timedelta, date
 from sqlalchemy import create_engine
 from pytrends.request import TrendReq
-from googletrend.googletrend import __get_info_google_trend
+from googletrend.googletrend import get_info_google_trend
 from commons.processmanager import ProcessManager
 from matplot import matplot
 
@@ -684,20 +684,23 @@ def extract_google_trend_info():
 
     df_to_db = None
     count = 0
+    tentative = 0
 
     #For each coin
     for coin_index, coin_row in df_coins.iterrows():
 
         try:
             #Get info from google trend
-            df_to_db = __get_info_google_trend(pytrends, df_to_db, standard, coin_row)
+            tentative += 1
+            logging.warning('Tentative number :' + str(tentative))
+            # wait a random amount of time every 10 call to google to avoid bot detection
+            if (tentative % 10 == 0):
+                #break
+                logging.error('Waiting ...')
+                time.sleep(randint(2, 5))
+            df_to_db = get_info_google_trend(pytrends, df_to_db, standard, coin_row)
             count += 1
             logging.warning('Number of coins done :' + str(count))
-            #if (count % 10 == 0):
-                #break
-                # wait a random amount of time between requests to avoid bot detection
-                #time.sleep(randint(2, 5))
-                #logging.error('Count: :' + str(count))
         except Exception as e:
             procM.setIsError()
             logging.error('Uncatched error :' + str(e))
