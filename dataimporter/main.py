@@ -5,6 +5,7 @@ import logging
 import argparse
 from commons.config import Config
 from commons.processmanager import ProcessManager
+from commons.s3bucket import s3bucket
 
 # Configuration
 conf = Config()
@@ -111,6 +112,13 @@ try:
             # Generate images from prices and volumes (7d)
             # -----------------------------------------------
             extractdata.generate_images_prices_volumes()
+
+            # -----------------------------------------------
+            # Upload on S3 bucket (Angular directory)
+            # -----------------------------------------------
+            local_generated_images_path = conf.get_config('s3_bucket', 'local_generated_images_path')
+            s3_dest_path = conf.get_config('s3_bucket', 'assets_path')
+            s3bucket.transfer_folder_content_to_s3('\\' + local_generated_images_path, s3_dest_path)
 
         if args.full:
             # -----------------------------------------------
