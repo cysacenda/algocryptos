@@ -3,13 +3,17 @@ botocore==1.9.6
 certifi==2017.11.5
 chardet==3.0.4
 configparser==3.5.0
+cycler==0.10.0
 docutils==0.14
 idna==2.6
 jmespath==0.9.3
+kiwisolver==1.0.1
 lxml==4.1.1
+matplotlib==2.2.0
 numpy==1.14.1
 pandas==0.22.0
 psycopg2==2.7.3.2
+pyparsing==2.2.0
 python-dateutil==2.6.1
 pytrends==4.3.0
 pytz==2017.3

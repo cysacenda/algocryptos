@@ -109,6 +109,7 @@ et permettre aux traitements de se lancer correctement
 - Modifier la crontab : crontab -e
 
 ## EC2 : Déploiement
+- Dépedances : Dans environnemnt de développement : pip freeze > requirements.txt puis mettre à jour sur Github
 - Verify sources before deployment @ChangeManager
 - Generate server.zip and front.zip and push it on Github in /builds
 - Verify that autodeploy script is updated (if none, git pull)
