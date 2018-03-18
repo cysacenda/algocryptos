@@ -3,7 +3,7 @@
 # Auteur    : Mickael A. CABREIRO
 # Date      : Mach 4th 2018	 
 # OS Testes : Raspian OS
-# Version   : 1.1
+# Version   : 1.2
 #-------------------------------------------------------------------------------------------------------------
 # DESCRIPTION
 #     This script is intended to be used to autodeploy the AlgoCrypto projec (Cyril SACENDA) 
@@ -18,6 +18,9 @@
 #           autodeploy.sh -V
 #
 # OPTIONS
+#     -b
+#        Deploy backend
+#
 #     -h
 #        display the script usage
 #
@@ -33,6 +36,7 @@
 # MODIFICATIONS
 #-------------------------------------------------------------------------------------------------------------
 #	Version 1.1 : Adding Cron management
+#	Version 1.2 : Changing strategy on PM2 utility. Now, reloading configuration
 ##############################################################################################################
 
 #	Parameters 
@@ -162,15 +166,25 @@ return ${SUCCESS}
 # -------------------------------------------------------------------------
 stopCron()
 {
+
+	echo "$__BASE [${LINENO}] : INFORMATION : Stopping Crontab!" 
+	echo "$__BASE [${LINENO}] : INFORMATION : Generating Backup File : /tmp/crontab_bkp${DATE}" 
 	crontab -l > /tmp/crontab_bkp${DATE}
+	echo "$__BASE [${LINENO}] : INFORMATION : Generating File /tmp/emptyfile" 
 	touch /tmp/emptyfile
+
 	if [ -f /tmp/emptyfile ]
 	then
 		crontab /tmp/emptyfile
+		echo "$__BASE [${LINENO}] : INFORMATION : Crontab purged successfully!"
+		echo "$__BASE [${LINENO}] : INFORMATION : Removing empty file"
 		rm /tmp/emptyfile
 	else
 		echo "$__BASE [${LINENO}] : ERROR : Crontab stop : Empty file not generated!"
+		exit ${ERROR}
 	fi
+	tput bold setaf 2 ; echo echo "$__BASE [${LINENO}] : Crontab succefully suspended"
+	return ${SUCCESS}
 }
 
 # -------------------------------------------------------------------------
@@ -192,7 +206,7 @@ releaseCron()
 		Filetoload="$1"
 	fi
 
-	echo "$__BASE [${LINENO}] : INFO : Updating crontab unsng file ${Filetoload} ... ..."
+	echo "$__BASE [${LINENO}] : INFO : Updating crontab unsing file ${Filetoload} ... ..."
 	
 	if [ -r $Filetoload ]
 	then
@@ -204,8 +218,36 @@ releaseCron()
 	fi
 
 	echo "$__BASE [${LINENO}] : SUCCESS : Crontab updated successfully."
+	return $SUCCESS
 }
 
+# -------------------------------------------------------------------------
+#   Function : Gitpull
+# -------------------------------------------------------------------------
+# ARGUMENTS
+#	None
+# RETURNS
+#     None
+# -------------------------------------------------------------------------
+Gitpull()
+{
+	git checkout .
+	git pull origin master
+}
+
+# -------------------------------------------------------------------------
+#   Function : Gitpush
+# -------------------------------------------------------------------------
+# ARGUMENTS
+#	None
+# RETURNS
+#     None
+# -------------------------------------------------------------------------
+Gitpush()
+{
+	# Add file to push
+	git push
+}
 # -------------------------------------------------------------------------
 #   Function : DeployBackend
 # -------------------------------------------------------------------------
@@ -257,30 +299,68 @@ DeployBackend()
 		# Parse file and substitute user postgre by Prod User
 		$(sed -i -e "s/postgres/$__DB_USER/g" "${AppBuilDir}/db/modifsBDD.sql")
 		$(psql -h ${__DB_HOST} -d algocryptos -U $__DB_USER -a -f "${AppBuilDir}/db/modifsBDD.sql")
+		# 
+		if [ $? -eq 0 ]
+		then
+			echo  "$__BASE [${LINENO}] : INFORMATION : Database successfully adjusted! "
+		else
+			echo "$__BASE [${LINENO}] : ERROR : ${AppBuilDir}/db/modifsBDD.sql executed but finish with error!"
+			exit $ERROR
+		fi 
 	else
 		echo "$__BASE [${LINENO}] : WARNING : File ${AppBuilDir}/db/modifsBDD.sql not found" 
 		echo "$__BASE [${LINENO}] : WARNING : Skipping database adjustments..."
 	fi
 
-
-	# deploiement pip requirement 
-	# ---------------------------
-	
-	# !!!!!!!!	check requirements existance - 
+        # deploiement pip requirement 
+	# -----------
 	if [ -e "${AppBuilDir}/requirements.txt" ]
 	then
-		$(sudo pip-3.6 install -r "${AppBuilDir}/requirements.txt") 
+		echo "$__BASE [${LINENO}] : INFORMATION : File ${AppBuilDir}/requirements.txt exists"
+		echo "$__BASE [${LINENO}] : INFORMATION : Installation Python Dependant Packages..."
+		echo "-----------------------------------------------------------------------------"
+		$(sudo pip3.6 install -r "${AppBuilDir}/requirements.txt") 
 	else
 		echo "$__BASE [${LINENO}] : ERROR : File ${AppBuilDir}/requirements.txt does not exists"
-	fi
-	
-	
+        fi
 
 	# Reprise de la crontab (si option de mise à jour non activée)
 	# -------------------------------------------------------------
 	[ $__DEPLOY_CRON -eq 1 ] && releaseCron
 }
 
+# -------------------------------------------------------------------------
+#   Function : UnzipRemDup
+# -------------------------------------------------------------------------
+# ARGUMENTS
+#	$1 : ZipFile to deploy
+# RETURNS
+#     None
+# -------------------------------------------------------------------------
+UnzipRemDup()
+{
+	
+	# Unzip build files
+	# -----------------
+
+	# FrontEnd
+	echo "$__BASE [${LINENO}] : DEBUG : running unzip  ${AppBuilDir}/front.zip -d front"
+	unzip "${AppBuilDir}/front.zip" -d front 
+	if [ "$(ls -1 "${AppBuilDir}/front" | wc -l)" -eq 1 ] && [ -d "${AppBuilDir}/front/front" ]
+	then
+		echo "$__BASE [${LINENO}] : WARNING : dupicate subdirectory"
+		echo "$__BASE [${LINENO}] : WARNING : moving All files from ${AppBuilDir}/front/front/"
+		echo "$__BASE [${LINENO}] : WARNING : to ${AppBuilDir}/front/"
+		$(mv "${AppBuilDir}/front/" "${AppBuilDir}/front2Del/")
+		$(mv "${AppBuilDir}/front2Del/front" "${AppBuilDir}/front/")
+		echo "$__BASE [${LINENO}] : WARNING : Removing ${AppBuilDir}/front/front/ directory"
+		rmdir "${AppBuilDir}/front2Del"
+
+	else
+		echo "$__BASE [${LINENO}] : INFORMATION : none duplicate directory"
+	fi
+
+}
 # -------------------------------------------------------------------------
 #   Function : DeployFront
 # -------------------------------------------------------------------------
@@ -331,12 +411,11 @@ DeployFront()
 	git checkout .
 	git pull origin master
 
-
 	# Stopping NodeJS
 	# ---------------
-	echo "$__BASE [${LINENO}] : INFORMATION : Arret du Serveur NodeJS !" 
-	pm2 stop www
-	echo "$__BASE [${LINENO}] : DEBUG : Fake un of : pm2 stop www"
+	#echo "$__BASE [${LINENO}] : INFORMATION : Arret du Serveur NodeJS !" 
+	### pm2 stop www
+	#echo "$__BASE [${LINENO}] : DEBUG : Fake un of : pm2 stop www"
 
 	echo "$__BASE [${LINENO}] : INFORMATION : DEPLOIEMENT DU FRONTEND $(pwd)" 
 
@@ -391,17 +470,15 @@ DeployFront()
 	fi
 
 	#unzip server.zip -d server
-
-
 	
 	#Checking if 3 agurments are passed to function
-	echo "$__BASE [${LINENO}] : DEBUG : $#"
-	echo "$__BASE [${LINENO}] : DEBUG : $__AppRootDir"
+	#echo "$__BASE [${LINENO}] : DEBUG : $#"
+	#echo "$__BASE [${LINENO}] : DEBUG : $__AppRootDir"
 
 	# We validate that a RootDirectory is set
 	if [ -n $__AppRootDir ] 
 	then
-		AppBuilDir="${__AppRootDir}/algocryptos_web/build"
+		AppBuilDir="${__AppRootDir}/algocrypto_web/build"
 
 		if [ $# -gt 0 ] && [ -n $1 ]
 		then
@@ -416,7 +493,7 @@ DeployFront()
 		else
 			S3Bucket="s3://algocrypto"
 		fi
-		aws s3 sync ${ToPushDir} ${S3Bucket} 
+		####	aws s3 sync ${ToPushDir} ${S3Bucket} 
 		echo "$__BASE [${LINENO}] : DEBUG : Fake un of : aws s3 sync ${ToPushDir} ${S3Bucket}"
 	else 
 
@@ -425,9 +502,12 @@ DeployFront()
 		exit ${__ERROR}
 	fi
 
-	# starting NodeJs
-	echo "$__BASE [${LINENO}] : DEBUG : Fake un of : pm2 start www"
-		pm2 start www
+	#starting NodeJs
+	#echo "$__BASE [${LINENO}] : DEBUG : Fake un of : pm2 start www"
+	#pm2 start www
+
+	echo "$__BASE [${LINENO}] : INFORMATION : Reloading PM2 www NodeJS applcation!"
+	pm2 reload www
 	return ${SUCCESS}
 }
 ######################################################################################################
@@ -502,15 +582,15 @@ else
 	exit ${ERROR}
 fi
 
-echo "$__BASE [${LINENO}] : DEBUG : __DEPLOY_BACK = ${__DEPLOY_BACK}"
-echo "$__BASE [${LINENO}] : DEBUG : __DEPLOY_CRON = ${__DEPLOY_CRON}"
-echo "$__BASE [${LINENO}] : DEBUG : __DEPLOY_FRONT = ${__DEPLOY_FRONT}"
+#echo "$__BASE [${LINENO}] : DEBUG : __DEPLOY_BACK = ${__DEPLOY_BACK}"
+#echo "$__BASE [${LINENO}] : DEBUG : __DEPLOY_CRON = ${__DEPLOY_CRON}"
+#echo "$__BASE [${LINENO}] : DEBUG : __DEPLOY_FRONT = ${__DEPLOY_FRONT}"
 
 if [ ${__DEPLOY_BACK} -eq 0 ]
 then
 	#deploy Backend following the define sequence
 	DeployBackend
-	echo "$__BASE [${LINENO}] : DEBUG : DEPLOY BACKEND option active"
+	### echo "$__BASE [${LINENO}] : DEBUG : DEPLOY BACKEND option active"
 fi
 
 if [ ${__DEPLOY_CRON} -eq 0 ]
@@ -519,17 +599,14 @@ then
 	echo "$__BASE [${LINENO}] : DEBUG : DEPLOY CRON"
 	stopCron	
 	NewCron="${__AppRootDir}/algocryptos_scripts/scripts/scripts.txt"
-	echo "$__BASE [${LINENO}] : DEBUG : DEPLOY CRON - NEWCRONFILE = ${NewCron}"
+	### echo "$__BASE [${LINENO}] : DEBUG : DEPLOY CRON - NEWCRONFILE = ${NewCron}"
 	releaseCron ${NewCron}
 fi
 
 if [ ${__DEPLOY_FRONT} -eq 0 ]
 then
-	echo "$__BASE [${LINENO}] : DEBUG : DEPLOY FRONT TEST"
+	### echo "$__BASE [${LINENO}] : DEBUG : DEPLOY FRONT TEST"
 	DeployFront
-
-# - CMD -	DeployFront dirtest frontdir bucket
 fi
 
-echo "Hello World!"
-#cat "${__DIR}/Logo.ascii"
+echo "AlgoCryptos deployement successfully!"
