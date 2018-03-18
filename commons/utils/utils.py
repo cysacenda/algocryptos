@@ -2,6 +2,7 @@ from commons.config import Config
 from datetime import datetime
 import tzlocal
 import decimal
+import platform
 
 conf = Config()
 DATE_FORMAT = conf.get_config('cryptocompare_params', 'date_format')
@@ -33,3 +34,17 @@ def get_connection_string():
     dbport = conf.get_config('db', 'dbport')
     # 'postgresql://dbuser:algocryptos@localhost:5432/algocryptos'
     return 'postgresql://' + dbuser + ':' + dbpassword + '@' + dbhost + ':' + dbport + '/' + dbname
+
+def get_path_for_system(linux_path, other_path):
+    if platform.system() == 'Linux':
+        return linux_path
+    else:
+        return other_path
+
+def get_slash_for_system():
+    if platform.system() == 'Linux':
+        return '/'
+    else:
+        return '\\'
+
+

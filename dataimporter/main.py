@@ -6,6 +6,7 @@ import argparse
 from commons.config import Config
 from commons.processmanager import ProcessManager
 from commons.s3bucket import s3bucket
+from commons.utils import utils
 
 # Configuration
 conf = Config()
@@ -116,9 +117,9 @@ try:
             # -----------------------------------------------
             # Upload on S3 bucket (Angular directory)
             # -----------------------------------------------
-            local_generated_images_path = conf.get_config('s3_bucket', 'local_generated_images_path')
+            local_generated_images_path = utils.get_path_for_system(conf.get_config('s3_bucket', 'local_generated_images_path_linux'), conf.get_config('s3_bucket', 'local_generated_images_path'))
             s3_dest_path = conf.get_config('s3_bucket', 'assets_path')
-            s3bucket.transfer_folder_content_to_s3('\\' + local_generated_images_path, s3_dest_path)
+            s3bucket.transfer_folder_content_to_s3(utils.get_slash_for_system() + local_generated_images_path, s3_dest_path)
 
         if args.full:
             # -----------------------------------------------
