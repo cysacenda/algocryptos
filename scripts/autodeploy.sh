@@ -319,7 +319,7 @@ DeployBackend()
 		echo "$__BASE [${LINENO}] : INFORMATION : File ${AppBuilDir}/requirements.txt exists"
 		echo "$__BASE [${LINENO}] : INFORMATION : Installation Python Dependant Packages..."
 		echo "-----------------------------------------------------------------------------"
-		$(sudo pip3.6 install -r "${AppBuilDir}/requirements.txt") 
+		"$(sudo pip3 install -r ${AppBuilDir}/requirements.txt)" 
 	else
 		echo "$__BASE [${LINENO}] : ERROR : File ${AppBuilDir}/requirements.txt does not exists"
         fi
@@ -478,7 +478,7 @@ DeployFront()
 	# We validate that a RootDirectory is set
 	if [ -n $__AppRootDir ] 
 	then
-		AppBuilDir="${__AppRootDir}/algocrypto_web/build"
+		AppBuilDir="${__AppRootDir}/algocryptos_web/build"
 
 		if [ $# -gt 0 ] && [ -n $1 ]
 		then
