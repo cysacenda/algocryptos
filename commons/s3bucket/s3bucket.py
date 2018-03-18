@@ -2,8 +2,8 @@ from commons.config import Config
 from boto3.s3.transfer import S3Transfer
 import boto3
 import os
-import utils
 import logging
+from commons.utils import utils
 
 conf = Config()
 access_key = conf.get_config('s3_bucket', 'access_key')
