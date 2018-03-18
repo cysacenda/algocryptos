@@ -109,4 +109,9 @@ et permettre aux traitements de se lancer correctement
 - Modifier la crontab : crontab -e
 
 ## EC2 : Déploiement
-- autodeploy.sh ~/prod
+- Verify sources before deployment @ChangeManager
+- Generate server.zip and front.zip and push it on Github in /builds
+- Verify that autodeploy script is updated (if none, git pull)
+- Connect to EC2 and go to path prod/algocryptos_scripts/scripts/
+- Start script on EC2 autodeploy.sh ~/prod
+- Check everything is ok
