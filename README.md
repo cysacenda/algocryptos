@@ -115,4 +115,6 @@ et permettre aux traitements de se lancer correctement
 - Verify that autodeploy script is updated (if none, git pull)
 - Connect to EC2 and go to path prod/algocryptos_scripts/scripts/
 - Start script on EC2 autodeploy.sh ~/prod
+- Back-end only : sh autodeploy.sh -b ~/prod
+- When script ask, enter rsa : algocryptos
 - Check everything is ok

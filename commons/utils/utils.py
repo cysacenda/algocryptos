@@ -47,4 +47,9 @@ def get_slash_for_system():
     else:
         return '\\'
 
+def get_path_for_system_spe(os_getcwd, local_path):
+    if platform.system() == 'Linux':
+        return local_path
+    else:
+        return os_getcwd + local_path
 
