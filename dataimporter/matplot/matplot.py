@@ -28,18 +28,19 @@ def generate_prices_volumes_images():
     # set index on column timestamp
     df.set_index('timestamp', inplace = True)
 
-    # change time scale to simplify
-    #df2 = df.resample('4H').agg({'close': np.mean, 'volume_aggregated': np.sum})
-
     # group by crypto
     df2 = df.groupby('IdCoinCryptoCompare')
+
+    # change scale to have more clear charts
+    df3 = df2.resample('4H').agg({'close': np.mean, 'volume_aggregated': np.sum})
+    df3 = df3.groupby('IdCoinCryptoCompare')
 
     # Turn interactive plotting off
     plt.ioff()
 
     # For each crypto => generate image
     error_count = 0
-    for name, dfgroup in df2:
+    for name, dfgroup in df3:
         try:
             fig = plt.figure()
             dfgroup.close.plot(legend=False, color='red', linewidth=5).axis('off')
