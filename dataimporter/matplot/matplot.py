@@ -1,5 +1,6 @@
 from commons.utils import utils
 import pandas.io.sql as psql
+import pandas as pd
 import numpy as np
 from sqlalchemy import create_engine
 from commons.config import Config
@@ -28,11 +29,14 @@ def generate_prices_volumes_images():
     # set index on column timestamp
     df.set_index('timestamp', inplace = True)
 
+    # dropna
+    df2 = df.replace(0, pd.np.nan).dropna(axis=0, thresh=2).fillna(0).astype(float)
+
     # group by crypto
     df2 = df.groupby('IdCoinCryptoCompare')
 
     # change scale to have more clear charts
-    df3 = df2.resample('4H').agg({'close': np.mean, 'volume_aggregated': np.sum})
+    df3 = df2.resample('4H').agg({'close': np.mean, 'volume_aggregated': np.sum}).interpolate()
     df3 = df3.groupby('IdCoinCryptoCompare')
 
     # Turn interactive plotting off
