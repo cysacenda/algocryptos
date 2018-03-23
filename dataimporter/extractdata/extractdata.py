@@ -40,8 +40,8 @@ def __create_query_coins():
     cryptocomp = CryptoCompare()
     data = cryptocomp.get_coin_list()
 
-    insertquery = 'INSERT INTO public.coins ("IdCryptoCompare", "Name", "Symbol", "CoinName", "TotalCoinSupply", ' \
-                  '"SortOrder", "ProofType", "Algorithm", "ImageUrl")\n'
+    insertquery = 'INSERT INTO public.coins (id_cryptocompare, crypto_name, symbol, coin_name, total_coin_supply, ' \
+                  'sort_order, proof_type, algorithm, image_url)\n'
     insertquery += 'VALUES \n('
     for key in data:
         if not insertquery.endswith('('):
@@ -81,8 +81,8 @@ def __create_query_prices():
     coinmarket = CoinMarketCap()
     data = coinmarket.get_price_list()
 
-    insertquery = 'INSERT INTO public.prices (symbol, "Name", rank, price_usd, price_btc, ' \
-                  '"24h_volume_usd", market_cap_usd, percent_change_1h, percent_change_24h, ' \
+    insertquery = 'INSERT INTO public.prices (symbol, crypto_name, crypto_rank, price_usd, price_btc, ' \
+                  'volume_usd_24h, market_cap_usd, percent_change_1h, percent_change_24h, ' \
                   'percent_change_7d, last_updated)\n'
     insertquery += 'VALUES \n('
 
@@ -156,8 +156,8 @@ def __create_query_historical_prices():
     data = coinmarket.get_price_list()
     current_time = time.time()
 
-    insertquery = 'INSERT INTO public.histo_prices (symbol, "Name", price_usd, price_btc, ' \
-                  '"24h_volume_usd", market_cap_usd, "timestamp")\n'
+    insertquery = 'INSERT INTO public.histo_prices (symbol, crypto_name, price_usd, price_btc, ' \
+                  'volume_usd_24h, market_cap_usd, timestamp)\n'
     insertquery += 'VALUES \n('
 
     for entry in data:
@@ -214,15 +214,15 @@ def remove_useless_prices(table):
 def remove_useless_coins():
     dbconn = DbConnection()
     dbconn.exexute_query(
-        'delete from coins where "CoinName" not in (select "Name" from prices) '
-        'AND "Symbol" not in (select symbol from prices)')
+        'delete from coins where coin_name not in (select crypto_name from prices) '
+        'AND symbol not in (select symbol from prices)')
 
 
 def delete_excluded_coins():
     logging.warning("delete_excluded_coins - start")
     dbconn = DbConnection()
-    dbconn.exexute_query('delete from prices where "IdCryptoCompare" in (select * from excluded_coins);')
-    dbconn.exexute_query('delete from coins where "IdCryptoCompare" in (select * from excluded_coins);')
+    dbconn.exexute_query('delete from prices where id_cryptocompare in (select * from excluded_coins);')
+    dbconn.exexute_query('delete from coins where id_cryptocompare in (select * from excluded_coins);')
     logging.warning("delete_excluded_coins - end")
 
 
@@ -234,39 +234,19 @@ def add_ids():
     logging.warning("add_ids - start")
     dbconn = DbConnection()
     dbconn.exexute_query(__create_add_ids("prices"))
-
-    # TODO : Gerer un mapping dans une table de parametrage pour ces cryptos car
-    # rapprochement impossible entre cryptocompare et CMC
-    """"" 
-    -- KO dans table prices idCryptoCompare null
-    -- requête: select *
-    from prices where
-    "IdCryptoCompare" is null
-    'BCC', 'BitConnect'
-    'GXS', 'GXShares'
-    'XPA', 'XPlay'
-    'ST', 'Simple Token'
-    'JINN', 'Jinn'
-    'INK', 'Ink'
-    'DPY', 'Delphy'
-    'PAYX', 'Paypex'
-    'BOT', 'Bodhi'
-    'TIPS', 'FedoraCoin'
-    'ECN', 'E-coin'
-    """""
     logging.warning("add_ids - end")
 
 
 def __create_add_ids(table):
     update_query = 'UPDATE ' + table + ' as ta\n'
-    update_query += 'SET "IdCryptoCompare" = co."IdCryptoCompare"\n'
+    update_query += 'SET id_cryptocompare = co.id_cryptocompare\n'
     update_query += 'FROM coins as co\n'
-    update_query += 'WHERE co."Symbol" = ta.symbol AND ta."IdCryptoCompare" IS NULL;\n\n'
+    update_query += 'WHERE co.symbol = ta.symbol AND ta.id_cryptocompare IS NULL;\n\n'
 
     update_query += 'UPDATE ' + table + ' as ta\n'
-    update_query += 'SET "IdCryptoCompare" = co."IdCryptoCompare"\n'
+    update_query += 'SET id_cryptocompare = co.id_cryptocompare\n'
     update_query += 'FROM coins as co\n'
-    update_query += 'WHERE co."CoinName" = ta."Name" AND ta."IdCryptoCompare" IS NULL;'
+    update_query += 'WHERE co.coin_name = ta.crypto_name AND ta.id_cryptocompare IS NULL;'
     return update_query
 
 
@@ -279,7 +259,7 @@ def extract_cryptocompare_social():
     # Get coins id to be retrieved from APIs
     dbconn = DbConnection()
     dbconn.exexute_query("Delete from social_infos;")
-    rows = dbconn.get_query_result('select "IdCryptoCompare" from coins')
+    rows = dbconn.get_query_result('select id_cryptocompare from coins')
     for row in rows:
         dbconn.exexute_query(create_cryptocompare_social(row[0]))
 
@@ -293,10 +273,10 @@ def create_cryptocompare_social(coin_id):
 
 
 def __create_cryptocompare_social_infos(coin_id, data):
-    insertquery_socialinfos = 'INSERT INTO public.social_infos("IdCoinCryptoCompare", ' \
-                              '"Twitter_account_creation", "Twitter_name", "Twitter_link", ' \
-                              '"Reddit_name", "Reddit_link", "Reddit_community_creation", ' \
-                              '"Facebook_name", "Facebook_link")\n'
+    insertquery_socialinfos = 'INSERT INTO public.social_infos(id_cryptocompare, ' \
+                              'twitter_account_creation, twitter_name, twitter_link, ' \
+                              'reddit_name, reddit_link, reddit_community_creation, ' \
+                              'facebook_name, facebook_link)\n'
     insertquery_socialinfos += 'VALUES \n('
     insertquery_socialinfos += str(coin_id) + ','
 
@@ -330,10 +310,10 @@ def __create_cryptocompare_social_infos(coin_id, data):
 
 
 def create_cryptocompare_social_stats(coin_id, data):
-    insertquery_socialinfos = 'INSERT INTO public.social_stats ("IdCoinCryptoCompare", ' \
-                              '"Twitter_followers", "Reddit_posts_per_day", "Reddit_comments_per_day", ' \
-                              '"Reddit_active_users", "Reddit_subscribers", "Facebook_likes", ' \
-                              '"Facebook_talking_about", "timestamp")\n'
+    insertquery_socialinfos = 'INSERT INTO public.social_stats (id_cryptocompare, ' \
+                              'twitter_followers, reddit_posts_per_day, reddit_comments_per_day, ' \
+                              'reddit_active_users, reddit_subscribers, facebook_likes, ' \
+                              'facebook_talking_about, timestamp)\n'
     insertquery_socialinfos += 'VALUES \n('
     insertquery_socialinfos += str(coin_id) + ','
 
@@ -376,16 +356,16 @@ def extract_reddit_data():
     logging.warning("import_reddit_histo - start")
     # Get coins and associated subreddits id to be retrieved from APIs
     dbconn = DbConnection()
-    query_select = 'Select co."IdCryptoCompare", ' \
-                   'CASE WHEN som."Reddit_name" IS NULL THEN so."Reddit_name" ELSE som."Reddit_name" END ' \
+    query_select = 'Select co.id_cryptocompare, ' \
+                   'CASE WHEN som.reddit_name IS NULL THEN so.reddit_name ELSE som.reddit_name END ' \
                    'AS reddit_agr, max(timestamp)\n'
     query_select += 'from coins as co\n'
-    query_select += 'left outer join social_infos_manual som on (co."IdCryptoCompare" = som."IdCoinCryptoCompare")\n'
-    query_select += 'left outer join social_infos so on (co."IdCryptoCompare" = so."IdCoinCryptoCompare")\n'
-    query_select += 'left outer join social_stats_reddit_histo ss on (so."IdCoinCryptoCompare" = ss."IdCoinCryptoCompare")\n'
-    query_select += 'where CASE WHEN som."Reddit_name" IS NULL THEN so."Reddit_name" ELSE som."Reddit_name" END ' \
+    query_select += 'left outer join social_infos_manual som on (co.id_cryptocompare = som.id_cryptocompare)\n'
+    query_select += 'left outer join social_infos so on (co.id_cryptocompare = so.id_cryptocompare)\n'
+    query_select += 'left outer join social_stats_reddit_histo ss on (so.id_cryptocompare = ss.id_cryptocompare)\n'
+    query_select += 'where CASE WHEN som.reddit_name IS NULL THEN so.reddit_name ELSE som.reddit_name END ' \
                     'is not null\n'
-    query_select += 'group by co."IdCryptoCompare", reddit_agr;'
+    query_select += 'group by co.id_cryptocompare, reddit_agr;'
     rows = dbconn.get_query_result(query_select)
 
     for row in rows:
@@ -418,7 +398,7 @@ def extract_reddit_data():
     # Retrieve last from histo
     insertquery2 = 'INSERT INTO public.social_stats_reddit\n'
     insertquery2 += 'select * from social_stats_reddit_histo\n'
-    insertquery2 += 'where "timestamp" > current_timestamp  - interval ' + "'1 hour'"
+    insertquery2 += 'where timestamp > current_timestamp  - interval ' + "'1 hour'"
 
     dbconn.exexute_query(insertquery2)
 
@@ -426,8 +406,8 @@ def extract_reddit_data():
 
 
 def __create_query_reddit_stats(coin_id, subscribers, dates):
-    insertquery_reddit_stats = 'INSERT INTO public.social_stats_reddit_histo("IdCoinCryptoCompare", ' \
-                               '"Reddit_subscribers", "timestamp")\n'
+    insertquery_reddit_stats = 'INSERT INTO public.social_stats_reddit_histo(id_cryptocompare, ' \
+                               'reddit_subscribers, timestamp)\n'
     insertquery_reddit_stats += 'VALUES\n('
     for value, integ in enumerate(subscribers):
         if not insertquery_reddit_stats.endswith('('):
@@ -446,8 +426,8 @@ def __create_query_reddit_real_time(coin_id, dict_infos):
     reddit_real_time = ''
 
     if 'subscribers' in dict_infos.keys() and 'active_user_count' in dict_infos.keys():
-        reddit_real_time = 'INSERT INTO public.social_stats_reddit_histo ("IdCoinCryptoCompare", ' \
-                           '"Reddit_subscribers", "Reddit_active_users", "timestamp")\n'
+        reddit_real_time = 'INSERT INTO public.social_stats_reddit_histo (id_cryptocompare, ' \
+                           'reddit_subscribers, reddit_active_users, timestamp)\n'
         reddit_real_time += 'VALUES \n('
         reddit_real_time += str(coin_id) + ','
         reddit_real_time += str(dict_infos['subscribers']) + ","
@@ -465,12 +445,12 @@ def extract_histo_ohlcv():
     logging.warning("extract_histo_ohlcv - start")
     # Get coins id to be retrieved from APIs
     dbconn = DbConnection()
-    req = 'select co."IdCryptoCompare", co."Symbol", max(hi."timestamp"),\n'
-    req += 'case when tp."IdCryptoCompare" is null then false else true end as top_crypto \n'
+    req = 'select co.id_cryptocompare, co.symbol, max(hi.timestamp),\n'
+    req += 'case when tp.id_cryptocompare is null then false else true end as top_crypto \n'
     req += 'from coins as co\n'
-    req += 'left outer join top_cryptos as tp on (co."IdCryptoCompare" = tp."IdCryptoCompare")\n'
-    req += 'left outer join histo_ohlcv as hi on (co."IdCryptoCompare" = hi."IdCoinCryptoCompare")\n'
-    req += 'group by co."IdCryptoCompare", co."Symbol", co."SortOrder", top_crypto'
+    req += 'left outer join top_cryptos as tp on (co.id_cryptocompare = tp.id_cryptocompare)\n'
+    req += 'left outer join histo_ohlcv as hi on (co.id_cryptocompare = hi.id_cryptocompare)\n'
+    req += 'group by co.id_cryptocompare, co.symbol, co.sort_order, top_crypto'
     rows = dbconn.get_query_result(req)
     for row in rows:
         dict_dates_volumes = __get_histo_volumes_for_coin(row[0], row[1], row[2], row[3])
@@ -542,8 +522,8 @@ def __create_query_histo_ohlc(coin_id, data, dict_dates_volumes):
             date = utils.format_linux_timestamp_to_datetime(float(key['time']))
             # Do not take into account unfinished period
             if (datetime.now().astimezone() - date).seconds > 60 * 60:
-                insertquery += 'INSERT INTO public.histo_ohlcv ("IdCoinCryptoCompare", ' \
-                      '"open", "high", "low", "close", "volume_aggregated", "timestamp")\n'
+                insertquery += 'INSERT INTO public.histo_ohlcv (id_cryptocompare, ' \
+                      'open_price, high_price, low_price, close_price, volume_aggregated, timestamp)\n'
                 insertquery += 'VALUES(' + str(coin_id) + ', '
                 insertquery += utils.float_to_str(key['open']) + ', '
                 insertquery += utils.float_to_str(key['high']) + ', '
@@ -567,7 +547,7 @@ def extract_lower_higher_prices():
 
     dbconn = DbConnection()
     dbconn.exexute_query('Delete from lower_higher_prices;')
-    rows = dbconn.get_query_result('select "IdCryptoCompare", "Symbol" from coins')
+    rows = dbconn.get_query_result('select id_cryptocompare, symbol from coins')
 
     connection = create_engine(utils.get_connection_string())
     for row in rows:
@@ -602,7 +582,7 @@ def __get_query_lower_higher_prices_for_coin(connection, coin_id, symbol):
 
             # df to insert into db
             df_final = pd.DataFrame()
-            df_final['IdCryptoCompare'] = [coin_id]
+            df_final['id_cryptocompare'] = [coin_id]
 
             # df columns
             columns_arr = ['price_low_15d', 'date_low_15d', 'price_high_15d', 'date_high_15d',
@@ -650,7 +630,7 @@ def __create_query_global_data():
         raise Exception('__create_query_global_data - No data')
 
     insertquery = 'INSERT INTO public.global_data (total_market_cap_usd,' \
-                  'total_24h_volume_usd, bitcoin_percentage_of_market_cap, "timestamp")\n'
+                  'total_24h_volume_usd, bitcoin_percentage_of_market_cap, timestamp)\n'
     insertquery += 'VALUES ('
     insertquery += str(data['total_market_cap_usd'] / 1000000000) + ', '
     insertquery += str(data['total_24h_volume_usd'] / 1000000000) + ', '
@@ -677,7 +657,7 @@ def extract_google_trend_info():
     connection = create_engine(utils.get_connection_string())
 
     # get data with query
-    squery = 'SELECT "IdCryptoCompare", "Symbol" , "CoinName" \n'
+    squery = 'SELECT id_cryptocompare, symbol, coin_name \n'
     squery += 'FROM coins'
 
     df_coins = psql.read_sql_query(squery, connection)

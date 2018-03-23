@@ -32,7 +32,6 @@ def get_connection_string():
     dbuser = conf.get_config('db', 'dbuser')
     dbpassword = conf.get_config('db', 'dbpassword')
     dbport = conf.get_config('db', 'dbport')
-    # 'postgresql://dbuser:algocryptos@localhost:5432/algocryptos'
     return 'postgresql://' + dbuser + ':' + dbpassword + '@' + dbhost + ':' + dbport + '/' + dbname
 
 def get_path_for_system(linux_path, other_path):

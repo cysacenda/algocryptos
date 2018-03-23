@@ -17,24 +17,24 @@ def calcul_kpi_subscribers_trend():
     connection = create_engine(utils.get_connection_string())
 
     # get data with query
-    squery = 'select so."IdCoinCryptoCompare" as "IdCryptoCompare", so."Reddit_subscribers", so."timestamp" from social_stats_reddit_histo so\n'
-    squery += 'inner join coins co on (co."IdCryptoCompare" = so."IdCoinCryptoCompare")\n'
+    squery = 'select so.id_cryptocompare, so.reddit_subscribers, so.timestamp from social_stats_reddit_histo so\n'
+    squery += 'inner join coins co on (co.id_cryptocompare = so.id_cryptocompare)\n'
     squery += 'where so.timestamp > CURRENT_TIMESTAMP - interval \'90 days\';'
 
     df = psql.read_sql_query(squery, connection)
 
     # set index on column timestamp
-    df.set_index('timestamp', 'IdCryptoCompare', inplace=True)
+    df.set_index('timestamp', 'id_cryptocompare', inplace=True)
 
     # group by crypto
-    df2 = df.groupby('IdCryptoCompare')
+    df2 = df.groupby('id_cryptocompare')
 
     # resample with period 1D + interpolation for missing values
-    df2 = df2.resample('1D').agg({'Reddit_subscribers': 'max'}).interpolate()
-    df2['Reddit_subscribers'] = df2['Reddit_subscribers'].astype(int)
+    df2 = df2.resample('1D').agg({'reddit_subscribers': 'max'}).interpolate()
+    df2['reddit_subscribers'] = df2['reddit_subscribers'].astype(int)
 
     # regroup by crypto
-    df3 = df2.groupby('IdCryptoCompare')
+    df3 = df2.groupby('id_cryptocompare')
 
     # get last value for each crypto
     dftoday = df3.last()
@@ -53,19 +53,19 @@ def calcul_kpi_subscribers_trend():
         df_tmp.sort_index(inplace=True)
 
         # truncate dataframe to get data on a specific period
-        df_tmp = df_tmp.truncate(before=date_before, after=date_after).groupby('IdCryptoCompare').first()
+        df_tmp = df_tmp.truncate(before=date_before, after=date_after).groupby('id_cryptocompare').first()
 
         # rename column to avoid problem
         df_tmp.columns = ['col' + str(elt)]
         dftoday = dftoday.join(df_tmp)
-        dftoday['col' + str(elt)] = (dftoday['Reddit_subscribers'] - dftoday['col' + str(elt)]) / dftoday[
+        dftoday['col' + str(elt)] = (dftoday['reddit_subscribers'] - dftoday['col' + str(elt)]) / dftoday[
             'col' + str(elt)]
 
     # rename columns
-    dftoday.columns = ['Reddit_subscribers', 'subscribers_1d_trend', 'subscribers_3d_trend', 'subscribers_7d_trend',
+    dftoday.columns = ['reddit_subscribers', 'subscribers_1d_trend', 'subscribers_3d_trend', 'subscribers_7d_trend',
                        'subscribers_15d_trend', 'subscribers_30d_trend', 'subscribers_60d_trend',
                        'subscribers_90d_trend']
-    dftoday = dftoday.drop('Reddit_subscribers', 1)
+    dftoday = dftoday.drop('reddit_subscribers', 1)
 
     # empty table
     connection.execute('delete from kpi_reddit_subscribers')

@@ -21,8 +21,8 @@ def generate_prices_volumes_images():
     connection = create_engine(utils.get_connection_string())
 
     # get data with query
-    squery = 'select hi."IdCoinCryptoCompare", close, hi.volume_aggregated, hi.timestamp from histo_ohlcv hi\n'
-    squery += 'inner join coins co on (co."IdCryptoCompare" = hi."IdCoinCryptoCompare")\n'
+    squery = 'select hi.id_cryptocompare, close_price, hi.volume_aggregated, hi.timestamp from histo_ohlcv hi\n'
+    squery += 'inner join coins co on (co.id_cryptocompare = hi.id_cryptocompare)\n'
     squery += 'where timestamp > CURRENT_TIMESTAMP - interval \'7 days\''
     df = psql.read_sql_query(squery, connection)
 
@@ -33,11 +33,11 @@ def generate_prices_volumes_images():
     df2 = df.replace(0, pd.np.nan).dropna(axis=0, thresh=2).fillna(0).astype(float)
 
     # group by crypto
-    df2 = df.groupby('IdCoinCryptoCompare')
+    df2 = df.groupby('id_cryptocompare')
 
     # change scale to have more clear charts
-    df3 = df2.resample('4H').agg({'close': np.mean, 'volume_aggregated': np.sum}).interpolate()
-    df3 = df3.groupby('IdCoinCryptoCompare')
+    df3 = df2.resample('4H').agg({'close_price': np.mean, 'volume_aggregated': np.sum}).interpolate()
+    df3 = df3.groupby('id_cryptocompare')
 
     # Turn interactive plotting off
     plt.ioff()

@@ -16,8 +16,8 @@ def calcul_kpi_volumes_trend():
     connection = create_engine(utils.get_connection_string())
 
     # get data with query
-    squery = 'select \"IdCoinCryptoCompare\", volume_aggregated as volume_mean_last_30d, timestamp from histo_ohlcv hi\n'
-    squery += 'inner join coins co on (co."IdCryptoCompare" = hi."IdCoinCryptoCompare")\n'
+    squery = 'select co.id_cryptocompare, volume_aggregated as volume_mean_last_30d, timestamp from histo_ohlcv hi\n'
+    squery += 'inner join coins co on (co.id_cryptocompare = hi.id_cryptocompare)\n'
     squery += 'where hi.timestamp > CURRENT_TIMESTAMP - interval \'30 days\'\n'
     squery += 'and hi.volume_aggregated is not null\n'
     squery += 'order by hi.timestamp'
@@ -32,7 +32,7 @@ def calcul_kpi_volumes_trend():
     df.set_index('timestamp', inplace=True)
 
     # 30d mean
-    df2 = df.groupby('IdCoinCryptoCompare').mean()
+    df2 = df.groupby('id_cryptocompare').mean()
 
     # working with utc because timestamp retrieved into panda DataFrame are in UTC
     date_after = datetime.utcnow()
@@ -43,7 +43,7 @@ def calcul_kpi_volumes_trend():
         # elt+1 because : dataimporter -O at 15:05 get volumes for 14:00-15:00 period with timestamp = 14:00.
         # algokpi -v at 15:10 => need 13:10 (so minus 2h) to get volumes for pediod
         date_before = date_after - timedelta(hours=elt + 1)  # elt => to be changed with timezone ?
-        df_tmp = df.truncate(before=date_before, after=date_after).groupby('IdCoinCryptoCompare').mean()
+        df_tmp = df.truncate(before=date_before, after=date_after).groupby('id_cryptocompare').mean()
 
         # rename column to avoid conflicts
         df_tmp.columns = ['col' + str(elt)]
