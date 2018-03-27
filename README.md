@@ -93,7 +93,7 @@ Il est possible d'appeler cet api http://localhost:3000/api/params/resetprocesse
 et permettre aux traitements de se lancer correctement
 
 ## EC2 : Lancer traitements sur serveur via connexion SSH
-- source algocryptos_scripts/venv/bin/activate
+- source prod/algocryptos_scripts/venv/bin/activate
 - export PYTHONPATH=$PYTHONPATH:/home/ec2-user/prod/algocryptos_scripts
 - python /home/ec2-user/prod/algocryptos_scripts/dataimporter/main.py -r
 - killer tous les traitements python : pkill -f python

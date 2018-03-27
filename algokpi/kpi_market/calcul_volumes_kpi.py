@@ -72,3 +72,17 @@ def calcul_kpi_volumes_trend():
     # endregion
 
     logging.warning("calcul_kpi_volumes_trend - end")
+
+def calcul_kpi_volumes_trend_global():
+    ''''' TODO - @CSA : Calculer indicateurs volume mais sur global via ce calcul => pandas
+    select * from global_data
+    -- Enregistrement dans global_data_histo (seulement / heure)
+    -- Idem volumes => convertion $ via table prices
+
+
+    select sum(close_price * volume_aggregated) as volume_usd_1h
+    from histo_ohlcv where timestamp > CURRENT_TIMESTAMP - interval '25 hours'
+
+    select count(*)
+    from histo_ohlcv where timestamp > CURRENT_TIMESTAMP - interval '2 hour'
+    '''''
