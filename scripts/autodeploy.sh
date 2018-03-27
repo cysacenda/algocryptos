@@ -3,7 +3,7 @@
 # Auteur    : Mickael A. CABREIRO
 # Date      : Mach 4th 2018	 
 # OS Testes : Raspian OS
-# Version   : 1.2
+# Version   : 1.4
 #-------------------------------------------------------------------------------------------------------------
 # DESCRIPTION
 #     This script is intended to be used to autodeploy the AlgoCrypto projec (Cyril SACENDA) 
@@ -38,6 +38,7 @@
 #	Version 1.1 : Adding Cron management
 #	Version 1.2 : Changing strategy on PM2 utility. Now, reloading configuration
 #	Version 1.3 : Refactoring Zip actions into functions
+#	Version 1.4 : Refactoring Git actions into functions
 ##############################################################################################################
 
 #	Parameters 
@@ -54,6 +55,7 @@
 	readonly SUCCESS=0
 	readonly WARNING=1
 	readonly ERROR=2
+	__EXIT_STATUS=$ERROR
 
 # Error reporting
 	readonly DATE=`date +%Y%m%d`
@@ -137,8 +139,6 @@ __CAT_EOF__
 }
 
 
-
-
 # -------------------------------------------------------------------------
 #   Function : _TRAP_CTRL_C 
 # -------------------------------------------------------------------------
@@ -148,16 +148,42 @@ __CAT_EOF__
 # -------------------------------------------------------------------------
 _TRAP_CTRL_C()
 {
+	tput setaf 1 
 	echo "---------------------------------------------------------------------"
 	echo " TRAPPED SIGNAL CAUGHT : ctrl+C"
 	echo "---------------------------------------------------------------------"
 	echo " Application left in inconsistent state "
-	echo " --> script ended at line "
+	tput sgr0
 	exit $ERROR
 }
 
 trap  _TRAP_CTRL_C INT 
 
+# -------------------------------------------------------------------------
+#   Function : _TRAP_CTRL_C 
+# -------------------------------------------------------------------------
+# ARGUMENTS
+#     None
+# RETURNS
+# -------------------------------------------------------------------------
+_TRAP_EXIT()
+{
+	if [ $__EXIT_STATUS -eq $ERROR ]
+	then
+		tput setaf 1 
+		echo " Autodeploy.sh existed anormaly"
+        	echo " Please review logs to correct issues !!!!"
+	else
+		tput setaf 2 
+		echo " Autodeploy.sh existed Successfully!"
+        	echo " 	Enjoy AlgoCryptos Tools ! "
+	fi
+
+	tput sgr0
+
+	exit $ERROR
+}
+trap _TRAP_EXIT EXIT
 
 # -------------------------------------------------------------------------
 #   Function : showVersion
@@ -177,6 +203,7 @@ __CAT_EOF__
 
 return ${SUCCESS}
 }
+
 
 # -------------------------------------------------------------------------
 #   Function : StopCron
@@ -205,7 +232,7 @@ stopCron()
 		echo "$__BASE [${LINENO}] : ERROR : Crontab stop : Empty file not generated!"
 		exit ${ERROR}
 	fi
-	tput bold setaf 2 ; echo echo "$__BASE [${LINENO}] : Crontab succefully suspended"
+	echo echo "$__BASE [${LINENO}] : Crontab succefully suspended"
 	return ${SUCCESS}
 }
 
@@ -221,7 +248,6 @@ releaseCron()
 {
 	local Filetoload="/tmp/crontab_bkp${DATE}"
 
-	echo "$__BASE [${LINENO}] : DEBUG : deploy Cron #ARGS = $#"
 	# If a new file is provide using function parameter = means update
 	if [ -n $1 ]  && [ $# -eq 1 ] 
 	then
@@ -305,7 +331,6 @@ DeployBackend()
 	# ---------------------------------------
 	stopCron	
 
-	echo "$__BASE [${LINENO}] : DEBUG : ${__AppRootDir} "
 	# Retrieve Git Repository
 	# -----------------------
 
@@ -338,6 +363,11 @@ DeployBackend()
 		if [ $? -eq 0 ]
 		then
 			echo  "$__BASE [${LINENO}] : INFORMATION : Database successfully adjusted! "
+			echo "$__BASE [${LINENO}] : INFORMATION : cleaning modifBDD.sql file"
+
+			# Adjust Git repository to avoid multiple Databases modifications
+			echo "" > "${AppBuilDir}/db/modifsBDD.sql"
+			Gitpush "${AppBuilDir}/db/modifsBDD.sql"
 		else
 			echo "$__BASE [${LINENO}] : ERROR : ${AppBuilDir}/db/modifsBDD.sql executed but finish with error!"
 			exit $ERROR
@@ -379,7 +409,6 @@ UnzipRemDup()
 	if [ -e $1 ] && [ $# -eq 1 ] 
 	then
 		#file ~/programmation/algocryptos/algocryptos_web/build/front.zip -b  -i
-		echo "$__BASE [${LINENO}] : DEBUG : unziprem parameter : 1  = ${1}"
 		local __ZIPDIR="$(cd "$(dirname "${1}")" && pwd)"
 		local __ZIPFILE="${__ZIPDIR}/$(basename "${1}")"
 		local __ZIPBASE="$(basename ${__ZIPFILE} .zip)"
@@ -405,12 +434,14 @@ UnzipRemDup()
 				echo "$__BASE [${LINENO}] : INFORMATION : No duplicated directories found!"
 			fi
 		else
-			echo "$__BASE [${LINENO}] : DEBUG : Euh!!!! Comment ça c'est pas un ZIP!"
+			echo "$__BASE [${LINENO}] : ERROR : Euh!!!! Comment ça c'est pas un ZIP!"
+			exit $ERROR
 		fi
 	else
 		echo "$__BASE [${LINENO}] : ERROR : Missing zip parameter !"
 	       	exit $ERROR
 	fi
+	return $SUCCESS
 }
 
 # -------------------------------------------------------------------------
@@ -482,7 +513,6 @@ DeployFront()
 	# Backend
 	UnzipRemDup "${AppBuilDir}/server.zip"
 	
-
 	# We validate that a RootDirectory is set
 	#if [ -n $__AppRootDir ] 
 	#then
@@ -502,7 +532,6 @@ DeployFront()
 			S3Bucket="s3://algocrypto"
 		fi
 		aws s3 sync ${ToPushDir} ${S3Bucket} 
-		#echo "$__BASE [${LINENO}] : DEBUG : Fake un of : aws s3 sync ${ToPushDir} ${S3Bucket}"
 	#else 
 
 	#	echo "$__BASE [${LINENO}] : ERROR : AWS Sync Not possible !!!"
@@ -534,10 +563,8 @@ do
 		__DEPLOY_FRONT=1
 		__DEPLOY_BACK=1
 		__DEPLOY_CRON=1
-		#echo "$__BASE [${LINENO}] : DEBUG : The first debug infra!"
 	fi
 
-	### !!! echo "$__BASE [${LINENO}] : DEBUG : IN THE GETOPTS"
 	case "${option}" in
 		a)				# Deploy all part of AlgoCrypto Application
 			__DEPLOY_BACK=0
@@ -591,15 +618,10 @@ else
 	exit ${ERROR}
 fi
 
-#echo "$__BASE [${LINENO}] : DEBUG : __DEPLOY_BACK = ${__DEPLOY_BACK}"
-#echo "$__BASE [${LINENO}] : DEBUG : __DEPLOY_CRON = ${__DEPLOY_CRON}"
-#echo "$__BASE [${LINENO}] : DEBUG : __DEPLOY_FRONT = ${__DEPLOY_FRONT}"
-
 if [ ${__DEPLOY_BACK} -eq 0 ]
 then
 	#deploy Backend following the define sequence
 	DeployBackend
-	### echo "$__BASE [${LINENO}] : DEBUG : DEPLOY BACKEND option active"
 fi
 
 if [ ${__DEPLOY_CRON} -eq 0 ]
@@ -607,14 +629,13 @@ then
 	#deploy Backend following the define sequence
 	stopCron	
 	NewCron="${__AppRootDir}/algocryptos_scripts/scripts/scripts.txt"
-	### echo "$__BASE [${LINENO}] : DEBUG : DEPLOY CRON - NEWCRONFILE = ${NewCron}"
 	releaseCron ${NewCron}
 fi
 
 if [ ${__DEPLOY_FRONT} -eq 0 ]
 then
-	### echo "$__BASE [${LINENO}] : DEBUG : DEPLOY FRONT TEST"
 	DeployFront
 fi
 
-echo "AlgoCryptos deployement successfully!"
+__EXIT_STATUS=$SUCCESS
+
