@@ -80,6 +80,10 @@ __DB_USER="algocryptouser"
 # ---------------
 NewCron=""
 
+# Exit Flags
+# ----------
+__DB_ADJUSTMENT=1
+
 # Functions
 # ---------
 
@@ -153,6 +157,7 @@ _TRAP_CTRL_C()
 	echo " TRAPPED SIGNAL CAUGHT : ctrl+C"
 	echo "---------------------------------------------------------------------"
 	echo " Application left in inconsistent state "
+	
 	tput sgr0
 	exit $ERROR
 }
@@ -173,6 +178,15 @@ _TRAP_EXIT()
 		tput setaf 1 
 		echo " Autodeploy.sh existed anormaly"
         	echo " Please review logs to correct issues !!!!"
+
+		# If Trap occures between DB modifications and cleaning git --> Force cleaning git
+		if [[ $__DB_ADJUSTMENT -eq 1  ]]
+		then
+			echo "-----------------------------------------------------------------------------"		
+			echo "Adjusting git due to DB modificationsi on Git before reruning the script	   "
+			echo "-----------------------------------------------------------------------------"
+		fi
+
 	else
 		tput setaf 2 
 		echo " Autodeploy.sh existed Successfully!"
@@ -309,7 +323,12 @@ Gitpush()
 {
 	if [ $# -eq 1 ] && [ -e $1 ] 
 	then
+		echo "$__BASE [${LINENO}] : INFORMATION : git add ${1} " 
 		git add $1
+		echo "$__BASE [${LINENO}] : INFORMATION : commiting" 
+		git commit -m "autodeploy.sh : Cleaning SQL modification File ${1}" 
+
+		echo "$__BASE [${LINENO}] : INFORMATION : pushing to github" 
 		git push
 	else
 		echo "$__BASE [${LINENO}] : ERROR : No file to be pushed"
@@ -364,10 +383,12 @@ DeployBackend()
 		then
 			echo  "$__BASE [${LINENO}] : INFORMATION : Database successfully adjusted! "
 			echo "$__BASE [${LINENO}] : INFORMATION : cleaning modifBDD.sql file"
-
+			
+			__DB_ADJUSTMENT=1
 			# Adjust Git repository to avoid multiple Databases modifications
 			echo "" > "${AppBuilDir}/db/modifsBDD.sql"
 			Gitpush "${AppBuilDir}/db/modifsBDD.sql"
+			[ $? -eq 0 ] && __DB_ADJUSTMENT=0 || echo "$__BASE [${LINENO}] : ERROR : Pushing modifications to Git!"
 		else
 			echo "$__BASE [${LINENO}] : ERROR : ${AppBuilDir}/db/modifsBDD.sql executed but finish with error!"
 			exit $ERROR
