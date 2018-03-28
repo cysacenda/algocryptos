@@ -93,7 +93,7 @@ Il est possible d'appeler cet api http://localhost:3000/api/params/resetprocesse
 et permettre aux traitements de se lancer correctement
 
 ## EC2 : Lancer traitements sur serveur via connexion SSH
-- source algocryptos_scripts/venv/bin/activate
+- source prod/algocryptos_scripts/venv/bin/activate
 - export PYTHONPATH=$PYTHONPATH:/home/ec2-user/prod/algocryptos_scripts
 - python /home/ec2-user/prod/algocryptos_scripts/dataimporter/main.py -r
 - killer tous les traitements python : pkill -f python
@@ -115,4 +115,6 @@ et permettre aux traitements de se lancer correctement
 - Verify that autodeploy script is updated (if none, git pull)
 - Connect to EC2 and go to path prod/algocryptos_scripts/scripts/
 - Start script on EC2 autodeploy.sh ~/prod
+- Back-end only : sh autodeploy.sh -b ~/prod
+- When script ask, enter rsa : algocryptos
 - Check everything is ok

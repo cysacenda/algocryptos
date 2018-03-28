@@ -18,9 +18,9 @@ from pytrends.request import TrendReq
 def get_info_google_trend(pytrends, df_to_db, standard, coin_row):
 
     #Lower case everything
-    coin_id = coin_row['IdCryptoCompare']  # Exemple : 7605
-    project = coin_row['CoinName'].lower()  # Exemple : ethereum
-    symbol = coin_row['Symbol'].lower()  # Exemple : eth
+    coin_id = coin_row['id_cryptocompare']  # Exemple : 7605
+    project = coin_row['coin_name'].lower()  # Exemple : ethereum
+    symbol = coin_row['symbol'].lower()  # Exemple : eth
 
     logging.warning("__get_info_google_trend start for coin " + project)
 
@@ -53,7 +53,7 @@ def get_info_google_trend(pytrends, df_to_db, standard, coin_row):
     df_google_trend_compared.columns = ['value_compared_to_standard']
 
     df_result_coin = df_result_coin.join(df_google_trend_compared)
-    df_result_coin['IdCryptoCompare'] = coin_id
+    df_result_coin['id_cryptocompare'] = coin_id
 
     df_result_coin.reset_index(inplace=True)
     df_result_coin.rename(columns={'date': 'timestamp'}, inplace=True)

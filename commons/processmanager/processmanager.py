@@ -41,8 +41,8 @@ class ProcessManager:
         blockingprocesses = self.conf.get_config('process_params', str(process_id))
 
         # Check if blocking processes are running (SQL perspective, not linux processes - should be equivalent btw)
-        rows = self.dbconn.get_query_result('Select * from process_params where ("IdProcess" IN (' + str(
-            blockingprocesses) + ') and "Status" = ' + "'" + self.RUNNING + "')" + 'OR("Name" = \'' + concatname + "')")
+        rows = self.dbconn.get_query_result('Select * from process_params where (process_id IN (' + str(
+            blockingprocesses) + ') and status = ' + "'" + self.RUNNING + "')" + 'OR(process_name = \'' + concatname + "')")
         if rows is not None and len(rows) > 0:
             # Check if process should be placed in Waiting
             if retry_count == 0:
@@ -78,8 +78,8 @@ class ProcessManager:
             status = self.RUNNING
         # Save process info into historic
         self.__insert_process(process_id, concatname, self.ERROR if self.IsError else self.SUCCESS, True)
-        squery = 'Delete from process_params where "IdProcess" = ' + str(process_id)
-        squery += ' and "Status" = ' + "'" + status + "'" + ' and "Name" = ' + "'" + concatname + "'" + ';'
+        squery = 'Delete from process_params where process_id = ' + str(process_id)
+        squery += ' and status = ' + "'" + status + "'" + ' and process_name = ' + "'" + concatname + "'" + ';'
         return self.dbconn.exexute_query(squery) == 0
 
     # If process there for too long (shouldn't be), delete process from table
@@ -90,8 +90,8 @@ class ProcessManager:
 
     # If same process already in status running / waiting => Kill
     def __should_be_waiting(self, process_id, name):
-        squeryselect = 'Select * from process_params where "IdProcess" = ' + str(process_id) + '\n'
-        squeryselect += 'and "Name" = ' + "'" + name + "'"
+        squeryselect = 'Select * from process_params where process_id = ' + str(process_id) + '\n'
+        squeryselect += 'and process_name = ' + "'" + name + "'"
         rows = self.dbconn.get_query_result(squeryselect)
         return rows is None or len(rows) == 0
 
@@ -99,7 +99,7 @@ class ProcessManager:
         sql_table = 'process_params'
         if is_histo:
             sql_table = 'process_params_histo'
-        squeryinsert = 'INSERT INTO ' + sql_table + ' ("IdProcess", "Name", "Status", "timestamp")\n'
+        squeryinsert = 'INSERT INTO ' + sql_table + ' (process_id, process_name, status, timestamp)\n'
         squeryinsert += 'VALUES('
         squeryinsert += str(process_id) + ','
         squeryinsert += "'" + name + "',"
@@ -108,9 +108,9 @@ class ProcessManager:
         self.dbconn.exexute_query(squeryinsert)
 
     def __update_process(self, process_id, name):
-        squeryupdate = 'UPDATE process_params SET "Status" = ' + "'" + self.RUNNING + "',\n"
-        squeryupdate += '"timestamp" = current_timestamp\n'
-        squeryupdate += 'WHERE "IdProcess" = ' + str(process_id) + ' AND "Name" = ' + "'" + name + "'"
+        squeryupdate = 'UPDATE process_params SET status = ' + "'" + self.RUNNING + "',\n"
+        squeryupdate += 'timestamp = current_timestamp\n'
+        squeryupdate += 'WHERE process_id = ' + str(process_id) + ' AND process_name = ' + "'" + name + "'"
         self.dbconn.exexute_query(squeryupdate)
 
     def setIsError(self):

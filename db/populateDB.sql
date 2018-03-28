@@ -1,5 +1,5 @@
 -- Excluded coins
-INSERT INTO public.excluded_coins("IdCoinCryptoCompare") VALUES (542140); --MED, inactive
+INSERT INTO public.excluded_coins(id_cryptocompare) VALUES (542140); --MED, inactive
 
 
 -- Manual reddit lookup
@@ -224,42 +224,42 @@ INSERT INTO social_infos_manual VALUES (4433,'vergecurrency');
 INSERT INTO social_infos_manual VALUES (347235,'BitcoinGoldHQ');
 
 --top cryptos
-insert into top_cryptos("IdCryptoCompare") values (1182);
-insert into top_cryptos("IdCryptoCompare") values (3808);
-insert into top_cryptos("IdCryptoCompare") values (5038);
-insert into top_cryptos("IdCryptoCompare") values (24854);
-insert into top_cryptos("IdCryptoCompare") values (4614);
-insert into top_cryptos("IdCryptoCompare") values (5285);
-insert into top_cryptos("IdCryptoCompare") values (19745);
-insert into top_cryptos("IdCryptoCompare") values (20333);
-insert into top_cryptos("IdCryptoCompare") values (27368);
-insert into top_cryptos("IdCryptoCompare") values (112392);
-insert into top_cryptos("IdCryptoCompare") values (127356);
-insert into top_cryptos("IdCryptoCompare") values (171986);
-insert into top_cryptos("IdCryptoCompare") values (187440);
-insert into top_cryptos("IdCryptoCompare") values (202330);
-insert into top_cryptos("IdCryptoCompare") values (236131);
-insert into top_cryptos("IdCryptoCompare") values (299774);
-insert into top_cryptos("IdCryptoCompare") values (310829);
-insert into top_cryptos("IdCryptoCompare") values (321992);
-insert into top_cryptos("IdCryptoCompare") values (324068);
-insert into top_cryptos("IdCryptoCompare") values (5031);
-insert into top_cryptos("IdCryptoCompare") values (7605);
-insert into top_cryptos("IdCryptoCompare") values (5324);
-insert into top_cryptos("IdCryptoCompare") values (172091);
-insert into top_cryptos("IdCryptoCompare") values (347235);
-insert into top_cryptos("IdCryptoCompare") values (3807);
-insert into top_cryptos("IdCryptoCompare") values (166503);
+insert into top_cryptos(id_cryptocomparename) values (1182);
+insert into top_cryptos(id_cryptocomparename) values (3808);
+insert into top_cryptos(id_cryptocomparename) values (5038);
+insert into top_cryptos(id_cryptocomparename) values (24854);
+insert into top_cryptos(id_cryptocomparename) values (4614);
+insert into top_cryptos(id_cryptocomparename) values (5285);
+insert into top_cryptos(id_cryptocomparename) values (19745);
+insert into top_cryptos(id_cryptocomparename) values (20333);
+insert into top_cryptos(id_cryptocomparename) values (27368);
+insert into top_cryptos(id_cryptocomparename) values (112392);
+insert into top_cryptos(id_cryptocomparename) values (127356);
+insert into top_cryptos(id_cryptocomparename) values (171986);
+insert into top_cryptos(id_cryptocomparename) values (187440);
+insert into top_cryptos(id_cryptocomparename) values (202330);
+insert into top_cryptos(id_cryptocomparename) values (236131);
+insert into top_cryptos(id_cryptocomparename) values (299774);
+insert into top_cryptos(id_cryptocomparename) values (310829);
+insert into top_cryptos(id_cryptocomparename) values (321992);
+insert into top_cryptos(id_cryptocomparename) values (324068);
+insert into top_cryptos(id_cryptocomparename) values (5031);
+insert into top_cryptos(id_cryptocomparename) values (7605);
+insert into top_cryptos(id_cryptocomparename) values (5324);
+insert into top_cryptos(id_cryptocomparename) values (172091);
+insert into top_cryptos(id_cryptocomparename) values (347235);
+insert into top_cryptos(id_cryptocomparename) values (3807);
+insert into top_cryptos(id_cryptocomparename) values (166503);
 
-insert into process_description ("Name", "Description") values ('DataImporter -cpd', 'Update coins list and prices');
-insert into process_description ("Name", "Description") values ('DataImporter -o', 'Update OHLCV information (periods of 1 hour)');
-insert into process_description ("Name", "Description") values ('DataImporter -r', 'Update Reddit statistics (number of subscribers)');
-insert into process_description ("Name", "Description") values ('DataImporter -g', 'Update global infos (global market cap, 24h volumes)');
-insert into process_description ("Name", "Description") values ('DataImporter -s', 'Update social stats (information relatives to twitter, Reddit linked to one cryptocurrency)');
-insert into process_description ("Name", "Description") values ('DataImporter -hp', 'Update price historic');
-insert into process_description ("Name", "Description") values ('DataImporter -ath', 'Update higher & lower for each cryptocurrency');
-insert into process_description ("Name", "Description") values ('AlgoKPI -v', 'Calcul kpi related to volumes');
-insert into process_description ("Name", "Description") values ('AlgoKPI -r', 'Calcul kpi related to reddit subscribers');
+insert into process_description (process_name, description) values ('DataImporter -cpd', 'Update coins list and prices');
+insert into process_description (process_name, description) values ('DataImporter -o', 'Update OHLCV information (periods of 1 hour)');
+insert into process_description (process_name, description) values ('DataImporter -r', 'Update Reddit statistics (number of subscribers)');
+insert into process_description (process_name, description) values ('DataImporter -g', 'Update global infos (global market cap, 24h volumes)');
+insert into process_description (process_name, description) values ('DataImporter -s', 'Update social stats (information relatives to twitter, Reddit linked to one cryptocurrency)');
+insert into process_description (process_name, description) values ('DataImporter -hp', 'Update price historic');
+insert into process_description (process_name, description) values ('DataImporter -ath', 'Update higher & lower for each cryptocurrency');
+insert into process_description (process_name, description) values ('AlgoKPI -v', 'Calcul kpi related to volumes');
+insert into process_description (process_name, description) values ('AlgoKPI -r', 'Calcul kpi related to reddit subscribers');
 
 
 

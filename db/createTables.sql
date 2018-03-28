@@ -4,15 +4,15 @@
 
 CREATE TABLE public.coins
 (
-    "IdCryptoCompare" bigint,
-    "Name" text COLLATE pg_catalog."default",
-    "Symbol" varchar(20) COLLATE pg_catalog."default",
-    "CoinName" text COLLATE pg_catalog."default",
-    "TotalCoinSupply" text COLLATE pg_catalog."default",
-    "SortOrder" integer,
-    "ProofType" text COLLATE pg_catalog."default",
-    "Algorithm" text COLLATE pg_catalog."default",
-    "ImageUrl" text COLLATE pg_catalog."default"
+    id_cryptocompare bigint,
+    crypto_name text COLLATE pg_catalog."default",
+    symbol varchar(20) COLLATE pg_catalog."default",
+    coin_name text COLLATE pg_catalog."default",
+    total_coin_supply text COLLATE pg_catalog."default",
+    sort_order integer,
+    proof_type text COLLATE pg_catalog."default",
+    algorithm text COLLATE pg_catalog."default",
+    image_url text COLLATE pg_catalog."default"
 )
 WITH (
     OIDS = FALSE
@@ -34,18 +34,18 @@ COMMENT ON TABLE public.coins
 
 CREATE TABLE public.prices
 (
-    "IdCryptoCompare" bigint,
-    Symbol varchar(20) COLLATE pg_catalog."default" NOT NULL,
-    "Name" text COLLATE pg_catalog."default",
-    Rank integer,
-    Price_usd double precision,
-    Price_btc double precision,
-    "24h_volume_usd" double precision,
-    Market_cap_usd double precision,
-    Percent_change_1h double precision,
-    Percent_change_24h double precision,
-    Percent_change_7d double precision,
-    Last_updated timestamp with time zone
+    id_cryptocompare bigint,
+    symbol varchar(20) COLLATE pg_catalog."default" NOT NULL,
+    crypto_name text COLLATE pg_catalog."default",
+    crypto_rank integer,
+    price_usd double precision,
+    price_btc double precision,
+    volume_usd_24h double precision,
+    market_cap_usd double precision,
+    percent_change_1h double precision,
+    percent_change_24h double precision,
+    percent_change_7d double precision,
+    last_updated timestamp with time zone
     -- CONSTRAINT prices_pkey PRIMARY KEY (Symbol)
 )
 WITH (
@@ -68,15 +68,15 @@ COMMENT ON TABLE public.prices
 
 CREATE TABLE public.social_infos
 (
-    "IdCoinCryptoCompare" bigint,
-    "Twitter_account_creation" timestamp with time zone,
-    "Twitter_name" text COLLATE pg_catalog."default",
-    "Twitter_link" text COLLATE pg_catalog."default",
-    "Reddit_name" text COLLATE pg_catalog."default",
-    "Reddit_link" text COLLATE pg_catalog."default",
-    "Reddit_community_creation" timestamp with time zone,
-    "Facebook_name" text COLLATE pg_catalog."default",
-    "Facebook_link" text COLLATE pg_catalog."default"
+    id_cryptocompare bigint,
+    twitter_account_creation timestamp with time zone,
+    twitter_name text COLLATE pg_catalog."default",
+    twitter_link text COLLATE pg_catalog."default",
+    reddit_name text COLLATE pg_catalog."default",
+    reddit_link text COLLATE pg_catalog."default",
+    reddit_community_creation timestamp with time zone,
+    facebook_name text COLLATE pg_catalog."default",
+    facebook_link text COLLATE pg_catalog."default"
 )
 WITH (
     OIDS = FALSE
@@ -98,15 +98,15 @@ COMMENT ON TABLE public.social_infos
 
 CREATE TABLE public.social_stats
 (
-    "IdCoinCryptoCompare" bigint,
-    "Twitter_followers" bigint,
-    "Reddit_posts_per_day" double precision,
-    "Reddit_comments_per_day" double precision,
-    "Reddit_active_users" bigint,
-    "Reddit_subscribers" bigint,
-    "Facebook_likes" bigint,
-    "Facebook_talking_about" bigint,
-    "timestamp" timestamp with time zone
+    id_cryptocompare bigint,
+    twitter_followers bigint,
+    reddit_posts_per_day double precision,
+    reddit_comments_per_day double precision,
+    reddit_active_users bigint,
+    reddit_subscribers bigint,
+    facebook_likes bigint,
+    facebook_talking_about bigint,
+    timestamp timestamp with time zone
 )
 WITH (
     OIDS = FALSE
@@ -123,9 +123,6 @@ GRANT ALL ON TABLE public.social_stats TO postgres;
 COMMENT ON TABLE public.social_stats
     IS 'Contains one line per cryptocurrency with informations relatives to social networks statistics about the cryptocurrency, data comes from CryptoCompare; For information related to Reddit, use social_stats_reddit table, not this one';
 
--- User !
---GRANT ALL ON TABLE public.coins TO dbuser;
---GRANT ALL ON TABLE public.coins TO postgres;
 
 -- Table: public.social_stats_reddit
 
@@ -133,10 +130,10 @@ COMMENT ON TABLE public.social_stats
 
 CREATE TABLE public.social_stats_reddit
 (
-    "IdCoinCryptoCompare" bigint,
-    "Reddit_subscribers" bigint,
-    "Reddit_active_users" bigint,
-    "timestamp" timestamp with time zone
+    id_cryptocompare bigint,
+    reddit_subscribers bigint,
+    reddit_active_users bigint,
+    timestamp timestamp with time zone
 )
 WITH (
     OIDS = FALSE
@@ -156,21 +153,19 @@ GRANT ALL ON TABLE public.social_stats_reddit TO postgres;
 COMMENT ON TABLE public.social_stats_reddit
     IS 'Contains one line per cryptocurrency per date with statistic on th subreddit of the cryptocurrency, data comes from redditmetrics.com (historical data) and reddit.com/subredditname/about.json for real time data';
 
-
-
 -- Table: public.histo_ohlcv
 
 -- DROP TABLE public.histo_ohlcv;
 
 CREATE TABLE public.histo_ohlcv
 (
-    "IdCoinCryptoCompare" bigint NOT NULL,
-    "open" double precision,
-    "high" double precision,
-    "low" double precision,
-    "close" double precision,
-    "volume_aggregated" double precision,
-    "timestamp" timestamp with time zone
+    id_cryptocompare bigint NOT NULL,
+    open_price double precision,
+    high_price double precision,
+    low_price double precision,
+    close_price double precision,
+    volume_aggregated double precision,
+    timestamp timestamp with time zone
 )
 WITH (
     OIDS = FALSE
@@ -193,7 +188,7 @@ COMMENT ON TABLE public.histo_ohlcv
 
 CREATE TABLE public.excluded_coins
 (
-    "IdCoinCryptoCompare" bigint NOT NULL
+    id_cryptocompare bigint NOT NULL
 )
 WITH (
     OIDS = FALSE
@@ -216,11 +211,11 @@ COMMENT ON TABLE public.excluded_coins
 
 CREATE TABLE public.social_infos_manual
 (
-    "IdCoinCryptoCompare" bigint NOT NULL,
-    "Reddit_name" text COLLATE pg_catalog."default",
-    "Twitter_link" text COLLATE pg_catalog."default",
-    "Facebook_link" text COLLATE pg_catalog."default",
-    CONSTRAINT id_unique UNIQUE ("IdCoinCryptoCompare")
+    id_cryptocompare bigint NOT NULL,
+    reddit_name text COLLATE pg_catalog."default",
+    twitter_link text COLLATE pg_catalog."default",
+    facebook_link text COLLATE pg_catalog."default",
+    CONSTRAINT id_unique UNIQUE (id_cryptocompare)
 )
 WITH (
     OIDS = FALSE
@@ -242,17 +237,16 @@ COMMENT ON TABLE public.social_infos_manual
 
 -- DROP TABLE public.histo_prices;
 
-
 CREATE TABLE public.histo_prices
 (
-    "IdCryptoCompare" bigint,
-    Symbol varchar(20) COLLATE pg_catalog."default" NOT NULL,
-    "Name" text COLLATE pg_catalog."default",
-    Price_usd double precision,
-    Price_btc double precision,
-    "24h_volume_usd" double precision,
-    Market_cap_usd double precision,
-    "timestamp" timestamp with time zone
+    id_cryptocompare bigint,
+    symbol varchar(20) COLLATE pg_catalog."default" NOT NULL,
+    crypto_name text COLLATE pg_catalog."default",
+    price_usd double precision,
+    price_btc double precision,
+    volume_usd_24h double precision,
+    market_cap_usd double precision,
+    timestamp timestamp with time zone
 )
 WITH (
     OIDS = FALSE
@@ -275,7 +269,7 @@ COMMENT ON TABLE public.histo_prices
 
 CREATE TABLE public.kpi_reddit_subscribers
 (
-    "IdCryptoCompare" bigint,
+    id_cryptocompare bigint,
     subscribers_1d_trend double precision,
     subscribers_3d_trend double precision,
     subscribers_7d_trend double precision,
@@ -283,7 +277,7 @@ CREATE TABLE public.kpi_reddit_subscribers
     subscribers_30d_trend double precision,
     subscribers_60d_trend double precision,
     subscribers_90d_trend double precision,
-    "timestamp" timestamp with time zone default current_timestamp
+    timestamp timestamp with time zone default current_timestamp
 )
 WITH (
     OIDS = FALSE
@@ -304,10 +298,12 @@ COMMENT ON TABLE public.kpi_reddit_subscribers
 
 -- DROP TABLE public.kpi_reddit_subscribers;
 
+ALTER TABLE public.kpi_reddit_subscribers_histo RENAME COLUMN "IdCryptoCompare" TO id_cryptocompare;
+ALTER TABLE public.kpi_reddit_subscribers_histo RENAME COLUMN "timestamp" TO timestamp;
 
 CREATE TABLE public.kpi_reddit_subscribers_histo
 (
-    "IdCryptoCompare" bigint,
+    id_cryptocompare bigint,
     subscribers_1d_trend double precision,
     subscribers_3d_trend double precision,
     subscribers_7d_trend double precision,
@@ -315,7 +311,7 @@ CREATE TABLE public.kpi_reddit_subscribers_histo
     subscribers_30d_trend double precision,
     subscribers_60d_trend double precision,
     subscribers_90d_trend double precision,
-    "timestamp" timestamp with time zone
+    timestamp timestamp with time zone
 )
 WITH (
     OIDS = FALSE
@@ -335,12 +331,11 @@ COMMENT ON TABLE public.kpi_reddit_subscribers_histo
 -- Table: public.process_params
 
 -- DROP TABLE public.process_params;
-
 CREATE TABLE public.process_params
 (
-    "IdProcess" integer NOT NULL,
-    "Name" text COLLATE pg_catalog."default",
-    "Status" text COLLATE pg_catalog."default",
+    process_id integer NOT NULL,
+    process_name text COLLATE pg_catalog."default",
+    status text COLLATE pg_catalog."default",
 	"timestamp" timestamp with time zone
 )
 WITH (
@@ -363,7 +358,7 @@ COMMENT ON TABLE public.process_params
 
 CREATE TABLE public.top_cryptos
 (
-    "IdCryptoCompare" bigint
+    id_cryptocompare bigint
 )
 WITH (
     OIDS = FALSE
@@ -383,13 +378,12 @@ COMMENT ON TABLE public.top_cryptos
 -- Table: public.process_params_histo
 
 -- DROP TABLE public.process_params_histo;
-
 CREATE TABLE public.process_params_histo
 (
-    "IdProcess" integer NOT NULL,
-    "Name" text COLLATE pg_catalog."default",
-    "Status" text COLLATE pg_catalog."default",
-	"timestamp" timestamp with time zone
+    process_id integer NOT NULL,
+    process_name text COLLATE pg_catalog."default",
+    status text COLLATE pg_catalog."default",
+	timestamp timestamp with time zone
 )
 WITH (
     OIDS = FALSE
@@ -411,10 +405,10 @@ COMMENT ON TABLE public.process_params_histo
 
 CREATE TABLE public.social_stats_reddit_histo
 (
-    "IdCoinCryptoCompare" bigint,
-    "Reddit_subscribers" bigint,
-    "Reddit_active_users" bigint,
-    "timestamp" timestamp with time zone
+    id_cryptocompare bigint,
+    reddit_subscribers bigint,
+    reddit_active_users bigint,
+    timestamp timestamp with time zone
 )
 WITH (
     OIDS = FALSE
@@ -434,6 +428,8 @@ COMMENT ON TABLE public.social_stats_reddit_histo
     IS 'Contains one line per cryptocurrency per date with statistic on th subreddit of the cryptocurrency, data comes from redditmetrics.com (historical data) and reddit.com/subredditname/about.json for real time data';
 
 
+-- Table: public.global_data
+
 -- DROP TABLE public.global_data;
 
 CREATE TABLE public.global_data
@@ -441,7 +437,7 @@ CREATE TABLE public.global_data
     total_market_cap_usd double precision,
     total_24h_volume_usd double precision,
     bitcoin_percentage_of_market_cap double precision,
-    "timestamp" timestamp with time zone
+    timestamp timestamp with time zone
 )
 WITH (
     OIDS = FALSE
@@ -458,19 +454,22 @@ COMMENT ON TABLE public.global_data
     IS 'Contains global data from CMC like global market cap etc.';
 
 
+
+-- Table: public.kpi_market_volumes;
+
 -- DROP TABLE public.kpi_market_volumes;
 
 CREATE TABLE public.kpi_market_volumes
 (
-    "IdCoinCryptoCompare" bigint,
-    "volume_mean_last_1h_vs_30d" double precision,
-    "volume_mean_last_3h_30d" double precision,
-    "volume_mean_last_6h_30d" double precision,
-    "volume_mean_last_12h_30d" double precision,
-    "volume_mean_last_24h_30d" double precision,
-    "volume_mean_last_3d_30d" double precision,
-    "volume_mean_last_7d_30d" double precision,
-    "timestamp" timestamp with time zone default current_timestamp
+    id_cryptocompare bigint,
+    volume_mean_last_1h_vs_30d double precision,
+    volume_mean_last_3h_30d double precision,
+    volume_mean_last_6h_30d double precision,
+    volume_mean_last_12h_30d double precision,
+    volume_mean_last_24h_30d double precision,
+    volume_mean_last_3d_30d double precision,
+    volume_mean_last_7d_30d double precision,
+    timestamp timestamp with time zone default current_timestamp
 )
 WITH (
     OIDS = FALSE
@@ -487,19 +486,22 @@ COMMENT ON TABLE public.kpi_market_volumes
     IS 'Contains market kpis about volumes.';
 
 
+
+-- Table: public.kpi_market_volumes_histo;
+
 -- DROP TABLE public.kpi_market_volumes_histo;
 
 CREATE TABLE public.kpi_market_volumes_histo
 (
-    "IdCoinCryptoCompare" bigint,
-    "volume_mean_last_1h_vs_30d" double precision,
-    "volume_mean_last_3h_30d" double precision,
-    "volume_mean_last_6h_30d" double precision,
-    "volume_mean_last_12h_30d" double precision,
-    "volume_mean_last_24h_30d" double precision,
-    "volume_mean_last_3d_30d" double precision,
-    "volume_mean_last_7d_30d" double precision,
-    "timestamp" timestamp with time zone default current_timestamp
+    id_cryptocompare bigint,
+    volume_mean_last_1h_vs_30d double precision,
+    volume_mean_last_3h_30d double precision,
+    volume_mean_last_6h_30d double precision,
+    volume_mean_last_12h_30d double precision,
+    volume_mean_last_24h_30d double precision,
+    volume_mean_last_3d_30d double precision,
+    volume_mean_last_7d_30d double precision,
+    timestamp timestamp with time zone default current_timestamp
 )
 WITH (
     OIDS = FALSE
@@ -515,13 +517,14 @@ GRANT ALL ON TABLE public.kpi_market_volumes_histo TO postgres;
 COMMENT ON TABLE public.kpi_market_volumes_histo
     IS 'Contains historical data of market kpis about volumes.';
 
+-- Table : public.process_description;
 
 -- DROP TABLE public.process_description;
 
 CREATE TABLE public.process_description
 (
-    "Name" text COLLATE pg_catalog."default",
-    "Description" text COLLATE pg_catalog."default"
+    process_name text COLLATE pg_catalog."default",
+    description text COLLATE pg_catalog."default"
 )
 WITH (
     OIDS = FALSE
@@ -537,13 +540,15 @@ GRANT ALL ON TABLE public.process_description TO postgres;
 COMMENT ON TABLE public.process_description
     IS 'Contains description of processes.';
 
+
+
 -- Table: public.lower_higher_prices
 
 -- DROP TABLE public.lower_higher_prices;
 
 CREATE TABLE public.lower_higher_prices
 (
-    "IdCryptoCompare" bigint,
+    id_cryptocompare bigint,
     price_low_15d double precision,
     date_low_15d timestamp with time zone,
     price_low_1m double precision,
@@ -590,10 +595,10 @@ COMMENT ON TABLE public.lower_higher_prices
 
 CREATE TABLE public.social_google_trend
 (
-    "IdCryptoCompare" bigint,
-    "timestamp" timestamp with time zone,
-    "value_standalone" double precision,
-    "value_compared_to_standard" double precision
+    id_cryptocompare bigint,
+    timestamp timestamp with time zone,
+    value_standalone double precision,
+    value_compared_to_standard double precision
 )
 WITH (
     OIDS = FALSE
