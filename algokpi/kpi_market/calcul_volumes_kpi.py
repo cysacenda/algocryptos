@@ -75,6 +75,18 @@ def calcul_kpi_volumes_trend():
 
 def calcul_kpi_volumes_trend_global():
     ''''' TODO - @CSA : Calculer indicateurs volume mais sur global via ce calcul => pandas
+    
+    Rendu IHM :
+    -----------
+    -Dans vignette :
+        -24h change (vs history 24h avant)
+        -courbe globale (générée à la volée)
+    -Indicateurs accessibles via clic sur vignette 24h vol dans popup
+        vol 1h / 3h / 6h / 12h /  24h / 3d / 7d /// 30d
+        vol 1h / 3h / 6h / 12h /  24h / 3d /// 7d
+        vol 1h / 3h / 6h / 12h /// 24h
+    
+    
     select * from global_data
     -- Enregistrement dans global_data_histo (seulement / heure)
     -- Idem volumes => convertion $ via table prices

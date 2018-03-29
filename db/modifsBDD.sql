@@ -105,3 +105,7 @@ ALTER TABLE public.process_description RENAME COLUMN "Description" TO descriptio
 
 -- Table: public.social_google_trend
 ALTER TABLE public.social_google_trend RENAME COLUMN "IdCryptoCompare" TO id_cryptocompare;
+
+-------------
+
+ALTER TABLE public.prices ADD COLUMN available_supply double precision;

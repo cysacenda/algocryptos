@@ -83,7 +83,7 @@ def __create_query_prices():
 
     insertquery = 'INSERT INTO public.prices (symbol, crypto_name, crypto_rank, price_usd, price_btc, ' \
                   'volume_usd_24h, market_cap_usd, percent_change_1h, percent_change_24h, ' \
-                  'percent_change_7d, last_updated)\n'
+                  'percent_change_7d, available_supply, last_updated)\n'
     insertquery += 'VALUES \n('
 
     for entry in data:
@@ -129,6 +129,11 @@ def __create_query_prices():
                 insertquery += 'NULL' + ","
             else:
                 insertquery += entry['percent_change_7d'] + ","
+
+            if entry['available_supply'] is None:
+                insertquery += 'NULL' + ","
+            else:
+                insertquery += entry['available_supply'] + ","
 
             if entry['last_updated'] is None:
                 insertquery += 'NULL'
