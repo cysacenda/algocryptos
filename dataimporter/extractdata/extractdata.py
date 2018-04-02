@@ -514,11 +514,12 @@ def __get_histo_ohlcv_for_pair(dict_dates_volumes, symbol_from, symbol_to, lastd
             limit = 1
 
     data = cryptocomp.get_histo_hour_pair(symbol_from, symbol_to, limit)
-    for key in data:
-        if int(key['time']) in dict_dates_volumes.keys():
-            dict_dates_volumes[int(key['time'])] += key['volumefrom']
-        else:
-            dict_dates_volumes[int(key['time'])] = key['volumefrom']
+    if data is not None:
+        for key in data:
+            if int(key['time']) in dict_dates_volumes.keys():
+                dict_dates_volumes[int(key['time'])] += key['volumefrom']
+            else:
+                dict_dates_volumes[int(key['time'])] = key['volumefrom']
 
 def __create_query_histo_ohlc(coin_id, data, dict_dates_volumes):
     insertquery = ''

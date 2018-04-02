@@ -26,6 +26,9 @@ def generate_prices_volumes_images():
     squery += 'where timestamp > CURRENT_TIMESTAMP - interval \'7 days\''
     df = psql.read_sql_query(squery, connection)
 
+    # mandatory when different timezones in database (column not recognized as datetime)
+    df['timestamp'] = pd.to_datetime(df.timestamp, utc=True)
+
     # set index on column timestamp
     df.set_index('timestamp', inplace = True)
 
@@ -33,7 +36,7 @@ def generate_prices_volumes_images():
     df2 = df.replace(0, pd.np.nan).dropna(axis=0, thresh=2).fillna(0).astype(float)
 
     # group by crypto
-    df2 = df.groupby('id_cryptocompare')
+    df2 = df2.groupby('id_cryptocompare')
 
     # change scale to have more clear charts
     df3 = df2.resample('4H').agg({'close_price': np.mean, 'volume_aggregated': np.sum}).interpolate()
@@ -47,7 +50,7 @@ def generate_prices_volumes_images():
     for name, dfgroup in df3:
         try:
             fig = plt.figure()
-            dfgroup.close.plot(legend=False, color='red', linewidth=5).axis('off')
+            dfgroup.close_price.plot(legend=False, color='red', linewidth=5).axis('off')
             dfgroup.volume_aggregated.plot(secondary_y=True, style='grey', linestyle='-', linewidth=2).axis('off')
             fig.set_size_inches(5, 1.2)
             plt.subplots_adjust(left=0, right=1, top=1, bottom=0)

@@ -109,3 +109,54 @@ ALTER TABLE public.social_google_trend RENAME COLUMN "IdCryptoCompare" TO id_cry
 -------------
 
 ALTER TABLE public.prices ADD COLUMN available_supply double precision;
+
+
+---------------
+
+-- Table: public.kpi_global_data
+
+-- DROP TABLE public.kpi_global_data;
+
+CREATE TABLE public.kpi_global_data
+(
+    global_market_cap_24h_pctchange double precision,
+    timestamp timestamp with time zone
+)
+WITH (
+    OIDS = FALSE
+)
+TABLESPACE pg_default;
+
+ALTER TABLE public.kpi_global_data
+    OWNER to postgres;
+
+GRANT ALL ON TABLE public.kpi_global_data TO dbuser;
+GRANT ALL ON TABLE public.kpi_global_data TO postgres;
+
+COMMENT ON TABLE public.kpi_global_data
+    IS 'Contains calculated kpi on global data.';
+
+
+
+-- Table: public.kpi_global_data_histo
+
+-- DROP TABLE public.kpi_global_data_histo;
+
+CREATE TABLE public.kpi_global_data_histo
+(
+    global_market_cap_24h_pctchange double precision,
+    timestamp timestamp with time zone
+)
+WITH (
+    OIDS = FALSE
+)
+TABLESPACE pg_default;
+
+ALTER TABLE public.kpi_global_data_histo
+    OWNER to postgres;
+
+GRANT ALL ON TABLE public.kpi_global_data_histo TO dbuser;
+GRANT ALL ON TABLE public.kpi_global_data_histo TO postgres;
+
+COMMENT ON TABLE public.kpi_global_data_histo
+    IS 'Contains calculated kpi on global data (historical table).';
