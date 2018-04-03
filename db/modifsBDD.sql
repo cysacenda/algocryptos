@@ -160,3 +160,7 @@ GRANT ALL ON TABLE public.kpi_global_data_histo TO postgres;
 
 COMMENT ON TABLE public.kpi_global_data_histo
     IS 'Contains calculated kpi on global data (historical table).';
+
+------------
+
+INSERT INTO public.excluded_coins(id_cryptocompare) VALUES (731516); -- PXS, fout la merde

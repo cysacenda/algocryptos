@@ -1,5 +1,6 @@
 -- Excluded coins
 INSERT INTO public.excluded_coins(id_cryptocompare) VALUES (542140); --MED, inactive
+INSERT INTO public.excluded_coins(id_cryptocompare) VALUES (731516); -- PXS, fout la merde
 
 
 -- Manual reddit lookup

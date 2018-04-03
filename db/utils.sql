@@ -82,3 +82,50 @@ INNER JOIN coins co ON si.id_cryptocompare = co.id_cryptocompare
 LEFT JOIN social_infos_manual sim ON sim.id_cryptocompare = co.id_cryptocompare
 WHERE si."Reddit_name" IS NULL AND sim."Reddit_name" IS NULL;
 --WHERE co."Symbol" LIKE 'SALT';
+
+
+
+------ compare histo_ohlcv between two hours to find bugs
+
+select sum(hi.close_price * hi.volume_aggregated) as global_volume_usd_1h, sum(hi.close_price * pr.available_supply) as global_market_cap_usd, hi.timestamp
+from histo_ohlcv hi
+left outer join prices pr on (pr.id_cryptocompare = hi.id_cryptocompare)
+where timestamp > CURRENT_TIMESTAMP - interval '30 days'
+group by timestamp
+order by timestamp
+
+--Diff market cap en % pour identifier trucs bizarre
+select t1.id_cryptocompare, t1.close_price, t2.close_price, t1.close_price - t2.close_price as diff
+from
+    (select id_cryptocompare, close_price, volume_aggregated from histo_ohlcv where timestamp = '2018-03-07 12:00:00+01') t1
+left join
+    (select id_cryptocompare, close_price, volume_aggregated from histo_ohlcv where timestamp = '2018-03-07 13:00:00+01') t2
+on
+    t1.id_cryptocompare = t2.id_cryptocompare
+order by diff desc
+
+select * from histo_ohlcv where id_cryptocompare = 327500
+
+-- 50mds market cap ! chelou - mauvais prix cryptocompare
+select * from histo_ohlcv where id_cryptocompare = 731516 order by timestamp
+
+
+-- Diff en market cap en Mds, pour identifier anomalies
+select t1.id_cryptocompare, t1.global_market_cap_usd, t2.global_market_cap_usd, (t1.global_market_cap_usd - t2.global_market_cap_usd) / 1000000000 as diffmds
+from
+    (select hi.id_cryptocompare, sum(hi.close_price * hi.volume_aggregated) as global_volume_usd_1h, sum(hi.close_price * pr.available_supply) as global_market_cap_usd, hi.timestamp
+from histo_ohlcv hi
+left outer join prices pr on (pr.id_cryptocompare = hi.id_cryptocompare)
+where hi.timestamp = '2018-04-03 11:00:00+02'
+group by timestamp, hi.id_cryptocompare
+order by timestamp) t1
+left join
+    (select hi.id_cryptocompare, sum(hi.close_price * hi.volume_aggregated) as global_volume_usd_1h, sum(hi.close_price * pr.available_supply) as global_market_cap_usd, hi.timestamp
+from histo_ohlcv hi
+left outer join prices pr on (pr.id_cryptocompare = hi.id_cryptocompare)
+where hi.timestamp = '2018-04-03 12:00:00+02'
+group by timestamp, hi.id_cryptocompare
+order by timestamp) t2
+on
+    t1.id_cryptocompare = t2.id_cryptocompare
+order by diffmds desc
