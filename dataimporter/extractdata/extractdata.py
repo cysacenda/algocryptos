@@ -81,7 +81,7 @@ def __create_query_prices():
 
     insertquery = 'INSERT INTO public.prices (symbol, crypto_name, crypto_rank, price_usd, price_btc, ' \
                   'volume_usd_24h, market_cap_usd, percent_change_1h, percent_change_24h, ' \
-                  'percent_change_7d, last_updated)\n'
+                  'percent_change_7d, available_supply, last_updated)\n'
     insertquery += 'VALUES \n('
 
     for entry in data:
@@ -127,6 +127,11 @@ def __create_query_prices():
                 insertquery += 'NULL' + ","
             else:
                 insertquery += entry['percent_change_7d'] + ","
+
+            if entry['available_supply'] is None:
+                insertquery += 'NULL' + ","
+            else:
+                insertquery += entry['available_supply'] + ","
 
             if entry['last_updated'] is None:
                 insertquery += 'NULL'
@@ -507,11 +512,12 @@ def __get_histo_ohlcv_for_pair(dict_dates_volumes, symbol_from, symbol_to, lastd
             limit = 1
 
     data = cryptocomp.get_histo_hour_pair(symbol_from, symbol_to, limit)
-    for key in data:
-        if int(key['time']) in dict_dates_volumes.keys():
-            dict_dates_volumes[int(key['time'])] += key['volumefrom']
-        else:
-            dict_dates_volumes[int(key['time'])] = key['volumefrom']
+    if data is not None:
+        for key in data:
+            if int(key['time']) in dict_dates_volumes.keys():
+                dict_dates_volumes[int(key['time'])] += key['volumefrom']
+            else:
+                dict_dates_volumes[int(key['time'])] = key['volumefrom']
 
 def __create_query_histo_ohlc(coin_id, data, dict_dates_volumes):
     insertquery = ''

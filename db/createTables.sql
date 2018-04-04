@@ -45,6 +45,7 @@ CREATE TABLE public.prices
     percent_change_1h double precision,
     percent_change_24h double precision,
     percent_change_7d double precision,
+    available_supply double precision,
     last_updated timestamp with time zone
     -- CONSTRAINT prices_pkey PRIMARY KEY (Symbol)
 )
@@ -615,31 +616,50 @@ COMMENT ON TABLE public.social_google_trend
     IS 'Contains data from google trend per cryptocurrency';
 
 
--- Table: public.social_google_trend
-ALTER TABLE public.social_google_trend RENAME COLUMN "IdCryptoCompare" TO id_cryptocompare;
+-- Table: public.kpi_global_data
 
+-- DROP TABLE public.kpi_global_data;
 
-
--- Table: public.kpi_googletrend
-
--- DROP TABLE public.kpi_googletrend;
-CREATE TABLE public.kpi_googletrend
+CREATE TABLE public.kpi_global_data
 (
-    id_cryptocompare bigint,
-    search_1d_trend double precision,
-    search_3d_trend double precision,
-    search_7d_trend double precision,
-    search_15d_trend double precision,
-    search_1m_trend double precision,
-    timestamp timestamp with time zone default current_timestamp
+    global_market_cap_24h_pctchange double precision,
+    timestamp timestamp with time zone
 )
 WITH (
     OIDS = FALSE
 )
 TABLESPACE pg_default;
 
-ALTER TABLE public.kpi_googletrend
+ALTER TABLE public.kpi_global_data
     OWNER to postgres;
 
-GRANT ALL ON TABLE public.kpi_googletrend TO dbuser;
-GRANT ALL ON TABLE public.kpi_googletrend TO postgres;
+GRANT ALL ON TABLE public.kpi_global_data TO dbuser;
+GRANT ALL ON TABLE public.kpi_global_data TO postgres;
+
+COMMENT ON TABLE public.kpi_global_data
+    IS 'Contains calculated kpi on global data.';
+
+
+
+-- Table: public.kpi_global_data_histo
+
+-- DROP TABLE public.kpi_global_data_histo;
+
+CREATE TABLE public.kpi_global_data_histo
+(
+    global_market_cap_24h_pctchange double precision,
+    timestamp timestamp with time zone
+)
+WITH (
+    OIDS = FALSE
+)
+TABLESPACE pg_default;
+
+ALTER TABLE public.kpi_global_data_histo
+    OWNER to postgres;
+
+GRANT ALL ON TABLE public.kpi_global_data_histo TO dbuser;
+GRANT ALL ON TABLE public.kpi_global_data_histo TO postgres;
+
+COMMENT ON TABLE public.kpi_global_data_histo
+    IS 'Contains calculated kpi on global data (historical table).';

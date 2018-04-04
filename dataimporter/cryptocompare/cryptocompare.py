@@ -49,34 +49,36 @@ class CryptoCompare:
     def get_socialstats(self, coin_id):
         return self.query_cryptocompare(self.URL_SOCIAL_STATS.format(coin_id))['Data']
 
-    @rate_limited(10, 1)
+    @rate_limited(5, 1)
     def get_trading_pairs(self, symbol, max_trading_pairs):
         url = self.URL_TRADING_PAIRS.format(symbol, max_trading_pairs)
         data = self.query_cryptocompare(url)
         return self.__get_data_manage_errors(data, url)
 
-    @rate_limited(10, 1)
+    @rate_limited(5, 1)
     def get_histo_hour_pair(self, symbol1, symbol2, limit):
         url = self.URL_HISTO_HOUR_PAIR.format(symbol1, symbol2, limit)
         data = self.query_cryptocompare(url)
         return self.__get_data_manage_errors(data, url)
 
-    @rate_limited(10, 1)
+    @rate_limited(7, 1)
     def get_histo_day_pair(self, symbol1):
         url = self.URL_HISTO_DAY_PAIR.format(symbol1, self.CURR, 2000)
         data = self.query_cryptocompare(url, False, False)
         return data.content
 
     def __get_data_manage_errors(self, data, url):
-        if data is not None:
-            if 'Data' not in data.keys():
-                time.sleep(1)
-                data = self.query_cryptocompare(url)
-            if 'Data' not in data.keys():
-                return None
-            return data['Data']
-        else:
+        if data is None:
+            time.sleep(10)
+            data = self.query_cryptocompare(url)
+        if data is None:
             return None
+        if 'Data' not in data.keys():
+            time.sleep(5)
+            data = self.query_cryptocompare(url)
+        if 'Data' not in data.keys():
+            return None
+        return data['Data']
 
     # endregion
 
