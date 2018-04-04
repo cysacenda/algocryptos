@@ -54,11 +54,11 @@ def generate_prices_volumes_images():
             dfgroup.volume_aggregated.plot(secondary_y=True, style='grey', linestyle='-', linewidth=2).axis('off')
             fig.set_size_inches(5, 1.2)
             plt.subplots_adjust(left=0, right=1, top=1, bottom=0)
-            plt.savefig(local_images_path + utils.get_slash_for_system() + str(name) + ".png", dpi=30, transparent=True)
+            plt.savefig(local_images_path + utils.get_slash_for_system() + str(int(name)) + ".png", dpi=30, transparent=True)
             plt.close('all')
         except Exception as e:
             error_count += 1
-            logging.warning('Can''t generate image for crypto :' + str(name) + ' - ' + str(e))
+            logging.warning('Can''t generate image for crypto :' + str(int(name)) + ' - ' + str(e))
 
     # There can be some error for some crypto, but if too much erros => process in error
     if error_count > 20:
