@@ -615,3 +615,31 @@ COMMENT ON TABLE public.social_google_trend
     IS 'Contains data from google trend per cryptocurrency';
 
 
+-- Table: public.social_google_trend
+ALTER TABLE public.social_google_trend RENAME COLUMN "IdCryptoCompare" TO id_cryptocompare;
+
+
+
+-- Table: public.kpi_googletrend
+
+-- DROP TABLE public.kpi_googletrend;
+CREATE TABLE public.kpi_googletrend
+(
+    id_cryptocompare bigint,
+    search_1d_trend double precision,
+    search_3d_trend double precision,
+    search_7d_trend double precision,
+    search_15d_trend double precision,
+    search_1m_trend double precision,
+    timestamp timestamp with time zone default current_timestamp
+)
+WITH (
+    OIDS = FALSE
+)
+TABLESPACE pg_default;
+
+ALTER TABLE public.kpi_googletrend
+    OWNER to postgres;
+
+GRANT ALL ON TABLE public.kpi_googletrend TO dbuser;
+GRANT ALL ON TABLE public.kpi_googletrend TO postgres;

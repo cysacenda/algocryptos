@@ -1,5 +1,4 @@
 from random import randint
-
 from commons.dbaccess import DbConnection
 from cryptocompare.cryptocompare import CryptoCompare
 from coinmarketcap.coinmarketcap import CoinMarketCap
@@ -21,7 +20,6 @@ from matplot import matplot
 
 conf = Config()
 MINIMUM_MARKET_CAP_USD = conf.get_config('market_params', 'minimum_market_cap_usd')
-
 
 # region Coins list
 
@@ -673,11 +671,11 @@ def extract_google_trend_info():
             #Get info from google trend
             tentative += 1
             logging.warning('Tentative number :' + str(tentative))
-            # wait a random amount of time every 10 call to google to avoid bot detection
+            # wait a random amount of time to avoid bot detection
             if (tentative % 10 == 0):
                 #break
-                logging.error('Waiting ...')
-                time.sleep(randint(2, 5))
+                logging.warning('Waiting ...')
+                time.sleep(randint(5,15))
             df_to_db = get_info_google_trend(pytrends, df_to_db, standard, coin_row)
             count += 1
             logging.warning('Number of coins done :' + str(count))

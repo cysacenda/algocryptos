@@ -1,5 +1,7 @@
 import datetime
 import logging
+
+from kpi_googletrend import calcul_googletrend_kpi
 from kpi_reddit import calcul_reddit_kpi
 from kpi_market import calcul_volumes_kpi
 import argparse
@@ -31,6 +33,8 @@ try:
                             action='store_true')
         parser.add_argument('-v', '--volumes', dest="volumes", help='Calcul KPIs related to market volumes',
                             action='store_true')
+        parser.add_argument('-gt', '--googletrend', dest="googletrend", help='Calcul KPIs for googletrend',
+                            action='store_true')
         args = parser.parse_args()
 
         if args.reddit:
@@ -38,6 +42,9 @@ try:
 
         if args.volumes:
             calcul_volumes_kpi.calcul_kpi_volumes_trend()
+
+        if args.googletrend:
+            calcul_googletrend_kpi.calcul_kpi_googletrend()
 except Exception as e:
     procM.setIsError()
     logging.error('Uncatched error :' + str(e))

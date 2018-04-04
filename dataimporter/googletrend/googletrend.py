@@ -1,8 +1,8 @@
 from ratelimit import rate_limited
-
 from commons.config import Config
 from commons.utils import utils
 import logging
+import time
 import pandas.io.sql as psql
 import pandas as pd
 from datetime import datetime, timedelta, date
@@ -10,9 +10,9 @@ from sqlalchemy import create_engine
 import pandas.io.sql as psql
 import pandas as pd
 import numpy as np
-from datetime import datetime, timedelta, date
 from sqlalchemy import create_engine
 from pytrends.request import TrendReq
+from random import randint
 
 @rate_limited(5, 1)
 def get_info_google_trend(pytrends, df_to_db, standard, coin_row):
@@ -25,6 +25,8 @@ def get_info_google_trend(pytrends, df_to_db, standard, coin_row):
     logging.warning("__get_info_google_trend start for coin " + project)
 
     # Compare symbol and project name
+    # wait a random amount of time to avoid bot detection
+    time.sleep(randint(3, 8))
     pytrends.build_payload([project, symbol], cat=0, timeframe='today 1-m', geo='', gprop='')
 
     # Keep the most significant
@@ -47,6 +49,8 @@ def get_info_google_trend(pytrends, df_to_db, standard, coin_row):
     df_result_coin.columns = ['value_standalone']
 
     # Result vs Standard
+    # wait a random amount of time to avoid bot detection
+    time.sleep(randint(8, 13))
     pytrends.build_payload([significant, standard], cat=0, timeframe='today 1-m', geo='', gprop='')
     df_google_trend_compared = pytrends.interest_over_time()
     df_google_trend_compared = df_google_trend_compared[[significant]]

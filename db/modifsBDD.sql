@@ -105,3 +105,25 @@ ALTER TABLE public.process_description RENAME COLUMN "Description" TO descriptio
 
 -- Table: public.social_google_trend
 ALTER TABLE public.social_google_trend RENAME COLUMN "IdCryptoCompare" TO id_cryptocompare;
+
+-- Create table for googletrend kpi
+CREATE TABLE public.kpi_googletrend
+(
+    id_cryptocompare bigint,
+    search_1d_trend double precision,
+    search_3d_trend double precision,
+    search_7d_trend double precision,
+    search_15d_trend double precision,
+    search_1m_trend double precision,
+    timestamp timestamp with time zone default current_timestamp
+)
+WITH (
+    OIDS = FALSE
+)
+TABLESPACE pg_default;
+
+ALTER TABLE public.kpi_googletrend
+    OWNER to postgres;
+
+GRANT ALL ON TABLE public.kpi_googletrend TO dbuser;
+GRANT ALL ON TABLE public.kpi_googletrend TO postgres;
