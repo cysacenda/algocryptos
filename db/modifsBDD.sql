@@ -1,1 +1,1 @@
--- lol toog
+select * from excluded_coins;
