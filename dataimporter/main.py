@@ -133,6 +133,8 @@ try:
             extractdata.extract_reddit_data()
             extractdata.extract_histo_ohlcv()
             extractdata.extract_lower_higher_prices()
+            extractdata.generate_images_prices_volumes()
+            extractdata.extract_google_trend_info()
 
 except Exception as e:
     procM.setIsError()

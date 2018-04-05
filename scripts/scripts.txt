@@ -8,9 +8,11 @@ PYTHONPATH=$PYTHONPATH:/home/ec2-user/prod/algocryptos_scripts/
 4       1        *       *       *       /home/ec2-user/prod/algocryptos_scripts/venv/bin/python /home/ec2-user/prod/algocryptos_scripts/dataimporter/main.py -ath
 15      1        *       *       *       /home/ec2-user/prod/algocryptos_scripts/venv/bin/python /home/ec2-user/prod/algocryptos_scripts/dataimporter/main.py -s
 34      1        *       *       *       /home/ec2-user/prod/algocryptos_scripts/venv/bin/python /home/ec2-user/prod/algocryptos_scripts/dataimporter/main.py -r
+47      1        *       *       *       /home/ec2-user/prod/algocryptos_scripts/venv/bin/python /home/ec2-user/prod/algocryptos_scripts/dataimporter/main.py -gt
 3       0,2-23/1 *       *       *       /home/ec2-user/prod/algocryptos_scripts/venv/bin/python /home/ec2-user/prod/algocryptos_scripts/dataimporter/main.py -o
 15      0,2-23/1 *       *       *       /home/ec2-user/prod/algocryptos_scripts/venv/bin/python /home/ec2-user/prod/algocryptos_scripts/dataimporter/main.py -img
 1-59/5  0,2-23   *       *       *       /home/ec2-user/prod/algocryptos_scripts/venv/bin/python /home/ec2-user/prod/algocryptos_scripts/dataimporter/main.py -cpd
 
 45      1        *       *       *       /home/ec2-user/prod/algocryptos_scripts/venv/bin/python /home/ec2-user/prod/algocryptos_scripts/algokpi/main.py -r
 21      0,2-23/1 *       *       *       /home/ec2-user/prod/algocryptos_scripts/venv/bin/python /home/ec2-user/prod/algocryptos_scripts/algokpi/main.py -v
+6       3        *       *       *       /home/ec2-user/prod/algocryptos_scripts/venv/bin/python /home/ec2-user/prod/algocryptos_scripts/algokpi/main.py -gt
