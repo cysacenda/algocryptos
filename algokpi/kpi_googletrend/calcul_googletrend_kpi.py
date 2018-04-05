@@ -5,9 +5,9 @@ import pandas.io.sql as psql
 import pandas as pd
 from datetime import datetime, timedelta, date
 from sqlalchemy import create_engine
+import pytz
 
 conf = Config()
-
 
 # region Subscribers
 
@@ -17,7 +17,7 @@ def calcul_kpi_googletrend():
     connection = create_engine(utils.get_connection_string())
 
     # get data with query
-    squery = 'select "id_cryptocompare" as "IdCryptoCompare", so."value_standalone", so."timestamp" from social_google_trend so;'
+    squery = 'select "id_cryptocompare" as "id_cryptocompare", so."value_standalone", so."timestamp" from social_google_trend so;'
 
     df = psql.read_sql_query(squery, connection)
 
@@ -25,11 +25,13 @@ def calcul_kpi_googletrend():
     df.set_index('timestamp', 'id_cryptocompare', inplace=True)
 
     # group by crypto
-    df2 = df.groupby('IdCryptoCompare').last()
+    df2 = df.groupby('id_cryptocompare').last()
     dftoday = df2
 
     # today's date
+    utc = pytz.UTC
     date_after = datetime.combine(date.today(), datetime.min.time())
+    date_after = utc.localize(date_after)
 
     # array of periods on which we want to calculate kpis
     arr = [1, 3, 7, 15, 100]
@@ -40,10 +42,10 @@ def calcul_kpi_googletrend():
 
         # IF elt = 100, take the oldest (no need for truncate)
         if (elt == 100):
-            df_tmp = df_tmp.groupby('IdCryptoCompare').first()
+            df_tmp = df_tmp.groupby('id_cryptocompare').first()
         else:
             # truncate dataframe to get data on a specific period
-            df_tmp = df_tmp.truncate(before=date_before, after=date_after).groupby('IdCryptoCompare').first()
+            df_tmp = df_tmp.truncate(before=date_before, after=date_after).groupby('id_cryptocompare').first()
 
         # rename column to avoid problem
         df_tmp.columns = ['col_standalone_' + str(elt)]
