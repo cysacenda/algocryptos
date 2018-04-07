@@ -35,6 +35,9 @@ try:
                             action='store_true')
         parser.add_argument('-gt', '--googletrend', dest="googletrend", help='Calcul KPIs for googletrend',
                             action='store_true')
+        parser.add_argument('-g', '--global', dest="global_data", help='Calcul KPIs related to global data',
+                            action='store_true')
+
         args = parser.parse_args()
 
         if args.reddit:
@@ -45,6 +48,10 @@ try:
 
         if args.googletrend:
             calcul_googletrend_kpi.calcul_kpi_googletrend()
+
+        if args.global_data:
+            calcul_volumes_kpi.calcul_kpi_volumes_trend_global()
+
 except Exception as e:
     procM.setIsError()
     logging.error('Uncatched error :' + str(e))

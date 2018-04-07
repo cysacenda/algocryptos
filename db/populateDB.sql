@@ -261,7 +261,8 @@ insert into process_description (process_name, description) values ('DataImporte
 insert into process_description (process_name, description) values ('DataImporter -ath', 'Update higher & lower for each cryptocurrency');
 insert into process_description (process_name, description) values ('AlgoKPI -v', 'Calcul kpi related to volumes');
 insert into process_description (process_name, description) values ('AlgoKPI -r', 'Calcul kpi related to reddit subscribers');
-
-
+insert into process_description (process_name, description) values ('DataImporter -gt', 'Update data related to Google Trend');
+insert into process_description (process_name, description) values ('AlgoKPI -gt', 'Calcul kpi related to Google Trend');
+insert into process_description (process_name, description) values ('AlgoKPI -g', 'Calcul kpi related to global data');
 
 

@@ -16,3 +16,4 @@ PYTHONPATH=$PYTHONPATH:/home/ec2-user/prod/algocryptos_scripts/
 45      1        *       *       *       /home/ec2-user/prod/algocryptos_scripts/venv/bin/python /home/ec2-user/prod/algocryptos_scripts/algokpi/main.py -r
 27      0,2-23/1 *       *       *       /home/ec2-user/prod/algocryptos_scripts/venv/bin/python /home/ec2-user/prod/algocryptos_scripts/algokpi/main.py -v
 6       3        *       *       *       /home/ec2-user/prod/algocryptos_scripts/venv/bin/python /home/ec2-user/prod/algocryptos_scripts/algokpi/main.py -gt
+17      0,2-23/1 *       *       *       /home/ec2-user/prod/algocryptos_scripts/venv/bin/python /home/ec2-user/prod/algocryptos_scripts/algokpi/main.py -g

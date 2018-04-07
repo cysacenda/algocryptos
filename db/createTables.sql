@@ -615,7 +615,6 @@ GRANT ALL ON TABLE public.social_google_trend TO postgres;
 COMMENT ON TABLE public.social_google_trend
     IS 'Contains data from google trend per cryptocurrency';
 
-
 -- Table: public.kpi_global_data
 
 -- DROP TABLE public.kpi_global_data;
@@ -663,6 +662,69 @@ GRANT ALL ON TABLE public.kpi_global_data_histo TO postgres;
 
 COMMENT ON TABLE public.kpi_global_data_histo
     IS 'Contains calculated kpi on global data (historical table).';
+
+
+
+
+-- Table: public.kpi_global_data_volumes
+
+-- DROP TABLE public.kpi_global_data_volumes;
+
+CREATE TABLE public.kpi_global_data_volumes
+(
+    volume_mean_last_1h_vs_30d double precision,
+    volume_mean_last_3h_30d double precision,
+    volume_mean_last_6h_30d double precision,
+    volume_mean_last_12h_30d double precision,
+    volume_mean_last_24h_30d double precision,
+    volume_mean_last_3d_30d double precision,
+    volume_mean_last_7d_30d double precision,
+    timestamp timestamp with time zone default current_timestamp
+)
+WITH (
+    OIDS = FALSE
+)
+TABLESPACE pg_default;
+
+ALTER TABLE public.kpi_global_data_volumes
+    OWNER to postgres;
+
+GRANT ALL ON TABLE public.kpi_global_data_volumes TO dbuser;
+GRANT ALL ON TABLE public.kpi_global_data_volumes TO postgres;
+
+COMMENT ON TABLE public.kpi_global_data_volumes
+    IS 'Contains calculated kpi on global data volumes.';
+
+
+
+-- Table: public.kpi_global_data_volumes_histo
+
+-- DROP TABLE public.kpi_global_data_volumes_histo;
+
+CREATE TABLE public.kpi_global_data_volumes_histo
+(
+    volume_mean_last_1h_vs_30d double precision,
+    volume_mean_last_3h_30d double precision,
+    volume_mean_last_6h_30d double precision,
+    volume_mean_last_12h_30d double precision,
+    volume_mean_last_24h_30d double precision,
+    volume_mean_last_3d_30d double precision,
+    volume_mean_last_7d_30d double precision,
+    timestamp timestamp with time zone default current_timestamp
+)
+WITH (
+    OIDS = FALSE
+)
+TABLESPACE pg_default;
+
+ALTER TABLE public.kpi_global_data_volumes_histo
+    OWNER to postgres;
+
+GRANT ALL ON TABLE public.kpi_global_data_volumes_histo TO dbuser;
+GRANT ALL ON TABLE public.kpi_global_data_volumes_histo TO postgres;
+
+COMMENT ON TABLE public.kpi_global_data_volumes_histo
+    IS 'Contains calculated kpi on global data volumes (historical table).';
 
 
 
