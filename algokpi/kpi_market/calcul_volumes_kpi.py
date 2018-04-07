@@ -6,6 +6,8 @@ import pandas as pd
 from sqlalchemy import create_engine
 from datetime import datetime, timedelta, date
 import numpy as np
+import matplotlib
+matplotlib.use('Agg') # Set matplotlib use in backend mode
 import matplotlib.pyplot as plt
 from pytz import timezone
 
