@@ -49,16 +49,18 @@ class ProcessManager:
                 if self.__should_be_waiting(process_id, concatname):
                     self.__insert_process(process_id, concatname, self.WAITING)
                 else:
-                    logging.error("start_process - blocking processes running : " + concatname)
+                    logging.error("start_process - blocking processes running and should not wait : " + concatname)
+                    self.setIsError()
                     return False
 
             # Try n retries before stopping current process
             if retry_count < int(self.conf.get_config('process_params', 'max_nb_retries')):
-                logging.error("start_process - process placed in queue : " + concatname)
+                logging.warning("start_process - process placed in queue : " + concatname)
                 time.sleep(int(self.conf.get_config('process_params', 'waiting_time_for_retry')))
                 return self.start_process(process_id, name, args, retry_count + 1)
             else:
                 logging.error("start_process - blocking processes running : " + concatname)
+                self.setIsError()
                 self.stop_process(process_id, name, args, self.WAITING)
                 return False
         else:
