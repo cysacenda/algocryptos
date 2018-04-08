@@ -65,6 +65,9 @@ def calcul_kpi_googletrend():
     # insert data into database (last kpis table)
     dftoday.to_sql(name='kpi_googletrend', con=connection, if_exists='append', index=True)
 
+    # insert data into database (table with historical data)
+    connection.execute('insert into kpi_googletrend_histo select * from kpi_googletrend')
+
     logging.warning("calcul_kpi_googletrend - end")
 
 # endregion
