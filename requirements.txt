@@ -21,6 +21,8 @@ ratelimit==1.4.1
 requests==2.18.4
 s3transfer==0.1.13
 six==1.11.0
+slackclient==1.2.1
 SQLAlchemy==1.2.4
 tzlocal==1.5.1
 urllib3==1.22
+websocket-client==0.47.0
