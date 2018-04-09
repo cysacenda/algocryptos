@@ -44,6 +44,7 @@ class ProcessManager:
         rows = self.dbconn.get_query_result('Select * from process_params where (process_id IN (' + str(
             blockingprocesses) + ') and status = ' + "'" + self.RUNNING + "')" + 'OR(process_name = \'' + concatname + "')")
         if rows is not None and len(rows) > 0:
+            logging.warning('Blocking info : ' + str(rows))
             # Check if process should be placed in Waiting
             if retry_count == 0:
                 if self.__should_be_waiting(process_id, concatname):
