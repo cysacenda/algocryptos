@@ -1,5 +1,6 @@
 import datetime
 import logging
+from slack import slack
 
 from kpi_googletrend import calcul_googletrend_kpi
 from kpi_reddit import calcul_reddit_kpi
@@ -19,6 +20,8 @@ procM = ProcessManager()
 today = datetime.datetime.now().strftime("%Y-%m-%d")
 logging.basicConfig(filename='algokpi_' + today + '.log',
                     format=conf.get_config('log_params', 'log_format'))
+
+#slack.post_message_to_bot_alert('lol Steven')
 
 # If process can't start because other processes running
 IdCurrentProcess = conf.get_config('process_params', 'algokpi_process_id')
