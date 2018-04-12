@@ -776,3 +776,50 @@ ALTER TABLE public.kpi_googletrend_histo
 
 GRANT ALL ON TABLE public.kpi_googletrend_histo TO dbuser;
 GRANT ALL ON TABLE public.kpi_googletrend_histo TO postgres;
+
+
+
+
+-- Table: public.alerts
+
+-- DROP TABLE public.alerts;
+CREATE TABLE public.alerts
+(
+    id_cryptocompare bigint,
+    id_alert_type integer,
+    val1_double double precision,
+    val2_double double precision,
+    timestamp timestamp with time zone default current_timestamp
+)
+WITH (
+    OIDS = FALSE
+)
+TABLESPACE pg_default;
+
+ALTER TABLE public.alerts
+    OWNER to postgres;
+
+GRANT ALL ON TABLE public.alerts TO dbuser;
+GRANT ALL ON TABLE public.alerts TO postgres;
+
+
+-- Table: public.alerts
+
+-- DROP TABLE public.alerts;
+CREATE TABLE public.alert_type
+(
+    id_alert_type integer,
+    trigger_time time with time zone, -- useful ?
+    trigger_period varchar(20), -- useful ?
+    description text
+)
+WITH (
+    OIDS = FALSE
+)
+TABLESPACE pg_default;
+
+ALTER TABLE public.alerts
+    OWNER to postgres;
+
+GRANT ALL ON TABLE public.alerts TO dbuser;
+GRANT ALL ON TABLE public.alerts TO postgres;
