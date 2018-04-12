@@ -42,7 +42,7 @@ class ProcessManager:
 
         # Check if blocking processes are running (SQL perspective, not linux processes - should be equivalent btw)
         rows = self.dbconn.get_query_result('Select * from process_params where (process_id IN (' + str(
-            blockingprocesses) + ') and status = ' + "'" + self.RUNNING + "')" + 'OR(process_name = \'' + concatname + "')")
+            blockingprocesses) + ') and status = ' + "'" + self.RUNNING + "')" + ' OR(process_name = \'' + concatname + '\' and status = \'' + self.RUNNING + '\')')
         if rows is not None and len(rows) > 0:
             logging.warning('Blocking info : ' + str(rows))
             # Check if process should be placed in Waiting
@@ -50,17 +50,17 @@ class ProcessManager:
                 if self.__should_be_waiting(process_id, concatname):
                     self.__insert_process(process_id, concatname, self.WAITING)
                 else:
-                    logging.error("start_process - blocking processes running and should not wait : " + concatname)
+                    logging.error("START PROCESS - blocking processes running and should not wait : " + concatname)
                     self.setIsError()
                     return False
 
             # Try n retries before stopping current process
             if retry_count < int(self.conf.get_config('process_params', 'max_nb_retries')):
-                logging.warning("start_process - process placed in queue : " + concatname)
+                logging.warning("START PROCESS - process placed in queue : " + concatname)
                 time.sleep(int(self.conf.get_config('process_params', 'waiting_time_for_retry')))
                 return self.start_process(process_id, name, args, retry_count + 1)
             else:
-                logging.error("start_process - blocking processes running : " + concatname)
+                logging.error("START PROCESS - blocking processes running : " + concatname)
                 self.setIsError()
                 self.stop_process(process_id, name, args, self.WAITING)
                 return False
