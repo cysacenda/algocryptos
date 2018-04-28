@@ -266,3 +266,7 @@ insert into process_description (process_name, description) values ('AlgoKPI -gt
 insert into process_description (process_name, description) values ('AlgoKPI -g', 'Calcul kpi related to global data');
 
 
+INSERT INTO public.alert_type(
+	id_alert_type, global_alert, category_type, filter_type,  trigger_period_hour, description)
+	VALUES (1, false, 'price', 'TOP100', '1', '[Crypto Top 100][1h price variation > 10%] #crypto_name# (#crypto_symbol#): #val1_double#%');
+

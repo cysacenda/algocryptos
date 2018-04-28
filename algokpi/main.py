@@ -5,6 +5,7 @@ from slack import slack
 from kpi_googletrend import calcul_googletrend_kpi
 from kpi_reddit import calcul_reddit_kpi
 from kpi_market import calcul_volumes_kpi
+from alerts import generate_alerts
 import argparse
 import sys
 from commons.config import Config
@@ -40,6 +41,8 @@ try:
                             action='store_true')
         parser.add_argument('-g', '--global', dest="global_data", help='Calcul KPIs related to global data',
                             action='store_true')
+        parser.add_argument('-al', '--alerts', dest="alerts", help='Generate alerts and send slack notifications',
+                            action='store_true')
 
         args = parser.parse_args()
 
@@ -54,6 +57,10 @@ try:
 
         if args.global_data:
             calcul_volumes_kpi.calcul_kpi_volumes_trend_global()
+
+        if args.alerts:
+            generate_alerts.generate_alert_price_variation()
+            generate_alerts.create_slack_alerts()
 
 except Exception as e:
     procM.setIsError()

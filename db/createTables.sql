@@ -803,14 +803,16 @@ GRANT ALL ON TABLE public.alerts TO dbuser;
 GRANT ALL ON TABLE public.alerts TO postgres;
 
 
--- Table: public.alerts
+-- Table: public.alert_type
 
--- DROP TABLE public.alerts;
+-- DROP TABLE public.alert_type;
 CREATE TABLE public.alert_type
 (
     id_alert_type integer,
-    trigger_time time with time zone, -- useful ?
-    trigger_period varchar(20), -- useful ?
+    global_alert boolean, --for one crypto FALSE or all cryptos TRUE
+    category_type varchar(20), --price, volume, etc.
+    filter_type varchar(20), --TOP100, ALL, etc.
+    trigger_period_hour integer, -- 1H, 12H, 24H
     description text
 )
 WITH (
@@ -818,8 +820,8 @@ WITH (
 )
 TABLESPACE pg_default;
 
-ALTER TABLE public.alerts
+ALTER TABLE public.alert_type
     OWNER to postgres;
 
-GRANT ALL ON TABLE public.alerts TO dbuser;
-GRANT ALL ON TABLE public.alerts TO postgres;
+GRANT ALL ON TABLE public.alert_type TO dbuser;
+GRANT ALL ON TABLE public.alert_type TO postgres;
