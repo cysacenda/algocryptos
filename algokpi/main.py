@@ -59,7 +59,8 @@ try:
             calcul_volumes_kpi.calcul_kpi_volumes_trend_global()
 
         if args.alerts:
-            generate_alerts.generate_alert_price_variation()
+            generate_alerts.generate_alert_price_variation_1h()
+            generate_alerts.generate_alert_volume_variation_1h30d()
             generate_alerts.create_slack_alerts()
 
 except Exception as e:
