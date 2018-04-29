@@ -1,7 +1,5 @@
 import datetime
 import logging
-from slack import slack
-
 from kpi_googletrend import calcul_googletrend_kpi
 from kpi_reddit import calcul_reddit_kpi
 from kpi_market import calcul_volumes_kpi
