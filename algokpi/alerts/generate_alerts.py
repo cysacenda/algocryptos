@@ -13,7 +13,7 @@ def create_slack_alerts():
     query_select += 'inner join alert_type alt on (al.id_alert_type = alt.id_alert_type)\n'
     query_select += 'left outer join prices pr on (al.id_cryptocompare = pr.id_cryptocompare)\n'
     query_select += 'left outer join prices co on (al.id_cryptocompare = co.id_cryptocompare)\n'
-    query_select += 'where timestamp > CURRENT_TIMESTAMP - interval \'10 minutes\'\n'
+    query_select += 'where timestamp > CURRENT_TIMESTAMP - interval \'5 minutes\'\n'
     query_select += 'order by al.id_alert_type\n'
     rows = dbconn.get_query_result(query_select)
 
