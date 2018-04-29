@@ -1,4 +1,3 @@
-from commons.config import Config
 from commons.utils import utils
 import logging
 import pandas.io.sql as psql
@@ -6,8 +5,6 @@ import pandas as pd
 from datetime import datetime, timedelta, date
 from sqlalchemy import create_engine
 import pytz
-
-conf = Config()
 
 # region Subscribers
 
