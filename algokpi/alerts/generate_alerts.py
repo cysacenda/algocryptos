@@ -47,3 +47,21 @@ def generate_alert_volume_variation_1h30d():
     dbconn.exexute_query(squery)
 
     logging.warning("generate_alert_volume_variation_1h30d - end")
+
+def generate_alert_reddit_subcribers_trend_1d():
+    logging.warning("generate_alert_reddit_subcribers_trend_1d - start")
+    dbconn = DbConnection()
+
+    squery = 'insert into alerts(id_cryptocompare,id_alert_type,val1_double)\n'
+    squery += 'select kps.id_cryptocompare, 3, round(CAST(kps.subscribers_1d_trend * 100 AS numeric), 2) from kpi_reddit_subscribers kps\n'
+    squery += 'inner join social_stats_reddit sor on (kps.id_cryptocompare = sor.id_cryptocompare)\n'
+    squery += 'where (kps.subscribers_1d_trend > 0.004 and sor.reddit_subscribers > 50000)\n'
+    squery += 'or (kps.subscribers_1d_trend > 0.006 and sor.reddit_subscribers > 10000)\n'
+    squery += 'or (kps.subscribers_1d_trend > 0.01 and sor.reddit_subscribers > 5000)\n'
+    squery += 'or (kps.subscribers_1d_trend > 0.015 and sor.reddit_subscribers > 1000)\n'
+    squery += 'or (kps.subscribers_1d_trend > 0.5 and sor.reddit_subscribers > 500)\n'
+    squery += 'or (kps.subscribers_1d_trend > 1 and sor.reddit_subscribers > 100)\n'
+
+    dbconn.exexute_query(squery)
+
+    logging.warning("generate_alert_reddit_subcribers_trend_1d - end")

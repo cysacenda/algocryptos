@@ -39,7 +39,9 @@ try:
                             action='store_true')
         parser.add_argument('-g', '--global', dest="global_data", help='Calcul KPIs related to global data',
                             action='store_true')
-        parser.add_argument('-al', '--alerts', dest="alerts", help='Generate alerts and send slack notifications',
+        parser.add_argument('-al1h', '--alerts1h', dest="alerts1h", help='Generate alerts and send slack notifications (1h period)',
+                            action='store_true')
+        parser.add_argument('-al24h', '--alerts24h', dest="alerts24h", help='Generate alerts and send slack notifications (24h period)',
                             action='store_true')
 
         args = parser.parse_args()
@@ -56,9 +58,13 @@ try:
         if args.global_data:
             calcul_volumes_kpi.calcul_kpi_volumes_trend_global()
 
-        if args.alerts:
+        if args.alerts1h:
             generate_alerts.generate_alert_price_variation_1h()
             generate_alerts.generate_alert_volume_variation_1h30d()
+            generate_alerts.create_slack_alerts()
+
+        if args.alerts24h:
+            generate_alerts.generate_alert_reddit_subcribers_trend_1d()
             generate_alerts.create_slack_alerts()
 
 except Exception as e:
