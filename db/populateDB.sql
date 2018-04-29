@@ -259,6 +259,7 @@ insert into process_description (process_name, description) values ('DataImporte
 insert into process_description (process_name, description) values ('DataImporter -s', 'Update social stats (information relatives to twitter, Reddit linked to one cryptocurrency)');
 insert into process_description (process_name, description) values ('DataImporter -hp', 'Update price historic');
 insert into process_description (process_name, description) values ('DataImporter -ath', 'Update higher & lower for each cryptocurrency');
+insert into process_description (process_name, description) values ('DataImporter -img', 'Generate images and upload to s3');
 insert into process_description (process_name, description) values ('AlgoKPI -v', 'Calcul kpi related to volumes');
 insert into process_description (process_name, description) values ('AlgoKPI -r', 'Calcul kpi related to reddit subscribers');
 insert into process_description (process_name, description) values ('DataImporter -gt', 'Update data related to Google Trend');

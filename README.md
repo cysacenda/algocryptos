@@ -114,7 +114,7 @@ et permettre aux traitements de se lancer correctement
 - Generate server.zip and front.zip and push it on Github in /builds
 - Verify that autodeploy script is updated (if none, git pull)
 - Connect to EC2 and go to path prod/algocryptos_scripts/scripts/
-- Start script on EC2 autodeploy.sh ~/prod
+- Start script on EC2 sh autodeploy.sh ~/prod
 - Back-end only : sh autodeploy.sh -b ~/prod
 - When script ask, enter rsa : algocryptos
 - Check everything is ok
