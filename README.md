@@ -117,4 +117,4 @@ et permettre aux traitements de se lancer correctement
 - Start script on EC2 sh autodeploy.sh ~/prod
 - Back-end only : sh autodeploy.sh -b ~/prod
 - When script ask, enter rsa : algocryptos
-- Check everything is ok
+- Check everything is ok + crontab -e to check that crontab is not empty

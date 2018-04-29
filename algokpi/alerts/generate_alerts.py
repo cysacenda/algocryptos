@@ -7,13 +7,14 @@ def create_slack_alerts():
     # Get coins and associated subreddits id to be retrieved from APIs
     dbconn = DbConnection()
     query_select = 'select\n'
-    query_select += 'replace(replace(replace(replace(alt.description, \'#val1_double#\', CAST(COALESCE(al.val1_double, 0) AS text)), \'#val2_double#\', CAST(COALESCE(al.val2_double, 0) AS text)), \'#crypto_name#\',  pr.crypto_name), \'#crypto_symbol#\', pr.symbol) as description,\n'
+    query_select += 'replace(replace(replace(replace(replace(replace(alt.description, \'#val1_double#\', CAST(COALESCE(al.val1_double, 0) AS text)), \'#val2_double#\', CAST(COALESCE(al.val2_double, 0) AS text)), \'#crypto_name#\',  pr.crypto_name), \'#crypto_symbol#\', pr.symbol), \'#crypto_rank#\', CAST(pr.crypto_rank as text)), \'#val2_double#\', CAST(COALESCE(red.reddit_subscribers, 0) AS text)) as description,\n'
     query_select += 'al.timestamp\n'
     query_select += 'from alerts al\n'
     query_select += 'inner join alert_type alt on (al.id_alert_type = alt.id_alert_type)\n'
     query_select += 'left outer join prices pr on (al.id_cryptocompare = pr.id_cryptocompare)\n'
     query_select += 'left outer join prices co on (al.id_cryptocompare = co.id_cryptocompare)\n'
-    query_select += 'where timestamp > CURRENT_TIMESTAMP - interval \'5 minutes\'\n'
+    query_select += 'left outer join social_stats_reddit red on (al.id_cryptocompare = red.id_cryptocompare)\n'
+    query_select += 'where al.timestamp > CURRENT_TIMESTAMP - interval \'5 minutes\'\n'
     query_select += 'order by al.id_alert_type\n'
     rows = dbconn.get_query_result(query_select)
 
@@ -52,8 +53,8 @@ def generate_alert_reddit_subcribers_trend_1d():
     logging.warning("generate_alert_reddit_subcribers_trend_1d - start")
     dbconn = DbConnection()
 
-    squery = 'insert into alerts(id_cryptocompare,id_alert_type,val1_double)\n'
-    squery += 'select kps.id_cryptocompare, 3, round(CAST(kps.subscribers_1d_trend * 100 AS numeric), 2) from kpi_reddit_subscribers kps\n'
+    squery = 'insert into alerts(id_cryptocompare,id_alert_type,val1_double, val2_double)\n'
+    squery += 'select kps.id_cryptocompare, 3, round(CAST(kps.subscribers_1d_trend * 100 AS numeric), 2), sor.reddit_subscribers from kpi_reddit_subscribers kps\n'
     squery += 'inner join social_stats_reddit sor on (kps.id_cryptocompare = sor.id_cryptocompare)\n'
     squery += 'where (kps.subscribers_1d_trend > 0.004 and sor.reddit_subscribers > 50000)\n'
     squery += 'or (kps.subscribers_1d_trend > 0.006 and sor.reddit_subscribers > 10000)\n'
