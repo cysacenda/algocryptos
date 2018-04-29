@@ -1,12 +1,5 @@
-from commons.config import Config
 from commons.slack import slack
-from commons.utils import utils
 import logging
-import pandas.io.sql as psql
-import pandas as pd
-import numpy as np
-from datetime import datetime, timedelta, date
-from sqlalchemy import create_engine
 from commons.dbaccess import DbConnection
 
 def create_slack_alerts():
