@@ -264,6 +264,7 @@ insert into process_description (process_name, description) values ('AlgoKPI -r'
 insert into process_description (process_name, description) values ('DataImporter -gt', 'Update data related to Google Trend');
 insert into process_description (process_name, description) values ('AlgoKPI -gt', 'Calcul kpi related to Google Trend');
 insert into process_description (process_name, description) values ('AlgoKPI -g', 'Calcul kpi related to global data');
+insert into process_description (process_name, description) values ('AlgoKPI -al', 'Generate alerts');
 
 
 INSERT INTO public.alert_type(
