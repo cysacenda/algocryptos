@@ -1,6 +1,4 @@
 from commons.config import Config
-import logging
-import os
 from slackclient import SlackClient
 
 conf = Config()

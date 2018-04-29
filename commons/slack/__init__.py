@@ -1,1 +1,1 @@
-from slack import *
+from .slack import *
