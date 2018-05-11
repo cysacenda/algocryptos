@@ -390,7 +390,9 @@ def extract_reddit_data():
         # region Recuperation temps reel a maintenant (reddit.com => about.json)
 
         req = __create_query_reddit_real_time(row[0], reddit.get_reddit_infos_real_time(row[1]))
-        dbconn.exexute_query(req)
+
+        if req != '':
+            dbconn.exexute_query(req)
 
         # endregion
 
@@ -428,7 +430,7 @@ def __create_query_reddit_stats(coin_id, subscribers, dates):
 def __create_query_reddit_real_time(coin_id, dict_infos):
     reddit_real_time = ''
 
-    if 'subscribers' in dict_infos.keys() and 'active_user_count' in dict_infos.keys():
+    if dict_infos is not None and 'subscribers' in dict_infos.keys() and 'active_user_count' in dict_infos.keys():
         reddit_real_time = 'INSERT INTO public.social_stats_reddit_histo (id_cryptocompare, ' \
                            'reddit_subscribers, reddit_active_users, timestamp)\n'
         reddit_real_time += 'VALUES \n('

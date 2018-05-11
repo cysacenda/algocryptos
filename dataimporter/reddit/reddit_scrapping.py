@@ -20,7 +20,10 @@ def get_reddit_infos_real_time(subreddit):
     except Exception as e:
         logging.error("Error getting information from get_reddit_infos_real_time." + str(e))
         return None
-    return response['data']
+    if response.get('data'):
+        return response['data']
+    else:
+        return None
 
 
 # endregion
