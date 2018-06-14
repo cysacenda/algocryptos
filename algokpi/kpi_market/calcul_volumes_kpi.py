@@ -114,6 +114,9 @@ def calcul_kpi_volumes_trend_global():
     # delete problematic values (difference of more than 70% of median value)
     df2 = df[
         abs((df.global_market_cap_usd - df.global_market_cap_usd.median()) / df.global_market_cap_usd.median()) < 0.7]
+    df2 = df2[
+        abs((df2.global_volume_usd_1h - df2.global_volume_usd_1h.median()) / df2.global_volume_usd_1h.median()) < 5]
+
 
     # ---------- GENERATE PICTURE 7d ---------------------------------------------------------------------
 

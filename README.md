@@ -107,6 +107,7 @@ et permettre aux traitements de se lancer correctement
 ## EC2 : Divers
 - Monitorer Node : pm2 monit
 - Modifier la crontab : crontab -e
+- Créer une Tunnel SSH pour accéder à la BDD depuis poste local : https://userify.com/blog/howto-connect-mysql-ec2-ssh-tunnel-rds/
 
 ## EC2 : Déploiement
 - Dépedances : Dans environnemnt de développement : pip freeze > requirements.txt puis mettre à jour sur Github
