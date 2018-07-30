@@ -129,3 +129,6 @@ order by timestamp) t2
 on
     t1.id_cryptocompare = t2.id_cryptocompare
 order by diffmds desc
+
+-- Volume d'une crypto erronés (énormes volumes sur une période d'une heure) :
+select * from histo_ohlcv where id_cryptocompare = 7605 order by volume_aggregated desc
