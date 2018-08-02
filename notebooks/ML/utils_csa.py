@@ -5,7 +5,8 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_sc
 from sklearn.metrics import confusion_matrix
 from matplotlib import pyplot as plt
 import pandas as pd
-#%matplotlib inline
+
+from sklearn.metrics import classification_report
 
 def show_model_accuracy(algo_name, model, pX_test, py_test, pX_columns, do_roc_curve = False, do_features_importance = False):
     predicted = model.predict(pX_test)
@@ -17,12 +18,18 @@ def show_model_accuracy(algo_name, model, pX_test, py_test, pX_columns, do_roc_c
     print('----------------------------------------------------------')
     print('Results for algorithm : ' + algo_name)
     print('----------------------------------------------------------\n')
-    print('Confusion Matrix\n', confusion)
+    print('Confusion Matrix :\n', confusion)
     print('Accuracy: {:.2f}'.format(accuracy_score(py_test, predicted)))
-    print('Precision: {:.2f}'.format(precision_score(py_test, predicted)))
-    print('Recall: {:.2f}'.format(recall_score(py_test, predicted)))
-    print('F1: {:.2f}'.format(f1_score(py_test, predicted)))
+    #print('Precision: {:.2f}'.format(precision_score(py_test, predicted)))
+    #print('Recall: {:.2f}'.format(recall_score(py_test, predicted)))
+    #print('F1: {:.2f}'.format(f1_score(py_test, predicted)))
     print('AUC: {:.2f}'.format(roc_auc))
+    #print('----------------------------------------------------------\n')
+    print('\n\nOther Metrics :\n')
+    
+    #  TODO : To be checked labels (False / True)
+    print(classification_report(py_test, predicted, target_names=['False', 'True']))
+    
     print('----------------------------------------------------------\n')
     
     # Plot ROC curve
