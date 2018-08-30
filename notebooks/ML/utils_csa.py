@@ -5,6 +5,9 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_sc
 from sklearn.metrics import confusion_matrix
 from matplotlib import pyplot as plt
 import pandas as pd
+import numpy as np
+from pandas import rolling_median
+from scipy import stats
 
 from sklearn.metrics import classification_report
 
@@ -51,3 +54,32 @@ def show_model_accuracy(algo_name, model, pX_test, py_test, pX_columns, do_roc_c
         feat_importances = pd.Series(model.feature_importances_, index=pX_columns)
         feat_importances.nlargest(20).plot(kind='barh')
         plt.show()
+
+# https://ocefpaf.github.io/python4oceanographers/blog/2015/03/16/outlier_detection/
+def remove_outliers(df, column="close_price"):
+    print('shape before outliers : ' + str(df.shape))
+    
+    # 1 / remove extreme values than can make outliers removing with zscore method KO
+    quantile = df[column].quantile(0.95)
+    df = df[df[column] < quantile * 20]
+    
+    print('shape after outliers #1 (quantile) : ' + str(df.shape))
+    
+    # 2 / remove outliers with zscore
+    # TODO : Only OHLCV
+    df = df[(np.abs(stats.zscore(df)) < 6).all(axis=1)]
+    
+    print('shape after outliers #2 (zscore) : ' + str(df.shape))
+
+    # 3 / remove outliers with rolling_median 
+    threshold_sup = 1.5 # 1.5 times higher than median
+    threshold_inf = 1 / 1.5 # 1.5 times lower than median
+    df['rm'] = df[column].rolling(window=10,center=True).median().fillna(method='bfill').fillna(method='ffill')
+    df['divided'] = np.abs(df[column] / df['rm'])
+    df = df[df.divided < threshold_sup]
+    df = df[df.divided > threshold_inf]
+          
+    print('shape after outliers #3 (rolling_median) : ' + str(df.shape))
+    
+    df.drop(columns=['rm', 'divided'], inplace=True)
+    return df

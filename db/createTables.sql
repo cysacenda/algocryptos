@@ -606,7 +606,7 @@ WITH (
 )
 TABLESPACE pg_default;
 
-ALTER TABLE public.social_google_trend 
+ALTER TABLE public.social_google_trend
     OWNER to postgres;
 
 GRANT ALL ON TABLE public.social_google_trend TO dbuser;
