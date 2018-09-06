@@ -56,30 +56,29 @@ def show_model_accuracy(algo_name, model, pX_test, py_test, pX_columns, do_roc_c
         plt.show()
 
 # https://ocefpaf.github.io/python4oceanographers/blog/2015/03/16/outlier_detection/
-def remove_outliers(df, column="close_price"):
-    print('shape before outliers : ' + str(df.shape))
+def remove_outliers(df, column_name):
+    #print('shape before outliers : ' + str(df.shape))
     
     # 1 / remove extreme values than can make outliers removing with zscore method KO
-    quantile = df[column].quantile(0.95)
-    df = df[df[column] < quantile * 20]
+    quantile = df[column_name].quantile(0.95)
+    df = df[df[column_name] < quantile * 20]
     
-    print('shape after outliers #1 (quantile) : ' + str(df.shape))
+    #print('shape after outliers #1 (quantile) : ' + str(df.shape))
     
     # 2 / remove outliers with zscore
-    # TODO : Only OHLCV
     df = df[(np.abs(stats.zscore(df)) < 6).all(axis=1)]
     
-    print('shape after outliers #2 (zscore) : ' + str(df.shape))
+    #print('shape after outliers #2 (zscore) : ' + str(df.shape))
 
     # 3 / remove outliers with rolling_median 
     threshold_sup = 1.5 # 1.5 times higher than median
     threshold_inf = 1 / 1.5 # 1.5 times lower than median
-    df['rm'] = df[column].rolling(window=10,center=True).median().fillna(method='bfill').fillna(method='ffill')
-    df['divided'] = np.abs(df[column] / df['rm'])
+    df['rm'] = df[column_name].rolling(window=10,center=True).median().fillna(method='bfill').fillna(method='ffill')
+    df['divided'] = np.abs(df[column_name] / df['rm'])
     df = df[df.divided < threshold_sup]
     df = df[df.divided > threshold_inf]
           
-    print('shape after outliers #3 (rolling_median) : ' + str(df.shape))
+    #print('shape after outliers #3 (rolling_median) : ' + str(df.shape))
     
     df.drop(columns=['rm', 'divided'], inplace=True)
     return df
