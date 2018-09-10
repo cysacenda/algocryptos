@@ -27,7 +27,10 @@ def get_info_google_trend(pytrends, df_to_db, standard, coin_row):
     # Compare symbol and project name
     # wait a random amount of time to avoid bot detection
     time.sleep(randint(3, 8))
-    pytrends.build_payload([project, symbol], cat=0, timeframe='today 1-m', geo='', gprop='')
+    #pytrends.build_payload([project, symbol], cat=0, timeframe='today 1-m', geo='', gprop='')
+
+    # Modif CSA pour ML
+    pytrends.build_payload([project, symbol], cat=0, timeframe='today 5-y', geo='', gprop='')
 
     # Keep the most significant
     df_extract_trend = pytrends.interest_over_time()
