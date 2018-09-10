@@ -54,7 +54,7 @@ def get_info_google_trend(pytrends, df_to_db, standard, coin_row):
     # Result vs Standard
     # wait a random amount of time to avoid bot detection
     time.sleep(randint(8, 13))
-    pytrends.build_payload([significant, standard], cat=0, timeframe='today 1-m', geo='', gprop='')
+    pytrends.build_payload([significant, standard], cat=0, timeframe='today 5-y', geo='', gprop='')
     df_google_trend_compared = pytrends.interest_over_time()
     df_google_trend_compared = df_google_trend_compared[[significant]]
     df_google_trend_compared.columns = ['value_compared_to_standard']
