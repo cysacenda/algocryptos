@@ -651,10 +651,14 @@ def __create_query_global_data():
 # region Google Trend
 
 def extract_google_trend_info():
+    extract_google_trend_info_period('today 5-y', 'social_google_trend')
+    extract_google_trend_info_period('today 1-m', 'social_google_trend_1m')
+
+def extract_google_trend_info_period(pytrend_period, sql_table):
     # Process manager
     procM = ProcessManager()
 
-    logging.warning("extract_google_trend_info - start")
+    logging.warning("extract_google_trend_info - start" + pytrend_period)
 
     standard = 'bitcoin'
     df_to_db = None
@@ -684,7 +688,7 @@ def extract_google_trend_info():
                 #break
                 logging.warning('Waiting ...')
                 time.sleep(randint(5,15))
-            df_to_db = get_info_google_trend(pytrends, df_to_db, standard, coin_row)
+            df_to_db = get_info_google_trend(pytrends, df_to_db, standard, coin_row, pytrend_period)
             count += 1
             logging.warning('Number of coins done :' + str(count))
         except Exception as e:
@@ -692,18 +696,18 @@ def extract_google_trend_info():
             logging.error('Uncatched error :' + str(e))
 
     #Delete in BDD - Do not keep the historical data
-    connection.execute('delete from social_google_trend')
+    connection.execute('delete from ' + sql_table)
 
     #Insert in BDD
     logging.warning("extract_google_trend_info - insert BDD")
 
     if df_to_db is not None:
         logging.warning("df_to_db not empty")
-        df_to_db.to_sql(name='social_google_trend', con=connection, if_exists='append', index=False)
+        df_to_db.to_sql(name=sql_table, con=connection, if_exists='append', index=False)
     else:
         logging.warning("df_to_db empty")
 
-    logging.warning("extract_google_trend_info - end")
+    logging.warning("extract_google_trend_info - end" + pytrend_period)
 
 
 # endregion

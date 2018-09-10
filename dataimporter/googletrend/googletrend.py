@@ -15,7 +15,7 @@ from pytrends.request import TrendReq
 from random import randint
 
 @rate_limited(5, 1)
-def get_info_google_trend(pytrends, df_to_db, standard, coin_row):
+def get_info_google_trend(pytrends, df_to_db, standard, coin_row, pytrend_period):
 
     #Lower case everything
     coin_id = coin_row['id_cryptocompare']  # Exemple : 7605
@@ -30,7 +30,7 @@ def get_info_google_trend(pytrends, df_to_db, standard, coin_row):
     #pytrends.build_payload([project, symbol], cat=0, timeframe='today 1-m', geo='', gprop='')
 
     # Modif CSA pour ML
-    pytrends.build_payload([project, symbol], cat=0, timeframe='today 5-y', geo='', gprop='')
+    pytrends.build_payload([project, symbol], cat=0, timeframe=pytrend_period, geo='', gprop='')
 
     # Keep the most significant
     df_extract_trend = pytrends.interest_over_time()
@@ -54,7 +54,7 @@ def get_info_google_trend(pytrends, df_to_db, standard, coin_row):
     # Result vs Standard
     # wait a random amount of time to avoid bot detection
     time.sleep(randint(8, 13))
-    pytrends.build_payload([significant, standard], cat=0, timeframe='today 5-y', geo='', gprop='')
+    pytrends.build_payload([significant, standard], cat=0, timeframe=pytrend_period, geo='', gprop='')
     df_google_trend_compared = pytrends.interest_over_time()
     df_google_trend_compared = df_google_trend_compared[[significant]]
     df_google_trend_compared.columns = ['value_compared_to_standard']
