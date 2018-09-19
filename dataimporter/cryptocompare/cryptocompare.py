@@ -1,4 +1,4 @@
-d
+import requests
 import time
 from commons.config import Config
 from ratelimit import rate_limited
