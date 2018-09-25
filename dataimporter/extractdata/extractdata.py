@@ -47,7 +47,7 @@ def __create_query_coins():
         insertquery += data[key]['Id'] + ','
         insertquery += "'" + data[key]['Name'] + "',"
         insertquery += "'" + data[key]['Symbol'] + "',"
-        insertquery += "'" + data[key]['CoinName'] + "',"
+        insertquery += "'" + data[key]['CoinName'].replace('"', '').replace("'", "") + "',"
         insertquery += "'" + data[key]['TotalCoinSupply'] + "',"
         insertquery += data[key]['SortOrder'] + ','
         insertquery += "'" + data[key]['ProofType'] + "',"
