@@ -11,6 +11,10 @@ from scipy import stats
 
 from sklearn.metrics import classification_report
 
+def show_nan_count_per_column(df):
+    null_columns=df.columns[df.isnull().any()]
+    return df[null_columns].isnull().sum()
+
 def show_model_accuracy(algo_name, model, pX_test, py_test, pX_columns, do_roc_curve = False, do_features_importance = False):
     predicted = model.predict(pX_test)
     confusion = confusion_matrix(py_test, predicted)
