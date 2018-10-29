@@ -6,7 +6,6 @@ PYTHONPATH=$PYTHONPATH:/home/ec2-user/prod/algocryptos_scripts/
 #-----------------------------------------------------------------------------
 27      */1      *       *       *       /home/ec2-user/prod/algocryptos_scripts/venv/bin/python /home/ec2-user/prod/algocryptos_scripts/dataimporter/main.py -hp
 4       1        *       *       *       /home/ec2-user/prod/algocryptos_scripts/venv/bin/python /home/ec2-user/prod/algocryptos_scripts/dataimporter/main.py -ath
-15      1        *       *       *       /home/ec2-user/prod/algocryptos_scripts/venv/bin/python /home/ec2-user/prod/algocryptos_scripts/dataimporter/main.py -s
 34      1        *       *       *       /home/ec2-user/prod/algocryptos_scripts/venv/bin/python /home/ec2-user/prod/algocryptos_scripts/dataimporter/main.py -r
 47      1        *       *       *       /home/ec2-user/prod/algocryptos_scripts/venv/bin/python /home/ec2-user/prod/algocryptos_scripts/dataimporter/main.py -gt
 3       0,2-23/1 *       *       *       /home/ec2-user/prod/algocryptos_scripts/venv/bin/python /home/ec2-user/prod/algocryptos_scripts/dataimporter/main.py -o
