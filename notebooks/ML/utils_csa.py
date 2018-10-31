@@ -73,6 +73,8 @@ def show_model_accuracy(algo_name, model, pX_test, py_test, pX_columns, do_roc_c
         plt.plot([0, 1], [0.5, 0.5], linestyle='--')
         # plot the roc curve for the model
         plt.plot(recall, precision, marker='.')
+        plt.xlabel('Precision')
+        plt.ylabel('Recall')
         # show the plot
         plt.show()
         
