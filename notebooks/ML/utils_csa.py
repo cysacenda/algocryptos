@@ -70,7 +70,9 @@ def show_model_accuracy(algo_name, model, pX_test, py_test, pX_columns, do_roc_c
         ap = average_precision_score(py_test, probs)
         print('f1=%.3f auc=%.3f ap=%.3f' % (f1, auc_value, ap))
         # plot no skill
-        plt.plot([0, 1], [0.5, 0.5], linestyle='--')
+        plt.plot([0, 1], [0.5, 0.5], label='Treshold 0.5', linestyle='--')
+        label = 'Treshold' + str(threshold)
+        plt.plot([0, 1], [threshold, threshold], label=label, linestyle='--')
         # plot the roc curve for the model
         plt.plot(recall, precision, marker='.')
         plt.xlabel('Precision')
