@@ -3,6 +3,7 @@
 # 1 / Verif function (print accuracy, precision, recall, F1, etc. for an algo)
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_curve, auc, precision_recall_curve, average_precision_score
 from sklearn.metrics import confusion_matrix
+from sklearn.utils.fixes import signature
 from matplotlib import pyplot as plt
 import pandas as pd
 import numpy as np
@@ -18,7 +19,9 @@ def show_nan_count_per_column(df):
 
 def show_model_accuracy(algo_name, model, pX_test, py_test, pX_columns, do_roc_curve = False, do_precision_recall_curve = False, do_features_importance = False, threshold = 0.5):
     predicted_proba = model.predict_proba(pX_test)
-    predicted = (predicted_proba [:,1] >= threshold).astype('int')
+    # keep probabilities for the positive outcome only
+    probs = predicted_proba[:, 1]
+    predicted = (probs >= threshold).astype('int')
     confusion = confusion_matrix(py_test, predicted)    
     
     # Infos
@@ -26,6 +29,8 @@ def show_model_accuracy(algo_name, model, pX_test, py_test, pX_columns, do_roc_c
     print('Results for algorithm : ' + algo_name)
     print('----------------------------------------------------------\n')
     print('Confusion Matrix :\n', confusion)
+    print('[[TN, FP]')
+    print('[FN, TP]]')
     print('Accuracy: {:.2f}'.format(accuracy_score(py_test, predicted)))
     #print('Precision: {:.2f}'.format(precision_score(py_test, predicted)))
     #print('Recall: {:.2f}'.format(recall_score(py_test, predicted)))
@@ -40,9 +45,10 @@ def show_model_accuracy(algo_name, model, pX_test, py_test, pX_columns, do_roc_c
     print('----------------------------------------------------------\n')
     
     # Plot ROC curve
-    if do_roc_curve:
+    if do_roc_curve:        
         predicted = model.predict(pX_test)
-        fpr, tpr, thresholds = roc_curve(py_test, predicted)
+        #fpr, tpr, thresholds = roc_curve(py_test, predicted)
+        fpr, tpr, thresholds = roc_curve(py_test, probs)        
         roc_auc = auc(fpr, tpr)
         plt.title('Receiver Operating Characteristic (ROC Curve)')
         plt.plot(fpr, tpr, 'b', label = 'AUC = %0.2f' % roc_auc)
@@ -50,14 +56,13 @@ def show_model_accuracy(algo_name, model, pX_test, py_test, pX_columns, do_roc_c
         plt.plot([0, 1], [0, 1],'r--')
         plt.xlim([0, 1])
         plt.ylim([0, 1])
-        plt.ylabel('True Positive Rate')
-        plt.xlabel('False Positive Rate')
+        plt.ylabel('True Positive Rate / Sensitivity')
+        plt.xlabel('False Positive Rate / 1 - Specificity')
+        plt.legend(loc="lower right")
         plt.show()
     
     # Plot Precision / Recall curve
     if do_precision_recall_curve:
-        # keep probabilities for the positive outcome only
-        probs = predicted_proba[:, 1]
         # predict class values
         yhat = model.predict(pX_test)
         # calculate precision-recall curve
@@ -71,12 +76,21 @@ def show_model_accuracy(algo_name, model, pX_test, py_test, pX_columns, do_roc_c
         print('f1=%.3f auc=%.3f ap=%.3f' % (f1, auc_value, ap))
         # plot no skill
         plt.plot([0, 1], [0.5, 0.5], label='Treshold 0.5', linestyle='--')
-        label = 'Treshold' + str(threshold)
+        label = 'Treshold ' + str(threshold)
         plt.plot([0, 1], [threshold, threshold], label=label, linestyle='--')
         # plot the roc curve for the model
-        plt.plot(recall, precision, marker='.')
-        plt.xlabel('Precision')
-        plt.ylabel('Recall')
+        #plt.plot(recall, precision, marker='.')
+        plt.step(recall, precision, color='b', alpha=0.2,
+         where='post')
+        # In matplotlib < 1.5, plt.fill_between does not have a 'step' argument
+        step_kwargs = ({'step': 'post'}
+               if 'step' in signature(plt.fill_between).parameters
+               else {})
+        plt.fill_between(recall, precision, alpha=0.2, color='b', **step_kwargs)
+        plt.title('Precision-Recall curve')
+        plt.xlabel('Recall')
+        plt.ylabel('Precision')
+        plt.legend(loc="lower right")
         # show the plot
         plt.show()
         
