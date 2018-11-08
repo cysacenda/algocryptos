@@ -17,7 +17,7 @@ def show_nan_count_per_column(df):
     null_columns=df.columns[df.isnull().any()]
     return df[null_columns].isnull().sum()
 
-def show_model_accuracy(algo_name, model, pX_test, py_test, pX_columns, do_roc_curve = False, do_precision_recall_curve = False, do_features_importance = False, threshold = 0.5):
+def show_model_accuracy(algo_name, model, pX_test, py_test, pX_columns, do_roc_curve = False, do_precision_recall_curve = False, do_features_importance = False, do_precision_recall_vs_treshold=False, threshold = 0.5):
     predicted_proba = model.predict_proba(pX_test)
     # keep probabilities for the positive outcome only
     probs = predicted_proba[:, 1]
@@ -92,6 +92,15 @@ def show_model_accuracy(algo_name, model, pX_test, py_test, pX_columns, do_roc_c
         plt.ylabel('Precision')
         plt.legend(loc="lower right")
         # show the plot
+        plt.show()
+    
+    if do_precision_recall_vs_treshold:
+        precisions, recalls, thresholds = precision_recall_curve(py_test, probs)
+        plt.plot(thresholds, precisions[:-1], "b--", label="Precision")
+        plt.plot(thresholds, recalls[:-1], "g-", label="Recall")
+        plt.xlabel("Threshold")
+        plt.legend(loc="upper left")
+        plt.ylim([0, 1])
         plt.show()
         
     # View a list of the features and their importance scores
