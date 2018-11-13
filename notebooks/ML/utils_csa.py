@@ -7,7 +7,6 @@ from sklearn.utils.fixes import signature
 from matplotlib import pyplot as plt
 import pandas as pd
 import numpy as np
-from pandas import rolling_median
 from scipy import stats
 import pickle
 
