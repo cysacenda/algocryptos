@@ -16,7 +16,7 @@ def show_nan_count_per_column(df):
     null_columns=df.columns[df.isnull().any()]
     return df[null_columns].isnull().sum()
 
-def evaluate_model(model, pX_test, py_test, threshold, target = 1):
+def evaluate_model(model, pX_test, py_test, threshold, do_feat_importances, target = 1):
     predicted_proba = model.predict_proba(pX_test)
     probs = predicted_proba[:, target] # 0 or 1
     predicted = (probs >= threshold)
@@ -25,15 +25,19 @@ def evaluate_model(model, pX_test, py_test, threshold, target = 1):
     precision  = precision_score(py_test, predicted)
     recall = recall_score(py_test, predicted)
     f1 = f1_score(py_test, predicted)
-    feat_importances =  pd.Series(model.feature_importances_).nlargest(3)
+    
+    feat_importances = pd.Series([0, 0, 0])
+    if do_feat_importances:
+        feat_importances =  pd.Series(model.feature_importances_).nlargest(3)
+    
     support_False = pd.Series(py_test).value_counts()[False]
     support_True = pd.Series(py_test).value_counts()[True]
     
     return confusion, precision, recall, f1, support_True, support_False, feat_importances
 
-def evaluate_model_formated(model, pX_test, py_test, threshold, target = 1):
-    confusion, precision, recall, f1, support_True, support_False, feat_importances = evaluate_model(model, pX_test, py_test, threshold, target = 1)
-    return confusion[0][0], confusion[0][1], confusion[1][0], confusion[1][1], precision, recall, f1, support_True, support_False, feat_importances[0], feat_importances[1], feat_importances[2]
+def evaluate_model_formated(model, pX_test, py_test, threshold, do_feat_importances, target = 1):
+    confusion, precision, recall, f1, support_True, support_False, feat_importances = evaluate_model(model, pX_test, py_test, threshold, do_feat_importances, target)
+    return confusion[0][0], confusion[0][1], confusion[1][0], confusion[1][1], precision, recall, f1, support_True, support_False, feat_importances.values[0], feat_importances.values[1], feat_importances.values[2]
 
 def show_model_accuracy(algo_name, model, pX_test, py_test, pX_columns, do_roc_curve = False, do_precision_recall_curve = False, do_features_importance = False, do_precision_recall_vs_treshold=False, threshold = 0.5):
     predicted_proba = model.predict_proba(pX_test)
