@@ -16,12 +16,31 @@ def show_nan_count_per_column(df):
     null_columns=df.columns[df.isnull().any()]
     return df[null_columns].isnull().sum()
 
+def evaluate_model(model, pX_test, py_test, threshold, target = 1):
+    predicted_proba = model.predict_proba(pX_test)
+    probs = predicted_proba[:, target] # 0 or 1
+    predicted = (probs >= threshold)
+    
+    confusion = confusion_matrix(py_test, predicted)    
+    precision  = precision_score(py_test, predicted)
+    recall = recall_score(py_test, predicted)
+    f1 = f1_score(py_test, predicted)
+    feat_importances =  pd.Series(model.feature_importances_).nlargest(3)
+    support_False = pd.Series(py_test).value_counts()[False]
+    support_True = pd.Series(py_test).value_counts()[True]
+    
+    return confusion, precision, recall, f1, support_True, support_False, feat_importances
+
+def evaluate_model_formated(model, pX_test, py_test, threshold, target = 1):
+    confusion, precision, recall, f1, support_True, support_False, feat_importances = evaluate_model(model, pX_test, py_test, threshold, target = 1)
+    return confusion[0][0], confusion[0][1], confusion[1][0], confusion[1][1], precision, recall, f1, support_True, support_False, feat_importances[0], feat_importances[1], feat_importances[2]
+
 def show_model_accuracy(algo_name, model, pX_test, py_test, pX_columns, do_roc_curve = False, do_precision_recall_curve = False, do_features_importance = False, do_precision_recall_vs_treshold=False, threshold = 0.5):
     predicted_proba = model.predict_proba(pX_test)
     # keep probabilities for the positive outcome only
     probs = predicted_proba[:, 1]
-    predicted = (probs >= threshold).astype('int')
-    confusion = confusion_matrix(py_test, predicted)    
+    predicted = (probs >= threshold) #.astype('int')
+    confusion = confusion_matrix(py_test, predicted)
     
     # Infos
     print('----------------------------------------------------------')
@@ -47,7 +66,7 @@ def show_model_accuracy(algo_name, model, pX_test, py_test, pX_columns, do_roc_c
     if do_roc_curve:        
         predicted = model.predict(pX_test)
         #fpr, tpr, thresholds = roc_curve(py_test, predicted)
-        fpr, tpr, thresholds = roc_curve(py_test, probs)        
+        fpr, tpr, thresholds = roc_curve(py_test, probs)
         roc_auc = auc(fpr, tpr)
         plt.title('Receiver Operating Characteristic (ROC Curve)')
         plt.plot(fpr, tpr, 'b', label = 'AUC = %0.2f' % roc_auc)
