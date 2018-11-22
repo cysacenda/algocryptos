@@ -16,6 +16,18 @@ def show_nan_count_per_column(df):
     null_columns=df.columns[df.isnull().any()]
     return df[null_columns].isnull().sum()
 
+def get_value_count(y_):
+    y_ = pd.Series(y_)    
+    true_count = 1 # to avoid divide by 0 - approx
+    false_count = 0
+    
+    count = y_.value_counts()
+    if True in count:
+        true_count = count[True]
+    if False in count:
+        false_count = count[False]
+    return true_count, false_count
+
 def evaluate_model(model, pX_test, py_test, threshold, do_feat_importances, target = 1):
     predicted_proba = model.predict_proba(pX_test)
     probs = predicted_proba[:, target] # 0 or 1
@@ -30,8 +42,7 @@ def evaluate_model(model, pX_test, py_test, threshold, do_feat_importances, targ
     if do_feat_importances:
         feat_importances =  pd.Series(model.feature_importances_).nlargest(3)
     
-    support_False = pd.Series(py_test).value_counts()[False]
-    support_True = pd.Series(py_test).value_counts()[True]
+    support_True, support_False = get_value_count(py_test)
     
     return confusion, precision, recall, f1, support_True, support_False, feat_importances
 
