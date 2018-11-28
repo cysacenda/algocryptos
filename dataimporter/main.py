@@ -93,6 +93,7 @@ try:
             # -----------------------------------------------
             extractdata.extract_histo_ohlcv()
 
+        # Decommissioned (useless => histo_ohlcv more adapted)
         if args.histoprices:
             # -----------------------------------------------
             # Get prices for coins from CoinMarketCap and insert in histo_prices

@@ -144,6 +144,7 @@ def __create_query_prices():
     return insertquery
 
 
+# Decommissioned
 def extract_coinmarketcap_historical_prices():
     logging.warning("extract_coinmarketcap_histo_prices - start")
     dbconn = DbConnection()
