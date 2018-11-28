@@ -1,0 +1,4 @@
+import import_ipynb
+import algocryptos_systematization as alg_system
+
+alg_system.start_systematization()
