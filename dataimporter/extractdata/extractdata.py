@@ -2,6 +2,7 @@ from random import randint
 from commons.dbaccess import DbConnection
 from cryptocompare.cryptocompare import CryptoCompare
 from coinmarketcap.coinmarketcap import CoinMarketCap
+from coinmarketcap.coinmarketcap import CoinMarketCapNew
 import reddit
 import time
 import json
@@ -12,7 +13,7 @@ import pandas.io.sql as psql
 import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta, date
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, TIMESTAMP
 from pytrends.request import TrendReq
 from googletrend.googletrend import get_info_google_trend
 from commons.processmanager import ProcessManager
@@ -66,13 +67,81 @@ def __create_query_coins():
 # region Coins current prices
 
 # TODO : Add system which insert / update depending on information already in DB
-def extract_coinmarketcap_prices():
+def extract_coinmarketcap_prices_old():
     logging.warning("extract_coinmarketcap_prices - start")
     dbconn = DbConnection()
     dbconn.exexute_query("Delete from prices;")
     dbconn.exexute_query(__create_query_prices())
     logging.warning("extract_coinmarketcap_prices - end")
 
+def extract_coinmarketcap_prices():
+    logging.warning("extract_coinmarketcap_prices - start")
+    connection = create_engine(utils.get_connection_string())
+    coinmarket = CoinMarketCapNew()
+    df_cryptos = coinmarket.get_price_list()
+
+    # add empty columns
+    header_list = df_cryptos.columns.values.tolist()
+    header_list.extend(
+        ['price_usd', 'price_btc', 'volume_usd_24h', 'percent_change_1h', 'percent_change_24h', 'percent_change_7d',
+         'market_cap_usd', 'id_cryptocompare'])
+    df_cryptos = df_cryptos.reindex(columns=header_list)
+
+    # retrieve prices informations and insert in dataframe
+    price_usd = pd.Series([])
+    volume_usd_24h = pd.Series([])
+    percent_change_1h = pd.Series([])
+    percent_change_24h = pd.Series([])
+    percent_change_7d = pd.Series([])
+    market_cap_usd = pd.Series([])
+
+    # for each crypto
+    for i in range(len(df_cryptos)):
+        df_quote = pd.DataFrame(df_cryptos.quote[i])
+        price_usd[i] = df_quote.USD.price
+        volume_usd_24h[i] = df_quote.USD.volume_24h
+        percent_change_1h[i] = df_quote.USD.percent_change_1h
+        percent_change_24h[i] = df_quote.USD.percent_change_24h
+        percent_change_7d[i] = df_quote.USD.percent_change_7d
+        market_cap_usd[i] = df_quote.USD.market_cap
+
+    # assign values to inserted columns
+    df_cryptos['price_usd'] = price_usd
+    df_cryptos['volume_usd_24h'] = volume_usd_24h
+    df_cryptos['percent_change_1h'] = percent_change_1h
+    df_cryptos['percent_change_24h'] = percent_change_24h
+    df_cryptos['percent_change_7d'] = percent_change_7d
+    df_cryptos['market_cap_usd'] = market_cap_usd
+
+    # delete useless columns
+    df_cryptos.drop(
+        columns=['date_added', 'id', 'max_supply', 'num_market_pairs', 'slug', 'tags', 'total_supply', 'quote'],
+        inplace=True)
+
+    # rename columns
+    df_cryptos.columns = ['available_supply', 'crypto_rank', 'last_updated', 'crypto_name', 'symbol', 'price_usd',
+                                'price_btc', 'volume_usd_24h', 'percent_change_1h', 'percent_change_24h',
+                                'percent_change_7d', 'market_cap_usd', 'id_cryptocompare']
+
+    # reorder columns
+    df_cryptos = df_cryptos[['id_cryptocompare', 'symbol', 'crypto_name', 'crypto_rank',
+                                         'price_usd', 'price_btc', 'volume_usd_24h', 'market_cap_usd',
+                                         'percent_change_1h', 'percent_change_24h', 'percent_change_7d',
+                                         'last_updated', 'available_supply']]
+
+    # reformat columns last_updated
+    df_cryptos.last_updated = pd.to_datetime(df_cryptos.last_updated, utc=True)
+    df_cryptos['last_updated'] = df_cryptos['last_updated'].astype(pd.Timestamp)
+
+    # update table
+    if df_cryptos.empty:
+        toto = 0  # error
+    else:
+        connection.execute('delete from prices')
+        df_cryptos.to_sql(name='prices', con=connection, if_exists='append', index=False,
+                                dtype={'last_updated': TIMESTAMP(timezone=True)})
+
+    logging.warning("extract_coinmarketcap_prices - end")
 
 def __create_query_prices():
     logging.warning("create_query_prices - start")
@@ -144,6 +213,7 @@ def __create_query_prices():
     return insertquery
 
 
+# Decommissioned
 def extract_coinmarketcap_historical_prices():
     logging.warning("extract_coinmarketcap_histo_prices - start")
     dbconn = DbConnection()
