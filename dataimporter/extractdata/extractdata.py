@@ -122,7 +122,7 @@ def extract_coinmarketcap_prices():
     df_cryptos = df_cryptos[
         ['circulating_supply', 'cmc_rank', 'last_updated', 'name', 'symbol', 'price_usd', 'price_btc', 'volume_usd_24h',
          'percent_change_1h', 'percent_change_24h', 'percent_change_7d',
-         'market_cap_usd', 'id_cryptocompare']]
+         'market_cap_usd', 'id_cryptocompare']]  
 
     # rename columns
     df_cryptos.columns = ['available_supply', 'crypto_rank', 'last_updated', 'crypto_name', 'symbol', 'price_usd',
