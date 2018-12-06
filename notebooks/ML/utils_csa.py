@@ -5,6 +5,7 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_sc
 from sklearn.metrics import confusion_matrix
 from sklearn.utils.fixes import signature
 from matplotlib import pyplot as plt
+import seaborn as sns
 import pandas as pd
 import numpy as np
 from scipy import stats
@@ -142,6 +143,22 @@ def show_model_accuracy(algo_name, model, pX_test, py_test, pX_columns, do_roc_c
         feat_importances = pd.Series(model.feature_importances_, index=pX_columns)
         feat_importances.nlargest(20).plot(kind='barh')
         plt.show()
+
+def show_model_accuracy_new_way(model, X_, y_test_value, X_close_price, threshold):
+    predicted_proba = model.predict_proba(X_)
+    probs = predicted_proba[:, 1]
+    df_probs = pd.DataFrame(probs)
+    df_probs.index = X_.index
+    df_probs.columns = ['prob']
+    df_probs['sup_treshold'] = (df_probs['prob'] >= threshold)
+    df_probs = df_probs[df_probs['sup_treshold'] == True]
+    df_probs['close_price'] = X_close_price
+    df_probs['close_price_+term'] = y_test_value # y_test['y_+1d_value']
+    df_probs['pct_change_value'] = ((df_probs['close_price_+term'] - df_probs['close_price']) / df_probs['close_price']) * 100
+    
+    plt.figure(figsize=(6,6))
+    sns.distplot(df_probs.pct_change_value)
+    print('pct_change_value: ' + str(df_probs.pct_change_value.mean()))
 
 # https://ocefpaf.github.io/python4oceanographers/blog/2015/03/16/outlier_detection/
 def remove_outliers(df, columns_name):
