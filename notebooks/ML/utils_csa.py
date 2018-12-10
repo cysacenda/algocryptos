@@ -51,7 +51,7 @@ def evaluate_model_formated(model, pX_test, py_test, threshold, do_feat_importan
     confusion, precision, recall, f1, support_True, support_False, feat_importances = evaluate_model(model, pX_test, py_test, threshold, do_feat_importances, target)
     return confusion[0][0], confusion[0][1], confusion[1][0], confusion[1][1], precision, recall, f1, support_True, support_False, feat_importances.values[0], feat_importances.values[1], feat_importances.values[2]
 
-def show_model_accuracy(algo_name, model, pX_test, py_test, pX_columns, do_roc_curve = False, do_precision_recall_curve = False, do_features_importance = False, do_precision_recall_vs_treshold=False, threshold = 0.5):
+def show_model_accuracy(algo_name, model, pX_test, py_test, pX_columns, do_roc_curve = False, do_precision_recall_curve = False, do_features_importance = False, do_precision_recall_vs_treshold=False, threshold = 0.5, nb_features_imp=20):
     predicted_proba = model.predict_proba(pX_test)
     # keep probabilities for the positive outcome only
     probs = predicted_proba[:, 1]
@@ -139,13 +139,14 @@ def show_model_accuracy(algo_name, model, pX_test, py_test, pX_columns, do_roc_c
         
     # View a list of the features and their importance scores
     if do_features_importance:
-        importances = model.feature_importances_
         feat_importances = pd.Series(model.feature_importances_, index=pX_columns)
-        feat_importances.nlargest(20).plot(kind='barh')
+        if nb_features_imp > 20:
+            plt.figure(figsize=(20,20))
+        feat_importances.nlargest(nb_features_imp).plot(kind='barh')
         plt.show()
 
 def show_model_accuracy_new_way(model, X_, y_test_value, X_close_price, threshold):
-    predicted_proba = model.predict_proba(X_)
+    predicted_proba = model.predict_proba(X_.values)
     probs = predicted_proba[:, 1]
     df_probs = pd.DataFrame(probs)
     df_probs.index = X_.index
@@ -188,6 +189,10 @@ def remove_outliers(df, columns_name):
 
         df.drop(columns=['rm', 'divided'], inplace=True)
     return df
+
+def get_useless_features(model, index, threshold=0.002):
+    s = pd.Series(model.feature_importances_, index=index)
+    return s[s <= threshold].index.values
 
 # Serialization
 def save_obj(obj, name):
