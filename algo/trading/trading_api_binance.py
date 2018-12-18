@@ -3,6 +3,12 @@ from trading.trading_api import TradingApi
 from binance.client import Client
 from binance.exceptions import BinanceAPIException, BinanceRequestException
 
+# https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md
+# TODO : Manage Binance Errors (cf. debut fichier)
+# Look at orderTypes="STOP_LOSS_LIMIT"
+# Infos utiles:
+# https://api.binance.com/api/v1/exchangeInfo
+
 class TradingApiBinance(TradingApi):
     # override
     def __init__(self):
