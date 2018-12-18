@@ -122,7 +122,7 @@ def extract_coinmarketcap_prices():
     df_cryptos = df_cryptos[
         ['circulating_supply', 'cmc_rank', 'last_updated', 'name', 'symbol', 'price_usd', 'price_btc', 'volume_usd_24h',
          'percent_change_1h', 'percent_change_24h', 'percent_change_7d',
-         'market_cap_usd', 'id_cryptocompare']]  
+         'market_cap_usd', 'id_cryptocompare']]
 
     # rename columns
     df_cryptos.columns = ['available_supply', 'crypto_rank', 'last_updated', 'crypto_name', 'symbol', 'price_usd',
@@ -567,7 +567,7 @@ def __extract_histo_ohlc_for_coin(coin_id, symbol, lastdate, dict_dates_volumes)
         dbconn.exexute_query(insertquery)
 
 def __get_trading_pairs_for_crypto(symbol, is_topcrypto):
-    # Main cryptos : more trading pairs taken into account
+    # Main cryptos : more algo pairs taken into account
     param = 'max_trading_pairs_for_crypto'
     if is_topcrypto:
         param = 'max_trading_pairs_for_top_crypto'

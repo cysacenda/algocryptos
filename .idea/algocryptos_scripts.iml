@@ -5,6 +5,7 @@
       <sourceFolder url="file://$MODULE_DIR$/dataimporter" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/algokpi" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/commons" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/algo" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/algocryptos.egg-info" />
       <excludeFolder url="file://$MODULE_DIR$/build" />
       <excludeFolder url="file://$MODULE_DIR$/dist" />

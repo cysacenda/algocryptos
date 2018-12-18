@@ -180,7 +180,7 @@ GRANT ALL ON TABLE public.histo_ohlcv TO dbuser;
 GRANT ALL ON TABLE public.histo_ohlcv TO postgres;
 
 COMMENT ON TABLE public.histo_ohlcv
-    IS 'Contains one line per cryptocurrency per date per hour with informations on OHLC and the volumes of the cryptocurrency, data comes from CryptoCompare and volumes are calculated on an aggregate of main trading pairs (so it s not the global volume, but we are looking for trends, so ok';
+    IS 'Contains one line per cryptocurrency per date per hour with informations on OHLC and the volumes of the cryptocurrency, data comes from CryptoCompare and volumes are calculated on an aggregate of main algo pairs (so it s not the global volume, but we are looking for trends, so ok';
 
 
 -- Table: public.excluded_coins
@@ -373,7 +373,7 @@ GRANT ALL ON TABLE public.top_cryptos TO dbuser;
 GRANT ALL ON TABLE public.top_cryptos TO postgres;
 
 COMMENT ON TABLE public.top_cryptos
-    IS 'Contains one line per cryptocurrency which are top currencies (usefull for trading pairs count)';
+    IS 'Contains one line per cryptocurrency which are top currencies (usefull for algo pairs count)';
 
 
 -- Table: public.process_params_histo
