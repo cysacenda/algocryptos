@@ -5,33 +5,28 @@ from datetime import timedelta
 
 class TradingApiFake(TradingApi):
     # override
-    def __init__(self):
+    def __init__(self, param_pct_order_placed):
         self.positions = {}
         self.fees = 0
         self.nb_periods_price_to_buy = 1  # approx because actions will have delay
         self.orders = {}
+        self.close_prices = {}
 
     # override
     def check_status_api(self):
         return True, []
 
     # override
-    def get_price(self, base_asset, quote_asset, key):
-        close_price = 0
-        trading_pair = base_asset + quote_asset
-        if (key + timedelta(hours=self.nb_periods_price_to_buy)) in self.close_prices[trading_pair].index:
-            close_price = self.close_prices[trading_pair][
-                key + timedelta(hours=self.nb_periods_price_to_buy)]  # .values[0]
-        else:
-            # Retrieve last available price
-            new_key = key
-            i = 0
-            while (new_key not in self.close_prices[trading_pair]) and i < 20:
-                print('WARNING, missing price value for simulation')
-                new_key = new_key - timedelta(hours=1)
-                i = i + 1
-            close_price = self.close_prices[trading_pair][new_key]  # .values[0]
-        return close_price
+    def get_price_ticker(self, base_asset, quote_asset, key):
+        return self.get_price(base_asset, quote_asset, key)
+
+    # override
+    def get_buy_price(self, base_asset, quote_asset, key):
+        return self.get_price(base_asset, quote_asset, key)
+
+    # override
+    def get_sell_price(self, base_asset, quote_asset, key):
+        return self.get_price(base_asset, quote_asset, key)
 
     # override
     def get_available_amount_crypto(self, symbol):
@@ -40,18 +35,6 @@ class TradingApiFake(TradingApi):
         else:
             return 0.0
 
-    # override => global class ?
-    def get_portfolio_value(self, trading_pairs, cash_asset, key):
-        total_value = 0
-        close_price = 0
-        for trading_pair, value in trading_pairs.items():
-            amount = self.get_available_amount_crypto(value.base_asset)
-            close_price = self.get_price(value.base_asset, value.quote_asset, key)
-            total_value = total_value + (amount * close_price)
-        total_value = total_value + self.get_available_amount_crypto(cash_asset)
-        return total_value
-
-    # market for the moment => to be scheduled with like market minus 0.5%
     # override
     def create_order(self, base_asset, quote_asset, side, quantity_from, key):  # ex: USDT, ETH, 1000, BUY
         # if cryptos exists
@@ -80,7 +63,6 @@ class TradingApiFake(TradingApi):
             base_asset_quantity, quote_asset_quantity = self.get_from_to(quantity_from, quantity_to, side)
 
             # create order already executed (for simulation needs)
-
             order = AlgOrder(len(self.orders), base_asset, quote_asset, side, base_asset_quantity, quote_asset_quantity,
                              price_init, fees, fees_quote_asset)
             self.orders[order.id_order] = order
@@ -89,7 +71,7 @@ class TradingApiFake(TradingApi):
             raise ValueError('ERROR (create_order):  cryptos doesn''t exists - ' + from_crypto + '/' + to_crypto)
 
     # override
-    def get_order(self, id_order):
+    def get_order(self, id_order, trading_pair):
         return self.orders[id_order]
 
     # override
@@ -98,7 +80,24 @@ class TradingApiFake(TradingApi):
 
     # override
     def cancel_open_orders(self):
-        return True
+        pass
+
+    def get_price(self, base_asset, quote_asset, key):
+        close_price = 0
+        trading_pair = base_asset + quote_asset
+        if (key + timedelta(hours=self.nb_periods_price_to_buy)) in self.close_prices[trading_pair].index:
+            close_price = self.close_prices[trading_pair][
+                key + timedelta(hours=self.nb_periods_price_to_buy)]  # .values[0]
+        else:
+            # Retrieve last available price
+            new_key = key
+            i = 0
+            while (new_key not in self.close_prices[trading_pair]) and i < 20:
+                print('WARNING, missing price value for simulation')
+                new_key = new_key - timedelta(hours=1)
+                i = i + 1
+            close_price = self.close_prices[trading_pair][new_key]  # .values[0]
+        return close_price
 
     def init_from_backtesting_strategy(self, init_positions, fees, close_prices):
         self.positions = init_positions

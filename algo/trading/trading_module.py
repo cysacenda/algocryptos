@@ -1,7 +1,8 @@
 from trading.trading_api import ORDER_BUY, ORDER_SELL
 
 class TradingModule:
-    def __init__(self, trading_api, param_bet_size, param_min_bet_size, trading_pairs, cash_asset, thresholds, trace):
+    def __init__(self, trading_api, param_bet_size, param_min_bet_size, param_pct_order_placed,
+                 param_nb_periods_to_hold_position, trading_pairs, cash_asset, thresholds, trace):
         self.x_buy = {}
         self.y_buy = {}
         self.x_sell = {}
@@ -15,9 +16,10 @@ class TradingModule:
         self.thresholds = thresholds
         self.trace = trace
 
-        self.nb_periods_to_hold_position = 24  # 1d => TODO : sell must be done if pct_change model touched / check close price
+        self.param_nb_periods_to_hold_position = param_nb_periods_to_hold_position
         self.param_bet_size = param_bet_size
         self.param_min_bet_size = param_min_bet_size
+        self.param_pct_order_placed = param_pct_order_placed
 
         self.init_var()
 
@@ -53,9 +55,7 @@ class TradingModule:
     def __buy(self, key, trading_pair, amount):
         id_order = self.trading_api.create_order(trading_pair.base_asset, trading_pair.quote_asset, ORDER_BUY, amount,
                                                  key)
-        order = self.trading_api.get_order(id_order)
-
-        # TODO : System that ensure that order is executed, may modify order, etc.
+        order = self.trading_api.get_order(id_order, trading_pair.name)
 
         # trace
         if self.trace:
@@ -80,7 +80,7 @@ class TradingModule:
     def __sell(self, key, trading_pair, crypto_amount):  # from_crypto, to_crypto
         id_order = self.trading_api.create_order(trading_pair.base_asset, trading_pair.quote_asset, ORDER_SELL,
                                                  crypto_amount, key)
-        order = self.trading_api.get_order(id_order)
+        order = self.trading_api.get_order(id_order, trading_pair.name)
 
         if self.trace:
             print(

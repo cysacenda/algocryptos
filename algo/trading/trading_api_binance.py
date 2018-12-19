@@ -1,7 +1,7 @@
 from commons.config import Config
-from trading.trading_api import TradingApi
+from trading.trading_api import TradingApi, ORDER_SELL, ORDER_BUY
 from binance.client import Client
-from binance.exceptions import BinanceAPIException, BinanceRequestException
+from binance.exceptions import BinanceAPIException, BinanceRequestException, BinanceOrderException, BinanceOrderMinAmountException, BinanceOrderMinPriceException, BinanceOrderMinTotalException, BinanceOrderUnknownSymbolException, BinanceOrderInactiveSymbolException
 
 # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md
 # TODO : Manage Binance Errors (cf. debut fichier)
@@ -11,11 +11,13 @@ from binance.exceptions import BinanceAPIException, BinanceRequestException
 
 class TradingApiBinance(TradingApi):
     # override
-    def __init__(self):
+    def __init__(self, param_pct_order_placed):
         conf = Config()
+        self.param_pct_order_placed = param_pct_order_placed
         self.API_KEY = conf.get_config('binance', 'api_key')
         self.API_SECRET = conf.get_config('binance', 'api_secret')
-        self.client = Client(self.api_key, self.api_secret) # python-binance
+        self.client = Client(self.api_key, self.api_secret) # lib python-binance
+        self.precision = 5  # binance api precision for amount
 
     # override
     def check_status_api(self):
@@ -24,7 +26,7 @@ class TradingApiBinance(TradingApi):
 
         try:
             # test ping
-            ping_status = self.client.ping()
+            self.client.ping()
             # Check system status
             status = self.client.get_system_status()
             if (status['msg'] == 'normal') and (status['status'] == 0):
@@ -52,31 +54,119 @@ class TradingApiBinance(TradingApi):
 
         return global_status, authorized_trading_pairs
 
-    # override: return current price of asset (cf. trading pair)
-    def get_price(self, base_asset, quote_asset, key):
-        return todo
+    # override
+    # TODO : parameter = tradingpair directly
+    def get_price_ticker(self, base_asset, quote_asset, key):
+        prices = self.client.get_all_tickers()
+        prices_dict = {value["symbol"]: value["price"] for value in prices}
+        return float(prices_dict[base_asset + quote_asset])
+
+    # override
+    def get_buy_price(self, base_asset, quote_asset, key):
+        buy_limit_price = 0
+        depth = self.client.get_order_book(symbol=base_asset + quote_asset)
+        if 'asks' in depth:
+            ask_price = float(depth['asks'][0][0])  # get first ask price in order book
+            buy_limit_price = ask_price + (ask_price * self.param_pct_order_placed)
+        else:
+            raise Exception('Error while getting price in get_buy_price() for trading_pair:' + base_asset + quote_asset)
+        return buy_limit_price
+
+    # override
+    def get_sell_price(self, base_asset, quote_asset, key):
+        sell_limit_price = 0
+        depth = self.client.get_order_book(symbol=base_asset + quote_asset)
+        if 'bids' in depth:
+            bid_price = float(depth['bids'][0][0])  # get first bid price in order book
+            sell_limit_price = bid_price - (bid_price * self.param_pct_order_placed)
+        else:
+            raise Exception('Error while getting price in get_sell_price() for trading_pair:' + base_asset + quote_asset)
+        return sell_limit_price
 
     # override
     def get_available_amount_crypto(self, symbol):
-        return todo
+        balance = 0
+        infos_balance = self.client.get_asset_balance(asset=symbol)
+        if 'free' in infos_balance:
+            balance = float(balance['free'])
+        else:
+            raise Exception('Error while getting balance in get_available_amount_crypto() for symbol:' + symbol)
+        return balance
 
-    # override
-    def get_portfolio_value(self, trading_pairs, cash_asset, key):
-        return todo
-
-    # market for the moment => to be scheduled with like market minus 0.5%
     # override
     def create_order(self, base_asset, quote_asset, side, quantity_from, key):  # ex: USDT, ETH, 1000, BUY
-        todo = 0
+        order = {}
+        try:
+            if side == ORDER_BUY:
+                limit_price = self.get_buy_price(base_asset, quote_asset, key)
+                order = self.client.order_limit_buy(
+                    symbol=base_asset + quote_asset,
+                    quantity=quantity_from,
+                    price=self.format_amount_order(limit_price))
+            else:
+                # TODO : Use stopPrice for stop loss genre -3-4% ?
+                limit_price = self.get_sell_price(base_asset, quote_asset, key)
+                order = self.client.order_limit_sell(
+                    symbol=base_asset + quote_asset,
+                    quantity=quantity_from,
+                    price=self.format_amount_order(limit_price))
+        except Exception as e:
+            # TODO logging
+            toto = 0
+        # possible : BinanceRequestException, BinanceAPIException, BinanceOrderException, BinanceOrderMinAmountException, BinanceOrderMinPriceException, BinanceOrderMinTotalException, BinanceOrderUnknownSymbolException, BinanceOrderInactiveSymbolException
+
+        # TODO : Store in database
+        # RESULT of order:
+        # {'symbol': 'VETUSDT',
+        # 'orderId': 9358183,
+        # 'clientOrderId': 'ILNyxOioi7cPBDGkQSKtbH',
+        # 'transactTime': 1545235888618,
+        # 'price': '0.00550000',
+        # 'origQty': '5000.00000000',
+        # 'executedQty': '0.00000000',
+        # 'cummulativeQuoteQty': '0.00000000',
+        # 'status': 'NEW',
+        # 'timeInForce': 'GTC',
+        # 'type': 'LIMIT',
+        # 'side': 'SELL',
+        # 'fills': []}
+        return order['orderId']
 
     # override
-    def get_order(self, id_order):
-        return todo
+    def get_order(self, id_order, trading_pair):
+        order = self.client.get_order(
+            symbol=trading_pair,
+            orderId=id_order)
+
+        # Match with object AlgOrder (?)
+        # {'symbol': 'VETUSDT',
+        #  'origClientOrderId': 'ILNyxOioi7cPBDGkQSKtbH',
+        #  'orderId': 9358183,
+        #  'clientOrderId': '4ZPYz4mDfcTg6Ho0O1QhoA',
+        #  'price': '0.00550000',
+        #  'origQty': '5000.00000000',
+        #  'executedQty': '0.00000000',
+        #  'cummulativeQuoteQty': '0.00000000',
+        #  'status': 'CANCELED',
+        #  'timeInForce': 'GTC',
+        #  'type': 'LIMIT',
+        #  'side': 'SELL'}
+
+        return 'todo'
 
     # override
     def get_orders(self):
-        return todo
+        # Not useful for the moment (only for backtesting)
+        return 'N/A'
 
     # override
     def cancel_open_orders(self):
-        return todo
+        # TODO : Logging ce qu'on cancel, partiellement executé, etc.
+        orders = self.client.get_open_orders()
+        for order in orders:
+            result = self.client.cancel_order(
+                symbol=order['symbol'],
+                orderId=order['orderId'])
+
+    def format_amount_order(self, amount):
+        return "{:0.0{}f}".format(amount, self.precision)
