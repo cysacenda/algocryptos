@@ -7,6 +7,7 @@ from commons.config import Config
 from commons.processmanager import ProcessManager
 from commons.s3bucket import s3bucket
 from commons.utils import utils
+from commons.slack import slack
 
 # Configuration
 conf = Config()
@@ -139,7 +140,9 @@ try:
 
 except Exception as e:
     procM.setIsError()
-    logging.error('Uncatched error :' + str(e))
+    msg = 'Uncatched error :' + str(e)
+    logging.error(msg)
+    slack.post_message_to_alert_error_import(msg)
 
 # Stop process
 procM.stop_process(IdCurrentProcess, 'DataImporter', sys.argv)

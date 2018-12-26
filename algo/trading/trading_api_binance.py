@@ -2,12 +2,10 @@ from commons.config import Config
 from trading.trading_api import TradingApi, ORDER_SELL, ORDER_BUY
 from binance.client import Client
 from commons.dbaccess import DbConnection
-from binance.exceptions import BinanceAPIException, BinanceRequestException, BinanceOrderException, BinanceOrderMinAmountException, BinanceOrderMinPriceException, BinanceOrderMinTotalException, BinanceOrderUnknownSymbolException, BinanceOrderInactiveSymbolException
-
+from trading.alg_order import AlgOrderBinance
+from commons.slack import slack
 import logging
 
-# https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md
-# TODO : Manage Binance Errors (cf. debut fichier)
 # Look at orderTypes="STOP_LOSS_LIMIT"
 # Infos utiles:
 # https://api.binance.com/api/v1/exchangeInfo
@@ -49,8 +47,9 @@ class TradingApiBinance(TradingApi):
                 authorized_trading_pairs.append(symbol['symbol'])
 
         except Exception as e:
-            logging.error("TradingApiBinance.check_status_api() - Can't check status: " + str(e))
-            print(e)
+            msg = "TradingApiBinance.check_status_api() - Can't check status: " + str(e)
+            logging.error(msg)
+            slack.post_message_to_alert_error_trading(msg)
 
         return global_status, authorized_trading_pairs
 
@@ -69,7 +68,9 @@ class TradingApiBinance(TradingApi):
             ask_price = float(depth['asks'][0][0])  # get first ask price in order book
             buy_limit_price = ask_price + (ask_price * self.param_pct_order_placed)
         else:
-            raise Exception('Error while getting price in get_buy_price() for trading_pair:' + base_asset + quote_asset)
+            msg = 'Error while getting price in get_buy_price() for trading_pair:' + base_asset + quote_asset
+            slack.post_message_to_alert_error_trading(msg)
+            raise Exception(msg)
         return buy_limit_price
 
     # override
@@ -80,7 +81,9 @@ class TradingApiBinance(TradingApi):
             bid_price = float(depth['bids'][0][0])  # get first bid price in order book
             sell_limit_price = bid_price - (bid_price * self.param_pct_order_placed)
         else:
-            raise Exception('Error while getting price in get_sell_price() for trading_pair:' + base_asset + quote_asset)
+            msg = 'Error while getting price in get_sell_price() for trading_pair:' + base_asset + quote_asset
+            slack.post_message_to_alert_error_trading(msg)
+            raise Exception(msg)
         return sell_limit_price
 
     # override
@@ -90,10 +93,26 @@ class TradingApiBinance(TradingApi):
         if 'free' in infos_balance:
             balance = float(balance['free'])
         else:
-            raise Exception('Error while getting balance in get_available_amount_crypto() for symbol:' + symbol)
+            msg ='Error while getting balance in get_available_amount_crypto() for symbol:' + symbol
+            slack.post_message_to_alert_error_trading(msg)
+            raise Exception(msg)
         return balance
 
     # override
+    # RESULT of order:
+    # {'symbol': 'VETUSDT',
+    # 'orderId': 9358183,
+    # 'clientOrderId': 'ILNyxOioi7cPBDGkQSKtbH',
+    # 'transactTime': 1545235888618,
+    # 'price': '0.00550000',
+    # 'origQty': '5000.00000000',
+    # 'executedQty': '0.00000000',
+    # 'cummulativeQuoteQty': '0.00000000',
+    # 'status': 'NEW',
+    # 'timeInForce': 'GTC',
+    # 'type': 'LIMIT',
+    # 'side': 'SELL',
+    # 'fills': []}
     def create_order(self, base_asset, quote_asset, side, quantity_from, key):  # ex: USDT, ETH, 1000, BUY
         order = {}
         try:
@@ -110,7 +129,9 @@ class TradingApiBinance(TradingApi):
                     symbol=base_asset + quote_asset,
                     quantity=quantity_from,
                     price=self.format_amount_order(limit_price))
-            logging.warning("TradingApiBinance.create_order() - Order placed " + str(order))
+            msg = "TradingApiBinance.create_order() - Order placed " + str(order)
+            logging.warning(msg)
+            slack.post_message_to_alert_actions_trading(msg)
 
             # Save order into DB
             dbconn = DbConnection()
@@ -119,25 +140,10 @@ class TradingApiBinance(TradingApi):
             msg = "TradingApiBinance.create_order() - Error while creating order on tradingPair: {}, side: {}, qty:{}"
             logging.error(msg.format(base_asset + quote_asset, side, quantity_from))
             logging.error(str(e))
+            slack.post_message_to_alert_error_trading(msg.format(base_asset + quote_asset, side, quantity_from) + '\n' + str(e))
 
-        # TODO : Store in database
-        # RESULT of order:
-        # {'symbol': 'VETUSDT',
-        # 'orderId': 9358183,
-        # 'clientOrderId': 'ILNyxOioi7cPBDGkQSKtbH',
-        # 'transactTime': 1545235888618,
-        # 'price': '0.00550000',
-        # 'origQty': '5000.00000000',
-        # 'executedQty': '0.00000000',
-        # 'cummulativeQuoteQty': '0.00000000',
-        # 'status': 'NEW',
-        # 'timeInForce': 'GTC',
-        # 'type': 'LIMIT',
-        # 'side': 'SELL',
-        # 'fills': []}
         return order['orderId']
 
-    # TODO: Ajouter timestamp auto dans la table
     def __create_query_order(self, order):
         insertquery = 'INSERT INTO public.orders (orderId, symbol, clientOrderId, transactTime, price, origQty,' \
                       'executedQty, cummulativeQuoteQty, status, timeInForce, typeorder, side, fills)'
@@ -159,26 +165,23 @@ class TradingApiBinance(TradingApi):
 
 
     # override
+    # {'symbol': 'VETUSDT',
+    #  'origClientOrderId': 'ILNyxOioi7cPBDGkQSKtbH',
+    #  'orderId': 9358183,
+    #  'clientOrderId': '4ZPYz4mDfcTg6Ho0O1QhoA',
+    #  'price': '0.00550000',
+    #  'origQty': '5000.00000000',
+    #  'executedQty': '0.00000000',
+    #  'cummulativeQuoteQty': '0.00000000',
+    #  'status': 'CANCELED',
+    #  'timeInForce': 'GTC',
+    #  'type': 'LIMIT',
+    #  'side': 'SELL'}
     def get_order(self, id_order, trading_pair):
         order = self.client.get_order(
             symbol=trading_pair,
             orderId=id_order)
-
-        # Match with object AlgOrder (?)
-        # {'symbol': 'VETUSDT',
-        #  'origClientOrderId': 'ILNyxOioi7cPBDGkQSKtbH',
-        #  'orderId': 9358183,
-        #  'clientOrderId': '4ZPYz4mDfcTg6Ho0O1QhoA',
-        #  'price': '0.00550000',
-        #  'origQty': '5000.00000000',
-        #  'executedQty': '0.00000000',
-        #  'cummulativeQuoteQty': '0.00000000',
-        #  'status': 'CANCELED',
-        #  'timeInForce': 'GTC',
-        #  'type': 'LIMIT',
-        #  'side': 'SELL'}
-
-        return 'todo'
+        return AlgOrderBinance(order)
 
     # override
     def get_orders(self):
@@ -187,12 +190,18 @@ class TradingApiBinance(TradingApi):
 
     # override
     def cancel_open_orders(self):
-        # TODO : Logging ce qu'on cancel, partiellement executé, etc.
         orders = self.client.get_open_orders()
+        logging.warning("TradingApiBinance.cancel_open_orders() - Open orders to be cancelled " + str(orders))
         for order in orders:
-            result = self.client.cancel_order(
-                symbol=order['symbol'],
-                orderId=order['orderId'])
+            try:
+                result = self.client.cancel_order(
+                    symbol=order['symbol'],
+                    orderId=order['orderId'])
+                slack.post_message_to_alert_actions_trading('Order cancelled: ' + str(result))
+            except Exception as e:
+                msg = "TradingApiBinance.cancel_open_orders() - Order cannot be cancelled " + str(order)
+                logging.error(msg)
+                slack.post_message_to_alert_error_trading(msg)
 
     def format_amount_order(self, amount):
         return "{:0.0{}f}".format(amount, self.precision)

@@ -1,5 +1,6 @@
 from trading.trading_api import ORDER_BUY, ORDER_SELL
 import logging
+from commons.slack import slack
 
 class TradingModule:
     def __init__(self, trading_api, param_bet_size, param_min_bet_size, param_pct_order_placed,
@@ -67,7 +68,7 @@ class TradingModule:
         order = self.trading_api.get_order(id_order, trading_pair.name)
 
         # trace
-        if self.trace:
+        if self.trace and self.is_simulation():
             print(
                 '[BUY] ORDER PLACED (' + str(key) + '): ' + str(order.quantity_base) + ' ' + order.base_asset + ' for '
                 + str(order.quantity_quote) + '$ (close_price = ' + str(round(order.price, 2))
@@ -91,7 +92,7 @@ class TradingModule:
                                                  crypto_amount, key)
         order = self.trading_api.get_order(id_order, trading_pair.name)
 
-        if self.trace:
+        if self.trace and self.is_simulation():
             print(
                 '[SELL] ORDER PLACED (' + str(key) + '): ' + str(order.quantity_base) + ' ' + order.base_asset + ' for '
                 + str(order.quantity_quote) + '$ (close_price = ' + str(round(order.price, 2))
@@ -119,15 +120,26 @@ class TradingModule:
         if status:
             # sell
             for trading_pair, amount in self.__what_to_sell(key, signals).items():
-                self.__sell(key, trading_pair, amount)
-                # buy
+                if (trading_pair.name in authorized_trading_pairs) or self.is_simulation():
+                    self.__sell(key, trading_pair, amount)
+                else:
+                    msg = 'Error: TradingPair not authorized for trading: ' + trading_pair.name
+                    logging.error(msg)
+                    slack.post_message_to_alert_error_trading(msg)
             for trading_pair, amount in self.__what_to_buy(key, signals).items():
-                self.__buy(key, trading_pair, amount)
+                if (trading_pair.name in authorized_trading_pairs) or self.is_simulation():
+                    self.__buy(key, trading_pair, amount)
+                else:
+                    msg = 'Error: TradingPair not authorized for trading: ' + trading_pair.name
+                    logging.error(msg)
+                    slack.post_message_to_alert_error_trading(msg)
 
             self.amount_x.append(key)
             self.amount_y.append(self.trading_api.get_portfolio_value(self.trading_pairs, self.cash_asset, key))
         else:
-            logging.error("TradingModule.do_update() - API status=False")
+            msg = "TradingModule.do_update() - API status=False"
+            logging.error(msg)
+            slack.post_message_to_alert_error_trading(msg)
 
         logging.warning("TradingModule.do_update() - end")
 

@@ -1,5 +1,5 @@
 from trading.trading_api import TradingApi, ORDER_BUY, ORDER_SELL
-from trading.alg_order import AlgOrder
+from trading.alg_order import AlgOrderFake
 from datetime import timedelta
 
 
@@ -66,8 +66,8 @@ class TradingApiFake(TradingApi):
             base_asset_quantity, quote_asset_quantity = self.get_from_to(quantity_from, quantity_to, side)
 
             # create order already executed (for simulation needs)
-            order = AlgOrder(len(self.orders), base_asset, quote_asset, side, base_asset_quantity, quote_asset_quantity,
-                             price_init, fees, fees_quote_asset)
+            order = AlgOrderFake(len(self.orders), base_asset, quote_asset, side, base_asset_quantity, quote_asset_quantity,
+                                 price_init, fees, fees_quote_asset)
             self.orders[order.id_order] = order
             return order.id_order
         else:
