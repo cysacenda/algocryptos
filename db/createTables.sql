@@ -902,7 +902,7 @@ CREATE TABLE public.orders
     typeorder text,
     side text,
     fills text,
-    timestamp timestamp with time zone
+    timestamp timestamp with time zone default current_timestamp
 )
 WITH (
     OIDS = FALSE
