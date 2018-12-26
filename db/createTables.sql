@@ -901,7 +901,8 @@ CREATE TABLE public.orders
     timeInForce text,
     typeorder text,
     side text,
-    fills text
+    fills text,
+    timestamp timestamp with time zone
 )
 WITH (
     OIDS = FALSE
