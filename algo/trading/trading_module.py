@@ -1,8 +1,12 @@
 from trading.trading_api import ORDER_BUY, ORDER_SELL
+import logging
 
 class TradingModule:
     def __init__(self, trading_api, param_bet_size, param_min_bet_size, param_pct_order_placed,
                  param_nb_periods_to_hold_position, trading_pairs, cash_asset, thresholds, trace):
+
+        logging.warning("TradingModule.__init__() - start")
+
         self.x_buy = {}
         self.y_buy = {}
         self.x_sell = {}
@@ -22,6 +26,11 @@ class TradingModule:
         self.param_pct_order_placed = param_pct_order_placed
 
         self.init_var()
+
+        logging.warning("TradingModule.__init__() - end")
+
+    def is_simulation(self):
+        return self.trading_api.is_simulation()
 
     def init_var(self):
         for trading_pair, value in self.trading_pairs.items():
@@ -99,6 +108,8 @@ class TradingModule:
 
     # check & perform actions that need to be done (buy / sell) at a specific date
     def do_update(self, key, signals):
+        logging.warning("TradingModule.do_update() - start")
+
         # cancel open orders (buy + sell ?)
         self.trading_api.cancel_open_orders()
 
@@ -116,8 +127,9 @@ class TradingModule:
             self.amount_x.append(key)
             self.amount_y.append(self.trading_api.get_portfolio_value(self.trading_pairs, self.cash_asset, key))
         else:
-            # TODO : Error
-            print('Error')
+            logging.error("TradingModule.do_update() - API status=False")
+
+        logging.warning("TradingModule.do_update() - end")
 
     def get_available_amount_crypto(self, symbol):
         return self.trading_api.get_available_amount_crypto(symbol)

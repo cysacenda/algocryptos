@@ -3,6 +3,8 @@ from trading.trading_api import TradingApi, ORDER_SELL, ORDER_BUY
 from binance.client import Client
 from binance.exceptions import BinanceAPIException, BinanceRequestException, BinanceOrderException, BinanceOrderMinAmountException, BinanceOrderMinPriceException, BinanceOrderMinTotalException, BinanceOrderUnknownSymbolException, BinanceOrderInactiveSymbolException
 
+import logging
+
 # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md
 # TODO : Manage Binance Errors (cf. debut fichier)
 # Look at orderTypes="STOP_LOSS_LIMIT"
@@ -18,6 +20,9 @@ class TradingApiBinance(TradingApi):
         self.API_SECRET = conf.get_config('binance', 'api_secret')
         self.client = Client(self.api_key, self.api_secret) # lib python-binance
         self.precision = 5  # binance api precision for amount
+
+    def is_simulation(self):
+        return False
 
     # override
     def check_status_api(self):
@@ -42,14 +47,8 @@ class TradingApiBinance(TradingApi):
             for symbol in exchange_info['symbols']:
                 authorized_trading_pairs.append(symbol['symbol'])
 
-        except BinanceRequestException as e:
-            # TODO
-            print(e)
-        except BinanceAPIException as e:
-            # TODO
-            print(e)
         except Exception as e:
-            # TODO
+            logging.error("TradingApiBinance.check_status_api() - Can't check status: " + str(e))
             print(e)
 
         return global_status, authorized_trading_pairs
@@ -110,10 +109,11 @@ class TradingApiBinance(TradingApi):
                     symbol=base_asset + quote_asset,
                     quantity=quantity_from,
                     price=self.format_amount_order(limit_price))
+            logging.warning("TradingApiBinance.create_order() - Order placed " + str(order))
         except Exception as e:
-            # TODO logging
-            toto = 0
-        # possible : BinanceRequestException, BinanceAPIException, BinanceOrderException, BinanceOrderMinAmountException, BinanceOrderMinPriceException, BinanceOrderMinTotalException, BinanceOrderUnknownSymbolException, BinanceOrderInactiveSymbolException
+            msg = "TradingApiBinance.create_order() - Error while creating order on tradingPair: {}, side: {}, qty:{}"
+            logging.error(msg.format(base_asset + quote_asset, side, quantity_from))
+            logging.error(str(e))
 
         # TODO : Store in database
         # RESULT of order:

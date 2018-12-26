@@ -10,6 +10,10 @@ class TradingApi(ABC):
         pass
 
     @abstractmethod
+    def is_simulation(self):
+        pass
+
+    @abstractmethod
     def check_status_api(self):
         pass
 
