@@ -29,7 +29,7 @@ try:
                             action='store_true')
         args = parser.parse_args()
 
-        if args.full:
+        if args.std:
             # Check that no important traitement running ? last ohlcv just done ? Do it with process management
             # -----------------------------------------------
             # Start program

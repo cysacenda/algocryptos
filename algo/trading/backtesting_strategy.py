@@ -11,6 +11,8 @@ class BacktestingStrategy:
         self.param_fees = 0.001  # 0.1%
         self.param_bet_size = 1.00  # %
         self.param_min_bet_size = 100.0  # $
+        self.param_pct_order_placed = 0.01  # 1% up/down
+        self.param_nb_periods_to_hold_position = 24  # 1d
         self.signals = {}
         self.all_signals = {}
 
@@ -34,12 +36,12 @@ class BacktestingStrategy:
             init_positions[value.base_asset] = 0.0
 
         # trading API (fake one for simulation)
-        trading_api = TradingApiFake()
+        trading_api = TradingApiFake(self.param_pct_order_placed)
         trading_api.init_from_backtesting_strategy(init_positions, self.param_fees, self.close_price)
 
         # trading module
-        self.trading_module = TradingModule(trading_api, self.param_bet_size, self.param_min_bet_size,
-                                             self.trading_pairs, self.cash_asset, self.thresholds, self.trace)
+        self.trading_module = TradingModule(trading_api, self.param_bet_size, self.param_min_bet_size, self.param_pct_order_placed,
+                                            self.param_nb_periods_to_hold_position, self.trading_pairs,  self.cash_asset, self.thresholds, self.trace)
 
     def __calcul_signals(self):
         for trading_pair, value in self.trading_pairs.items():

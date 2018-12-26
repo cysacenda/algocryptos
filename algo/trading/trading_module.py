@@ -1,7 +1,12 @@
 from trading.trading_api import ORDER_BUY, ORDER_SELL
+import logging
 
 class TradingModule:
-    def __init__(self, trading_api, param_bet_size, param_min_bet_size, trading_pairs, cash_asset, thresholds, trace):
+    def __init__(self, trading_api, param_bet_size, param_min_bet_size, param_pct_order_placed,
+                 param_nb_periods_to_hold_position, trading_pairs, cash_asset, thresholds, trace):
+
+        logging.warning("TradingModule.__init__() - start")
+
         self.x_buy = {}
         self.y_buy = {}
         self.x_sell = {}
@@ -15,11 +20,17 @@ class TradingModule:
         self.thresholds = thresholds
         self.trace = trace
 
-        self.nb_periods_to_hold_position = 24  # 1d => TODO : sell must be done if pct_change model touched / check close price
+        self.param_nb_periods_to_hold_position = param_nb_periods_to_hold_position
         self.param_bet_size = param_bet_size
         self.param_min_bet_size = param_min_bet_size
+        self.param_pct_order_placed = param_pct_order_placed
 
         self.init_var()
+
+        logging.warning("TradingModule.__init__() - end")
+
+    def is_simulation(self):
+        return self.trading_api.is_simulation()
 
     def init_var(self):
         for trading_pair, value in self.trading_pairs.items():
@@ -53,9 +64,7 @@ class TradingModule:
     def __buy(self, key, trading_pair, amount):
         id_order = self.trading_api.create_order(trading_pair.base_asset, trading_pair.quote_asset, ORDER_BUY, amount,
                                                  key)
-        order = self.trading_api.get_order(id_order)
-
-        # TODO : System that ensure that order is executed, may modify order, etc.
+        order = self.trading_api.get_order(id_order, trading_pair.name)
 
         # trace
         if self.trace:
@@ -80,7 +89,7 @@ class TradingModule:
     def __sell(self, key, trading_pair, crypto_amount):  # from_crypto, to_crypto
         id_order = self.trading_api.create_order(trading_pair.base_asset, trading_pair.quote_asset, ORDER_SELL,
                                                  crypto_amount, key)
-        order = self.trading_api.get_order(id_order)
+        order = self.trading_api.get_order(id_order, trading_pair.name)
 
         if self.trace:
             print(
@@ -99,6 +108,8 @@ class TradingModule:
 
     # check & perform actions that need to be done (buy / sell) at a specific date
     def do_update(self, key, signals):
+        logging.warning("TradingModule.do_update() - start")
+
         # cancel open orders (buy + sell ?)
         self.trading_api.cancel_open_orders()
 
@@ -116,8 +127,9 @@ class TradingModule:
             self.amount_x.append(key)
             self.amount_y.append(self.trading_api.get_portfolio_value(self.trading_pairs, self.cash_asset, key))
         else:
-            # TODO : Error
-            print('Error')
+            logging.error("TradingModule.do_update() - API status=False")
+
+        logging.warning("TradingModule.do_update() - end")
 
     def get_available_amount_crypto(self, symbol):
         return self.trading_api.get_available_amount_crypto(symbol)
