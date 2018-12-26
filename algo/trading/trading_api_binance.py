@@ -1,6 +1,7 @@
 from commons.config import Config
 from trading.trading_api import TradingApi, ORDER_SELL, ORDER_BUY
 from binance.client import Client
+from commons.dbaccess import DbConnection
 from binance.exceptions import BinanceAPIException, BinanceRequestException, BinanceOrderException, BinanceOrderMinAmountException, BinanceOrderMinPriceException, BinanceOrderMinTotalException, BinanceOrderUnknownSymbolException, BinanceOrderInactiveSymbolException
 
 import logging
@@ -96,6 +97,7 @@ class TradingApiBinance(TradingApi):
     def create_order(self, base_asset, quote_asset, side, quantity_from, key):  # ex: USDT, ETH, 1000, BUY
         order = {}
         try:
+            # TODO : Use stopPrice for stop loss genre -3-4% ?
             if side == ORDER_BUY:
                 limit_price = self.get_buy_price(base_asset, quote_asset, key)
                 order = self.client.order_limit_buy(
@@ -103,13 +105,16 @@ class TradingApiBinance(TradingApi):
                     quantity=quantity_from,
                     price=self.format_amount_order(limit_price))
             else:
-                # TODO : Use stopPrice for stop loss genre -3-4% ?
                 limit_price = self.get_sell_price(base_asset, quote_asset, key)
                 order = self.client.order_limit_sell(
                     symbol=base_asset + quote_asset,
                     quantity=quantity_from,
                     price=self.format_amount_order(limit_price))
             logging.warning("TradingApiBinance.create_order() - Order placed " + str(order))
+
+            # Save order into DB
+            dbconn = DbConnection()
+            dbconn.exexute_query(self.__create_query_order(order))
         except Exception as e:
             msg = "TradingApiBinance.create_order() - Error while creating order on tradingPair: {}, side: {}, qty:{}"
             logging.error(msg.format(base_asset + quote_asset, side, quantity_from))
@@ -131,6 +136,27 @@ class TradingApiBinance(TradingApi):
         # 'side': 'SELL',
         # 'fills': []}
         return order['orderId']
+
+    # TODO: Ajouter timestamp auto dans la table
+    def __create_query_order(self, order):
+        insertquery = 'INSERT INTO public.orders (orderId, symbol, clientOrderId, transactTime, price, origQty,' \
+                      'executedQty, cummulativeQuoteQty, status, timeInForce, typeorder, side, fills)'
+        insertquery += ' VALUES('
+        insertquery += str(order['orderId']) + ', '
+        insertquery += "'" + order['symbol'] + "', "
+        insertquery += "'" + order['clientOrderId'] + "', "
+        insertquery += str(order['transactTime']) + ', '
+        insertquery += str(order['price']) + ', '
+        insertquery += str(order['origQty']) + ', '
+        insertquery += str(order['executedQty']) + ', '
+        insertquery += str(order['cummulativeQuoteQty']) + ', '
+        insertquery += "'" + order['status'] + "', "
+        insertquery += "'" + order['timeInForce'] + "', "
+        insertquery += "'" + order['type'] + "', "
+        insertquery += "'" + order['side'] + "', "
+        insertquery += "'" + str(order['fills']) + "')"
+        return insertquery
+
 
     # override
     def get_order(self, id_order, trading_pair):
