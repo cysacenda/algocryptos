@@ -6,7 +6,7 @@ class TradingModule:
     def __init__(self, trading_api, param_bet_size, param_min_bet_size, param_pct_order_placed,
                  param_nb_periods_to_hold_position, trading_pairs, cash_asset, thresholds, trace):
 
-        self.do_logging_warning("TradingModule.__init__() - start")
+        logging.warning("TradingModule.__init__() - start")
 
         self.x_buy = {}
         self.y_buy = {}
@@ -28,7 +28,7 @@ class TradingModule:
 
         self.init_var()
 
-        self.do_logging_warning("TradingModule.__init__() - end")
+        logging.warning("TradingModule.__init__() - end")
 
     def is_simulation(self):
         return self.trading_api.is_simulation()
