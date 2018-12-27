@@ -6,7 +6,7 @@ class TradingModule:
     def __init__(self, trading_api, param_bet_size, param_min_bet_size, param_pct_order_placed,
                  param_nb_periods_to_hold_position, trading_pairs, cash_asset, thresholds, trace):
 
-        logging.warning("TradingModule.__init__() - start")
+        self.do_logging_warning("TradingModule.__init__() - start")
 
         self.x_buy = {}
         self.y_buy = {}
@@ -28,7 +28,7 @@ class TradingModule:
 
         self.init_var()
 
-        logging.warning("TradingModule.__init__() - end")
+        self.do_logging_warning("TradingModule.__init__() - end")
 
     def is_simulation(self):
         return self.trading_api.is_simulation()
@@ -109,7 +109,7 @@ class TradingModule:
 
     # check & perform actions that need to be done (buy / sell) at a specific date
     def do_update(self, key, signals):
-        logging.warning("TradingModule.do_update() - start")
+        self.do_logging_warning("TradingModule.do_update() - start")
 
         # cancel open orders (buy + sell ?)
         self.trading_api.cancel_open_orders()
@@ -141,7 +141,7 @@ class TradingModule:
             logging.error(msg)
             slack.post_message_to_alert_error_trading(msg)
 
-        logging.warning("TradingModule.do_update() - end")
+        self.do_logging_warning("TradingModule.do_update() - end")
 
     def get_available_amount_crypto(self, symbol):
         return self.trading_api.get_available_amount_crypto(symbol)
@@ -157,3 +157,8 @@ class TradingModule:
 
     def get_signals(self):
         return self.x_buy, self.y_buy, self.x_sell, self.y_sell, self.amount_x, self.amount_y
+
+    # logging warning only when not simulation
+    def do_logging_warning(self, message):
+        if not self.is_simulation():
+            logging.warning(message)
