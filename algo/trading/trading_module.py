@@ -143,6 +143,11 @@ class TradingModule:
 
         self.do_logging_warning("TradingModule.do_update() - end")
 
+        # Post portfolio value to Slack
+        if not self.is_simulation():
+            portfolio_amount = self.trading_api.get_portfolio_value(self.trading_pairs, self.cash_asset, key)
+            slack.post_message_to_alert_portfolio('Portfolio value: ' + str(portfolio_amount) + ' ' + self.cash_asset)
+
     def get_available_amount_crypto(self, symbol):
         return self.trading_api.get_available_amount_crypto(symbol)
 
