@@ -39,7 +39,7 @@ class TradingApiBinance(TradingApi):
                 if (status_client['msg'] == 'Normal') and (status_client['success'] == True):
                     # Check account status related to trading
                     info_client = self.client.get_account()
-                    if info_client['canTrade'] == True:
+                    if info_client['canTrade']:
                         global_status = True
             # Exchange info to verify which tradingpairs are tradable
             exchange_info = self.client.get_exchange_info()
