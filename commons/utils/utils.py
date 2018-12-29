@@ -28,7 +28,7 @@ def float_to_str(f):
     return format(d1, 'f')
 
 def get_connection_string():
-    dbhost = conf.get_config('db', 'dbhost')
+    dbhost = conf.get_config('db', 'dbhost') 
     dbname = conf.get_config('db', 'dbname')
     dbuser = conf.get_config('db', 'dbuser')
     dbpassword = conf.get_config('db', 'dbpassword')
