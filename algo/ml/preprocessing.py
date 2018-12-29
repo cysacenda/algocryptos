@@ -4,6 +4,7 @@ import pandas.io.sql as psql
 import pandas as pd
 pd.options.mode.chained_assignment = None  # default='warn'
 
+from commons.utils import utils
 from sqlalchemy import create_engine
 
 import pytz
@@ -15,11 +16,14 @@ from sklearn.decomposition import PCA
 
 from ml.utils_ml import remove_outliers
 
-#import talib # https://github.com/mrjbq7/ta-lib    -    https://mrjbq7.github.io/ta-lib/
+# import talib # https://github.com/mrjbq7/ta-lib    -    https://mrjbq7.github.io/ta-lib/
 from talib.abstract import *
 
 ohlcv_columns_to_be_cleaned = ['close_price', 'open_price', 'low_price', 'high_price', 'volume_aggregated_1h']
+
 str_sql = 'postgresql://dbuser:algocryptos@localhost:9091/algocryptos'
+# TODO : Replace when production (/!\ EC2 / Server ML)
+str_sql =  utils.get_connection_string()
 
 # ======== UTILS ========
 

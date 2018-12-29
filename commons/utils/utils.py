@@ -3,6 +3,7 @@ from datetime import datetime
 import tzlocal
 import decimal
 import platform
+import socket
 
 conf = Config()
 DATE_FORMAT = conf.get_config('cryptocompare_params', 'date_format')
@@ -31,7 +32,14 @@ def get_connection_string():
     dbname = conf.get_config('db', 'dbname')
     dbuser = conf.get_config('db', 'dbuser')
     dbpassword = conf.get_config('db', 'dbpassword')
-    dbport = conf.get_config('db', 'dbport')
+    dbport = 0
+
+    # manage when from different server
+    machine_name = socket.gethostname()
+    if machine_name == 'CSA-Server-ML':
+        dbport = conf.get_config('db', 'dbport')
+    else:
+        dbport = conf.get_config('db_ml', 'dbport')
     return 'postgresql://' + dbuser + ':' + dbpassword + '@' + dbhost + ':' + dbport + '/' + dbname
 
 def get_path_for_system(linux_path, other_path):
