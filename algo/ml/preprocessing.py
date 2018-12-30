@@ -21,12 +21,10 @@ from talib.abstract import *
 
 ohlcv_columns_to_be_cleaned = ['close_price', 'open_price', 'low_price', 'high_price', 'volume_aggregated_1h']
 
-str_sql = 'postgresql://dbuser:algocryptos@localhost:9091/algocryptos'
-# TODO : Replace when production (/!\ EC2 / Server ML)
-str_sql =  utils.get_connection_string()
+str_sql = utils.get_connection_string()
+
 
 # ======== UTILS ========
-
 def do_timestamp_tasks(df_ts):
     df_ts = df_ts[~df_ts.timestamp.duplicated(keep='first')]
     df_ts['timestamp'] = pd.to_datetime(df_ts.timestamp, utc=True)
@@ -526,6 +524,7 @@ def get_global_dataset_for_crypto(id_cryptocompare_crypto):
 
     return df_final  # .reset_index(drop=True)
 
+
 def get_global_datasets_for_cryptos(ids_cryptocompare_crypto):
     dict_df = {}
     for id_crypto in ids_cryptocompare_crypto:
@@ -541,6 +540,7 @@ def get_global_datasets_for_cryptos(ids_cryptocompare_crypto):
             print(str(e))
 
     return dict_df
+
 
 def get_global_datasets_for_top_n_cryptos(top_n=20):
     connection_tmp = create_engine(str_sql)
@@ -636,7 +636,7 @@ def get_preprocessed_data(dict_df, dict_hours_labels, close_price_increase_targe
     # All cryptos
     X_train, X_test, y_train, y_test = do_split_data(df_global, columns_nb, min_index, nb_days)
 
-    # TODO : Danger non ? faire par date pour être sûr qu'on mélange pas !
+    # One crypto
     if predict_only_one_crypto:
         # The one to predict
         X_train_one_crypto, X_test_one_crypto, y_train_one_crypto, y_test_one_crypto = do_split_data(
