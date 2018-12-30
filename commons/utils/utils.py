@@ -28,18 +28,16 @@ def float_to_str(f):
     return format(d1, 'f')
 
 def get_connection_string():
-    dbhost = conf.get_config('db', 'dbhost') 
+    dbhost = conf.get_config('db', 'dbhost')
     dbname = conf.get_config('db', 'dbname')
     dbuser = conf.get_config('db', 'dbuser')
     dbpassword = conf.get_config('db', 'dbpassword')
-    dbport = 0
+    dbport = conf.get_config('db', 'dbport')
 
-    # manage when from different server
+    # manage when not on server AWS EC2
     machine_name = socket.gethostname()
-    if machine_name == 'CSA-Server-ML':
-        dbport = conf.get_config('db', 'dbport')
-    else:
-        dbport = conf.get_config('db_ml', 'dbport')
+    if machine_name in ['CSA-Server-ML', 'DESKTOP-RTOK6M3']:
+        dbport = conf.get_config('db', 'dbport_ext')
     return 'postgresql://' + dbuser + ':' + dbpassword + '@' + dbhost + ':' + dbport + '/' + dbname
 
 def get_path_for_system(linux_path, other_path):
