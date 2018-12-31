@@ -4,6 +4,7 @@ import numpy as np
 from trading.trading_api_fake import TradingApiFake
 from trading.trading_module import TradingModule
 
+
 class BacktestingStrategy:
     def __init__(self, model, model_term, init_date, end_date, X_tests, close_price, target, thresholds, trading_pairs,
                  cash_asset, trace=True):
@@ -40,8 +41,9 @@ class BacktestingStrategy:
         trading_api.init_from_backtesting_strategy(init_positions, self.param_fees, self.close_price)
 
         # trading module
-        self.trading_module = TradingModule(trading_api, self.param_bet_size, self.param_min_bet_size, self.param_pct_order_placed,
-                                            self.param_nb_periods_to_hold_position, self.trading_pairs,  self.cash_asset, self.thresholds, self.trace)
+        self.trading_module = TradingModule(trading_api, self.param_bet_size, self.param_min_bet_size,
+                                            self.param_pct_order_placed, self.param_nb_periods_to_hold_position,
+                                            self.trading_pairs,  self.cash_asset, self.thresholds, self.trace)
 
     def __calcul_signals(self):
         for trading_pair, value in self.trading_pairs.items():

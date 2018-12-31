@@ -1,10 +1,11 @@
 import numpy as np
 import pandas as pd
-pd.options.mode.chained_assignment = None  # default='warn'
 from ml.preproc_load import PreprocLoad
 from ml.utils_ml import remove_outliers
 from ml.preproc_feature_engineering import PreprocFeatureEngineering
 from commons.config import Config
+
+pd.options.mode.chained_assignment = None  # default='warn'
 
 
 # Prepare data from raw data
@@ -33,7 +34,7 @@ class PreprocPrepare:
 
         # Only when datafarme contains rows
         if len(df_ohlcv_old.index) > 0:
-            df_ohlcv_old = PreprocLoad.clean_dataset_ohlcv_std(df_ohlcv_old, PreprocPrepare.get_columns_to_be_cleaned(),
+            df_ohlcv_old = PreprocPrepare.clean_dataset_ohlcv_std(df_ohlcv_old, PreprocPrepare.get_columns_to_be_cleaned(),
                                                                resample='1D')
 
             # resample to 1d
@@ -67,7 +68,7 @@ class PreprocPrepare:
 
         # Only when datafarme contains rows
         if len(df_ohlcv_old.index) > 0:
-            df_ohlcv_old = PreprocLoad.clean_dataset_ohlcv_std(df_ohlcv_old, PreprocPrepare.get_columns_to_be_cleaned(), resample='1D')
+            df_ohlcv_old = PreprocPrepare.clean_dataset_ohlcv_std(df_ohlcv_old, PreprocPrepare.get_columns_to_be_cleaned(), resample='1D')
 
             # resample to 1h
             df_ohlcv_old = df_ohlcv_old.resample("1H").interpolate()
@@ -123,7 +124,7 @@ class PreprocPrepare:
         df_ohlcv_p = df_ohlcv_p.loc[
             (df_ohlcv_p.open_price != 0.0) & (df_ohlcv_p.high_price != 0.0) & (df_ohlcv_p.low_price != 0.0) & (
                         df_ohlcv_p.close_price != 0.0) & (df_ohlcv_p.volume_aggregated_1h != 0.0)]
-        return PreprocLoad.clean_dataset_ohlcv_std(df_ohlcv_p, PreprocPrepare.get_columns_to_be_cleaned())
+        return PreprocPrepare.clean_dataset_ohlcv_std(df_ohlcv_p, PreprocPrepare.get_columns_to_be_cleaned())
 
     @staticmethod
     def clean_dataset_ohlcv_std(df_ohlcv_p, columns_name, do_ts_tasks=True, resample='1H'):
@@ -135,7 +136,6 @@ class PreprocPrepare:
         # no scale change (regarding calls done in code)
         df_ohlcv_p = df_ohlcv_p.resample(resample).interpolate()
         return df_ohlcv_p
-
 
     @staticmethod
     def get_global_dataset_for_crypto(connection, id_cryptocompare_crypto):
@@ -177,7 +177,7 @@ class PreprocPrepare:
         # --------------------------------
         # ALL CRYPTOS
         # --------------------------------
-        df_all_cryptos = PreprocPrepare.get_dataset_all_cryptos(connection)
+        df_all_cryptos = PreprocLoad.get_dataset_all_cryptos(connection)
         df_all_cryptos = PreprocPrepare.clean_dataset_ohlcv_std(df_all_cryptos,
                                                  columns_name=['global_volume_usd_1h', 'global_market_cap_usd'])
 
@@ -211,7 +211,7 @@ class PreprocPrepare:
         df_ohlcv_bitcoin_fe = PreprocFeatureEngineering.feature_engineering_ohlcv(df_ohlcv_bitcoin)
         df_technical_analysis = PreprocFeatureEngineering.feature_engineering_technical_analysis(df_ohlcv, df_ohlcv_1d)
         df_all_cryptos = PreprocFeatureEngineering.feature_engineering_ohlcv_all_cryptos(df_all_cryptos)
-        df_google_trend_crypto_5y =PreprocFeatureEngineering.feature_engineering_google_trend(df_google_trend_crypto_5y, 'y')
+        df_google_trend_crypto_5y = PreprocFeatureEngineering.feature_engineering_google_trend(df_google_trend_crypto_5y, 'y')
         df_google_trend_bitcoin_5y = PreprocFeatureEngineering.feature_engineering_google_trend(df_google_trend_bitcoin_5y, 'y')
 
         # Join dfs

@@ -1,5 +1,6 @@
 class AlgOrderFake:
-    def __init__(self, id_order, base_asset, quote_asset, side, quantity_base, quantity_quote, price, fees, fees_quote_asset):
+    def __init__(self, id_order, base_asset, quote_asset, side, quantity_base, quantity_quote,
+                 price, fees, fees_quote_asset):
         self.id_order = id_order
         self.base_asset = base_asset
         self.quote_asset = quote_asset
@@ -9,6 +10,7 @@ class AlgOrderFake:
         self.price = price
         self.fees = fees
         self.fees_quote_asset = fees_quote_asset
+
 
 class AlgOrderBinance:
     # init from object retrieved from binance API

@@ -5,13 +5,13 @@ from sklearn.utils.fixes import signature
 from matplotlib import pyplot as plt
 import seaborn as sns
 import pandas as pd
-pd.options.mode.chained_assignment = None  # default='warn'
 import numpy as np
 from scipy import stats
 import pickle
 
 from sklearn.metrics import classification_report
 
+pd.options.mode.chained_assignment = None  # default='warn'
 
 def show_nan_count_per_column(df):
     null_columns = df.columns[df.isnull().any()]
@@ -56,8 +56,8 @@ def evaluate_model_formated(model, pX_test, py_test, threshold, do_feat_importan
                                                                                                      do_feat_importances,
                                                                                                      target)
     return confusion[0][0], confusion[0][1], confusion[1][0], confusion[1][
-        1], precision, recall, f1, support_True, support_False, feat_importances.values[0], feat_importances.values[1], \
-           feat_importances.values[2]
+        1], precision, recall, f1, support_True, support_False, feat_importances.values[0], \
+           feat_importances.values[1], feat_importances.values[2]
 
 
 def show_model_accuracy(algo_name, model, pX_test, py_test, pX_columns, do_roc_curve=False,
@@ -91,7 +91,7 @@ def show_model_accuracy(algo_name, model, pX_test, py_test, pX_columns, do_roc_c
 
     # Plot ROC curve
     if do_roc_curve:
-        predicted = model.predict(pX_test)
+        # predicted = model.predict(pX_test)
         # fpr, tpr, thresholds = roc_curve(py_test, predicted)
         fpr, tpr, thresholds = roc_curve(py_test, probs)
         roc_auc = auc(fpr, tpr)
@@ -164,7 +164,7 @@ def show_model_accuracy_new_way(model, X_, y_test_value, X_close_price, threshol
     df_probs.index = X_.index
     df_probs.columns = ['prob']
     df_probs['sup_treshold'] = (df_probs['prob'] >= threshold)
-    df_probs = df_probs[df_probs['sup_treshold'] == True]
+    df_probs = df_probs[df_probs['sup_treshold']]
     df_probs['close_price'] = X_close_price
     df_probs['close_price_+term'] = y_test_value  # y_test['y_+1d_value']
     df_probs['pct_change_value'] = ((df_probs['close_price_+term'] - df_probs['close_price']) / df_probs[
@@ -221,14 +221,17 @@ def load_obj(name):
     with open('obj/' + name + '.pkl', 'rb') as f:
         return pickle.load(f)
 
+
 def remove_id_index(X_close):
     X_close = X_close.copy().reset_index()
     X_close = X_close.drop(['id_cryptocompare'], axis=1)
     X_close = X_close.set_index('timestamp')
     return X_close
 
+
 def format_both_close_prices(X_train, X_test, id_cryptocompare):
     return format_close_prices(X_train, id_cryptocompare), format_close_prices(X_test, id_cryptocompare)
+
 
 def format_close_prices(X_, id_cryptocompare):
     X_ = pd.DataFrame(X_)
