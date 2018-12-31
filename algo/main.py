@@ -6,6 +6,9 @@ from commons.config import Config
 from commons.processmanager import ProcessManager
 from commons.slack import slack
 
+from trading.trading_api_binance import TradingApiBinance
+from trading.trading_module import TradingModule
+
 # Configuration
 conf = Config()
 
@@ -35,7 +38,13 @@ try:
             # -----------------------------------------------
             # Start program
             # -----------------------------------------------
-            toto = 0
+
+            trading_api_binance = TradingApiBinance(self.param_pct_order_placed)
+
+            # trading module
+            trading_module = TradingModule(trading_api_binance, self.param_bet_size, self.param_min_bet_size,
+                                                self.param_pct_order_placed, self.param_nb_periods_to_hold_position,
+                                                self.trading_pairs, self.cash_asset, self.thresholds, self.trace)
 
 
 except Exception as e:

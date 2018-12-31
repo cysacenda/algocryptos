@@ -3,6 +3,9 @@ import pytz
 
 from datetime import datetime, timedelta
 
+from ml.preproc_load import PreprocLoad
+from ml.preproc_prepare import PreprocPrepare
+
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.decomposition import PCA
 
@@ -12,6 +15,29 @@ utc=pytz.UTC
 
 #Calcul y + split data
 class PreprocLearning:
+
+    @staticmethod
+    def get_global_datasets_for_cryptos(connection, ids_cryptocompare_crypto):
+        dict_df = {}
+        for id_crypto in ids_cryptocompare_crypto:
+            print('Crypto : ' + str(id_crypto))
+            try:
+                df = PreprocPrepare.get_global_dataset_for_crypto(connection, id_crypto)
+                if df.empty:
+                    print('ALERT : Empty dataframe')
+                else:
+                    dict_df[str(id_crypto)] = df
+            except Exception as e:
+                print('ERROR : get_global_dataset_for_crypto() for crypto : ' + str(id_crypto))
+                print(str(e))
+
+        return dict_df
+
+    @staticmethod
+    def get_global_datasets_for_top_n_cryptos(connection, top_n=20):
+        # TODO : To be passed in args
+        df = PreprocLoad.get_dataset_ids_top_n_cryptos(connection, top_n)
+        return PreprocLearning.get_global_datasets_for_cryptos(connection, df.id_cryptocompare.tolist())
 
     @staticmethod
     def calcul_values_of_y(df, dict_hours_labels, increase_target_pct):
