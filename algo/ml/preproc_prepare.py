@@ -235,7 +235,7 @@ class PreprocPrepare:
         # drop na if exist
         df_final = df_global.dropna(axis='rows')
         diff = df_global.shape[0] - df_final.shape[0]
-        if (diff > 0):
+        if diff > 0:
             print(str(diff) + ' rows containing Nan dropped')
 
         # index with id_crypto + date
