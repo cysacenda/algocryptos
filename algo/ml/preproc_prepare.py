@@ -72,6 +72,7 @@ class PreprocPrepare:
 
             # resample to 1h
             df_ohlcv_old = df_ohlcv_old.resample("1H").interpolate()
+            # TODO: Replace 24 with model horizon
             df_ohlcv_old.volume_aggregated_1h = df_ohlcv_old.volume_aggregated_1h / 24
 
             # quick & dirty way to have coherents volumes between both dataset
@@ -244,26 +245,3 @@ class PreprocPrepare:
         df_final.set_index(['timestamp', 'id_cryptocompare'], inplace=True)
 
         return df_final
-
-    @staticmethod
-    def get_global_datasets_for_cryptos(connection, ids_cryptocompare_crypto):
-        dict_df = {}
-        for id_crypto in ids_cryptocompare_crypto:
-            print('Crypto : ' + str(id_crypto))
-            try:
-                df = PreprocPrepare.get_global_dataset_for_crypto(connection, id_crypto)
-                if df.empty:
-                    print('ALERT : Empty dataframe')
-                else:
-                    dict_df[str(id_crypto)] = df
-            except Exception as e:
-                print('ERROR : get_global_dataset_for_crypto() for crypto : ' + str(id_crypto))
-                print(str(e))
-
-        return dict_df
-
-    @staticmethod
-    def get_global_datasets_for_top_n_cryptos(connection, top_n=20):
-        # TODO : To be passed in args
-        df = PreprocLoad.get_dataset_ids_top_n_cryptos(connection, top_n)
-        return PreprocPrepare.get_global_datasets_for_cryptos(connection, df.id_cryptocompare.tolist())

@@ -3,24 +3,27 @@ import pandas as pd
 import numpy as np
 from trading.trading_api_fake import TradingApiFake
 from trading.trading_module import TradingModule
+from commons.config import Config
 
 
 class BacktestingStrategy:
     def __init__(self, model, model_term, init_date, end_date, X_tests, close_price, target, thresholds, trading_pairs,
                  cash_asset, trace=True):
-        self.param_init_amount_cash = 1000.0  # $
-        self.param_fees = 0.001  # 0.1%
-        self.param_bet_size = 1.00  # %
-        self.param_min_bet_size = 100.0  # $
-        self.param_pct_order_placed = 0.01  # 1% up/down
-        self.param_nb_periods_to_hold_position = 24  # 1d
+        conf = Config()
+
+        self.param_init_amount_cash = float(conf.get_config('backtesting_stragegy_params', 'init_amount_cash'))  # $
+        self.param_fees = float(conf.get_config('backtesting_stragegy_params', 'fees'))  # $
+        self.param_bet_size = float(conf.get_config('backtesting_stragegy_params', 'bet_size'))  # %
+        self.param_min_bet_size = float(conf.get_config('backtesting_stragegy_params', 'min_bet_size'))  # $
+        self.param_pct_order_placed = float(conf.get_config('backtesting_stragegy_params', 'pct_order_placed'))  # 1% up/down
+        self.param_nb_periods_to_hold_position = int(conf.get_config('backtesting_stragegy_params', 'pct_order_placed'))  # 1d
         self.signals = {}
         self.all_signals = {}
 
         self.model = model
         self.model_term = model_term
         self.init_date = init_date
-        self.end_date = end_date - timedelta(hours=1)  # to avoir getting a price unknown at the end of simulation
+        self.end_date = end_date - timedelta(hours=1)  # to avoid getting a price unknown at the end of simulation
         self.X_tests = X_tests
         self.close_price = close_price
         self.target = target
@@ -46,6 +49,9 @@ class BacktestingStrategy:
                                             self.trading_pairs,  self.cash_asset, self.thresholds, self.trace)
 
     def __calcul_signals(self):
+        conf = Config()
+        proba_min = float(conf.get_config('trading_module_params', 'proba_min'))  # %
+
         for trading_pair, value in self.trading_pairs.items():
             predicted_proba = self.model.predict_proba(self.X_tests[trading_pair].values)
             probs = predicted_proba[:, 1]
@@ -55,7 +61,7 @@ class BacktestingStrategy:
             self.signals[trading_pair] = df_probs
 
             # all signals
-            signal = df_probs.signal_prob > 0.85
+            signal = df_probs.signal_prob > proba_min
             self.all_signals[trading_pair] = df_probs[signal]
 
     def override_signals(self, signals):

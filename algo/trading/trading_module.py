@@ -31,15 +31,15 @@ class TradingModule:
 
         logging.warning("TradingModule.__init__() - end")
 
-    def is_simulation(self):
-        return self.trading_api.is_simulation()
-
     def init_var(self):
         for trading_pair, value in self.trading_pairs.items():
             self.x_buy[trading_pair] = []
             self.y_buy[trading_pair] = []
             self.x_sell[trading_pair] = []
             self.y_sell[trading_pair] = []
+
+    def is_simulation(self):
+        return self.trading_api.is_simulation()
 
     def __can_buy(self):
         return self.trading_api.get_available_amount_crypto(self.cash_asset) >= self.param_min_bet_size

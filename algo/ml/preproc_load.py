@@ -12,6 +12,16 @@ class PreprocLoad:
         return psql.read_sql_query(squery, connection)
 
     @staticmethod
+    def get_dataset_ohlcv_old(connection, id_cryptocompare, before_date):
+        squery = "select oh.open_price, oh.high_price, oh.low_price, oh.close_price, oh.volume_usd as volume_aggregated_1h, oh.timestamp\n"
+        squery += 'from histo_ohlcv_old oh\n'
+        squery += 'where oh.id_cryptocompare = ' + id_cryptocompare + '\n'
+        squery += "and oh.timestamp < '" + str(before_date) + "'\n"
+        squery += 'order by oh.timestamp desc\n'
+        squery += 'limit 60\n'
+        return psql.read_sql_query(squery, connection)
+
+    @staticmethod
     def get_dataset_reddit(connection, id_cryptocompare):
         squery = "select re.reddit_subscribers, date_trunc('day', re.timestamp) + '00:00:00' as timestamp\n"
         squery += 'from social_stats_reddit_histo re\n'
@@ -35,16 +45,6 @@ class PreprocLoad:
         squery += 'from social_google_trend' + period + '\n'
         squery += 'where id_cryptocompare = ' + id_cryptocompare + '\n'
         squery += 'order by timestamp'
-        return psql.read_sql_query(squery, connection)
-
-    @staticmethod
-    def get_dataset_ohlcv_old(connection, id_cryptocompare, before_date):
-        squery = "select oh.open_price, oh.high_price, oh.low_price, oh.close_price, oh.volume_usd as volume_aggregated_1h, oh.timestamp\n"
-        squery += 'from histo_ohlcv_old oh\n'
-        squery += 'where oh.id_cryptocompare = ' + id_cryptocompare + '\n'
-        squery += "and oh.timestamp < '" + str(before_date) + "'\n"
-        squery += 'order by oh.timestamp desc\n'
-        squery += 'limit 60\n'
         return psql.read_sql_query(squery, connection)
 
     @staticmethod
