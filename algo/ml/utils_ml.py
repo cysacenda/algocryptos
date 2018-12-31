@@ -5,6 +5,7 @@ from sklearn.utils.fixes import signature
 from matplotlib import pyplot as plt
 import seaborn as sns
 import pandas as pd
+pd.options.mode.chained_assignment = None  # default='warn'
 import numpy as np
 from scipy import stats
 import pickle

@@ -1,5 +1,4 @@
 import numpy as np
-import pandas as pd
 
 # import talib # https://github.com/mrjbq7/ta-lib    -    https://mrjbq7.github.io/ta-lib/
 from talib.abstract import *

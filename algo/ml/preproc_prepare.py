@@ -1,15 +1,16 @@
 import numpy as np
 import pandas as pd
+pd.options.mode.chained_assignment = None  # default='warn'
 from ml.preproc_load import PreprocLoad
 from ml.utils_ml import remove_outliers
 from ml.preproc_feature_engineering import PreprocFeatureEngineering
-from commons.utils import utils
-from sqlalchemy import create_engine
+from commons.config import Config
+
 
 # Prepare data from raw data
 class PreprocPrepare:
 
-    @ staticmethod
+    @staticmethod
     def get_columns_to_be_cleaned():
         return ['close_price', 'open_price', 'low_price', 'high_price', 'volume_aggregated_1h']
 
@@ -135,17 +136,15 @@ class PreprocPrepare:
         df_ohlcv_p = df_ohlcv_p.resample(resample).interpolate()
         return df_ohlcv_p
 
+
     @staticmethod
-    def get_global_dataset_for_crypto(id_cryptocompare_crypto):
-        # ------------------ PRE-PROCESSING : Data retrieving & cleaning ------------------ #
-
-        # TODO : To be passed in args
-        connection = create_engine(utils.get_connection_string())
-
-        # Crypto ids
+    def get_global_dataset_for_crypto(connection, id_cryptocompare_crypto):
+        # ------------------ PRE-PROCESSING : Retrieve data and prepare ------------------ #
         id_cryptocompare_crypto = str(id_cryptocompare_crypto)
-        id_cryptocompare_tether = "171986"
-        id_cryptocompare_bitcoin = "1182"
+
+        conf = Config()
+        id_cryptocompare_tether = str(conf.get_config('cryptocompare_params', 'id_cryptocompare_tether'))
+        id_cryptocompare_bitcoin = str(conf.get_config('cryptocompare_params', 'id_cryptocompare_bitcoin'))
 
         # --------------------------------
         # OHLCV
@@ -165,11 +164,6 @@ class PreprocPrepare:
         df_ohlcv_bitcoin = PreprocPrepare.get_ohlcv_1h_plus_missing_infos(connection, df_ohlcv_bitcoin, id_cryptocompare_bitcoin)
 
         df_ohlcv_1d = PreprocPrepare.get_ohlcv_1d_plus_missing_infos(connection, df_ohlcv, id_cryptocompare_crypto)
-
-        # TODO : could be used later if we want TA on bitcoin
-        # df_ohlcv_1d_tether = get_ohlcv_1d_plus_missing_infos(connection, df_ohlcv_tether, id_cryptocompare_tether)
-        # could be used to do technical analysis also
-        # df_ohlcv_1d_bitcoin = get_ohlcv_1d_plus_missing_infos(connection, df_ohlcv_bitcoin, id_cryptocompare_bitcoin)
 
         # --------------------------------
         # REDDIT SUBSCRIBERS
@@ -223,7 +217,6 @@ class PreprocPrepare:
         # Join dfs
         df_ohlcv_fe = df_ohlcv_fe.join(df_ohlcv_tether_fe, rsuffix='_tether')
         df_ohlcv_fe = df_ohlcv_fe.join(df_ohlcv_bitcoin_fe, rsuffix='_bitcoin')
-
         df_global = df_ohlcv_fe.join(df_technical_analysis)
         df_global = df_global.join(df_reddit)
         df_global = df_global.join(df_all_cryptos)
@@ -250,15 +243,15 @@ class PreprocPrepare:
         df_final.reset_index(drop=False, inplace=True)
         df_final.set_index(['timestamp', 'id_cryptocompare'], inplace=True)
 
-        return df_final  # .reset_index(drop=True)
+        return df_final
 
     @staticmethod
-    def get_global_datasets_for_cryptos(ids_cryptocompare_crypto):
+    def get_global_datasets_for_cryptos(connection, ids_cryptocompare_crypto):
         dict_df = {}
         for id_crypto in ids_cryptocompare_crypto:
             print('Crypto : ' + str(id_crypto))
             try:
-                df = PreprocPrepare.get_global_dataset_for_crypto(id_crypto)
+                df = PreprocPrepare.get_global_dataset_for_crypto(connection, id_crypto)
                 if df.empty:
                     print('ALERT : Empty dataframe')
                 else:
@@ -270,8 +263,7 @@ class PreprocPrepare:
         return dict_df
 
     @staticmethod
-    def get_global_datasets_for_top_n_cryptos(top_n=20):
+    def get_global_datasets_for_top_n_cryptos(connection, top_n=20):
         # TODO : To be passed in args
-        connection_tmp = create_engine(utils.get_connection_string())
-        df = PreprocLoad.get_dataset_ids_top_n_cryptos(connection_tmp, top_n)
-        return PreprocPrepare.get_global_datasets_for_cryptos(df.id_cryptocompare.tolist())
+        df = PreprocLoad.get_dataset_ids_top_n_cryptos(connection, top_n)
+        return PreprocPrepare.get_global_datasets_for_cryptos(connection, df.id_cryptocompare.tolist())
