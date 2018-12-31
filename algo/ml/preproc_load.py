@@ -1,5 +1,6 @@
 import pandas.io.sql as psql
 
+
 # Retrieve data from DB
 class PreprocLoad:
     @staticmethod

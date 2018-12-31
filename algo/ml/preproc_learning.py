@@ -1,12 +1,14 @@
 import pandas as pd
-pd.options.mode.chained_assignment = None  # default='warn'
-
 import pytz
-utc=pytz.UTC
+
 from datetime import datetime, timedelta
 
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.decomposition import PCA
+
+pd.options.mode.chained_assignment = None  # default='warn'
+utc=pytz.UTC
+
 
 #Calcul y + split data
 class PreprocLearning:
@@ -80,7 +82,8 @@ class PreprocLearning:
             columns_nb = len(df_one_crypto.columns)
 
             # calcul all y values we are interested in and add it to the dataframe
-            df_one_crypto = PreprocLearning.calcul_values_of_y(df_one_crypto.copy(), dict_hours_labels, close_price_increase_targeted)
+            df_one_crypto = PreprocLearning.calcul_values_of_y(df_one_crypto.copy(),
+                                                               dict_hours_labels, close_price_increase_targeted)
 
             # remove rows where y can't be calculed (need more data in the future)
             # TODO : Attention ! Ok pour testing mais pas pour production car on perd la data de la fin !
@@ -102,8 +105,9 @@ class PreprocLearning:
         # One crypto
         if predict_only_one_crypto:
             # The one to predict
-            X_train_one_crypto, X_test_one_crypto, y_train_one_crypto, y_test_one_crypto = PreprocLearning.do_split_data(
-                df_new_dict[id_cryptocompare], columns_nb, min_index, nb_days)
+            X_train_one_crypto, X_test_one_crypto, y_train_one_crypto, \
+                y_test_one_crypto = PreprocLearning.do_split_data(df_new_dict[id_cryptocompare], columns_nb,
+                                                                  min_index, nb_days)
             X_test = X_test_one_crypto
             y_test = y_test_one_crypto
 

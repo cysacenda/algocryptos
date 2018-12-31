@@ -2,6 +2,7 @@ from trading.trading_api import ORDER_BUY, ORDER_SELL
 import logging
 from commons.slack import slack
 
+
 class TradingModule:
     def __init__(self, trading_api, param_bet_size, param_min_bet_size, param_pct_order_placed,
                  param_nb_periods_to_hold_position, trading_pairs, cash_asset, thresholds, trace):

@@ -10,6 +10,7 @@ import logging
 # Infos utiles:
 # https://api.binance.com/api/v1/exchangeInfo
 
+
 class TradingApiBinance(TradingApi):
     # override
     def __init__(self, param_pct_order_placed):
@@ -17,7 +18,7 @@ class TradingApiBinance(TradingApi):
         self.param_pct_order_placed = param_pct_order_placed
         self.API_KEY = conf.get_config('binance', 'api_key')
         self.API_SECRET = conf.get_config('binance', 'api_secret')
-        self.client = Client(self.api_key, self.api_secret) # lib python-binance
+        self.client = Client(self.API_KEY, self.API_SECRET)  # lib python-binance
         self.precision = 5  # binance api precision for amount
 
     def is_simulation(self):
@@ -36,7 +37,7 @@ class TradingApiBinance(TradingApi):
             if (status['msg'] == 'normal') and (status['status'] == 0):
                 # Check account status
                 status_client = self.client.get_account_status()
-                if (status_client['msg'] == 'Normal') and (status_client['success'] == True):
+                if (status_client['msg'] == 'Normal') and (status_client['success']):
                     # Check account status related to trading
                     info_client = self.client.get_account()
                     if info_client['canTrade']:
@@ -91,9 +92,9 @@ class TradingApiBinance(TradingApi):
         balance = 0
         infos_balance = self.client.get_asset_balance(asset=symbol)
         if 'free' in infos_balance:
-            balance = float(balance['free'])
+            balance = float(infos_balance['free'])
         else:
-            msg ='Error while getting balance in get_available_amount_crypto() for symbol:' + symbol
+            msg = 'Error while getting balance in get_available_amount_crypto() for symbol:' + symbol
             slack.post_message_to_alert_error_trading(msg)
             raise Exception(msg)
         return balance
@@ -135,7 +136,7 @@ class TradingApiBinance(TradingApi):
 
             # Save order into DB
             dbconn = DbConnection()
-            dbconn.exexute_query(self.__create_query_order(order))
+            dbconn.exexute_query(TradingApiBinance.__create_query_order(order))
         except Exception as e:
             msg = "TradingApiBinance.create_order() - Error while creating order on tradingPair: {}, side: {}, qty:{}"
             logging.error(msg.format(base_asset + quote_asset, side, quantity_from))
@@ -144,7 +145,8 @@ class TradingApiBinance(TradingApi):
 
         return order['orderId']
 
-    def __create_query_order(self, order):
+    @staticmethod
+    def __create_query_order(order):
         insertquery = 'INSERT INTO public.orders (orderId, symbol, clientOrderId, transactTime, price, origQty,' \
                       'executedQty, cummulativeQuoteQty, status, timeInForce, typeorder, side, fills)'
         insertquery += ' VALUES('
@@ -162,7 +164,6 @@ class TradingApiBinance(TradingApi):
         insertquery += "'" + order['side'] + "', "
         insertquery += "'" + str(order['fills']) + "')"
         return insertquery
-
 
     # override
     # {'symbol': 'VETUSDT',
@@ -199,7 +200,7 @@ class TradingApiBinance(TradingApi):
                     orderId=order['orderId'])
                 slack.post_message_to_alert_actions_trading('Order cancelled: ' + str(result))
             except Exception as e:
-                msg = "TradingApiBinance.cancel_open_orders() - Order cannot be cancelled " + str(order)
+                msg = "TradingApiBinance.cancel_open_orders() - Order cannot be cancelled " + str(e)
                 logging.error(msg)
                 slack.post_message_to_alert_error_trading(msg)
 

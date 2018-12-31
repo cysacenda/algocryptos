@@ -3,7 +3,10 @@ import numpy as np
 # import talib # https://github.com/mrjbq7/ta-lib    -    https://mrjbq7.github.io/ta-lib/
 from talib.abstract import *
 
+
 class PreprocFeatureEngineering:
+
+    @staticmethod
     def join_ohlcv_1h_1d(df_ohlcv_p, df_ohlcv_1d_p):
         # drop columns that are in both dataframes
         df_ohlcv_1d_p = df_ohlcv_1d_p.drop(
@@ -11,36 +14,36 @@ class PreprocFeatureEngineering:
             axis=1)
 
         # Interpolation ok (checked with ploting before / after each indicator)
-        df_ohlcv_p = df_ohlcv_p.join(df_ohlcv_1d_p.resample('1H').interpolate())
-        return df_ohlcv_p
+        return df_ohlcv_p.join(df_ohlcv_1d_p.resample('1H').interpolate())
 
     # ======== FEATURE ENGINEERING ========
+    @staticmethod
     def feature_engineering_ohlcv(df_ohlcv_p):
-        df_ohlcv_p = df_ohlcv_p.copy()
+        df_ohlcv = df_ohlcv_p.copy()
 
         # volume_aggregated_24h
-        df_ohlcv_p['volume_aggregated_24h'] = df_ohlcv_p.volume_aggregated_1h.rolling(24).sum()
+        df_ohlcv['volume_aggregated_24h'] = df_ohlcv.volume_aggregated_1h.rolling(24).sum()
 
         # close price variance on different scales
-        df_ohlcv_p['close_price_variance_3h'] = df_ohlcv_p.close_price.rolling(3).var()
-        df_ohlcv_p['close_price_variance_12h'] = df_ohlcv_p.close_price.rolling(12).var()
-        df_ohlcv_p['close_price_variance_24h'] = df_ohlcv_p.close_price.rolling(24).var()
-        df_ohlcv_p['close_price_variance_7d'] = df_ohlcv_p.close_price.rolling(7 * 24).var()
-        df_ohlcv_p['close_price_variance_15d'] = df_ohlcv_p.close_price.rolling(15 * 24).var()
-        df_ohlcv_p['close_price_variance_30d'] = df_ohlcv_p.close_price.rolling(30 * 24).var()
+        df_ohlcv['close_price_variance_3h'] = df_ohlcv.close_price.rolling(3).var()
+        df_ohlcv['close_price_variance_12h'] = df_ohlcv.close_price.rolling(12).var()
+        df_ohlcv['close_price_variance_24h'] = df_ohlcv.close_price.rolling(24).var()
+        df_ohlcv['close_price_variance_7d'] = df_ohlcv.close_price.rolling(7 * 24).var()
+        df_ohlcv['close_price_variance_15d'] = df_ohlcv.close_price.rolling(15 * 24).var()
+        df_ohlcv['close_price_variance_30d'] = df_ohlcv.close_price.rolling(30 * 24).var()
 
         # variance high / low on period
-        df_ohlcv_p['last_period_high_low_price_var_pct'] = abs(df_ohlcv_p['low_price'] - df_ohlcv_p['high_price']) / \
-                                                           df_ohlcv_p['close_price']
+        df_ohlcv['last_period_high_low_price_var_pct'] = abs(df_ohlcv['low_price'] - df_ohlcv['high_price']) / \
+                                                         df_ohlcv['close_price']
 
         # volumes kpis 1h, 3h, 6h, 12h, 24h, 3d, 7d, 15d
-        df_ohlcv_p['mean_volume_1h_30d'] = df_ohlcv_p.volume_aggregated_1h / df_ohlcv_p.volume_aggregated_1h.rolling(
+        df_ohlcv['mean_volume_1h_30d'] = df_ohlcv.volume_aggregated_1h / df_ohlcv.volume_aggregated_1h.rolling(
             30 * 24).mean()
         arr_nums = [3, 6, 12, 24, 3 * 24, 7 * 24, 15 * 24]
         arr_labels = ['3h', '6h', '12h', '24h', '3d', '7d', '15d']
         for i in range(len(arr_nums)):
-            df_ohlcv_p['mean_volume_' + arr_labels[i] + '_30d'] = df_ohlcv_p.volume_aggregated_1h.rolling(
-                arr_nums[i]).mean() / df_ohlcv_p.volume_aggregated_1h.rolling(30 * 24).mean()
+            df_ohlcv['mean_volume_' + arr_labels[i] + '_30d'] = df_ohlcv.volume_aggregated_1h.rolling(
+                arr_nums[i]).mean() / df_ohlcv.volume_aggregated_1h.rolling(30 * 24).mean()
 
         # change vs n days low / n days high - pct_change for periods : 3d, 7d, 15d, 30d
         arr_nums = np.array([3, 7, 15, 30], dtype=int) * 24
@@ -48,23 +51,25 @@ class PreprocFeatureEngineering:
 
         # lows
         for i in range(len(arr_nums)):
-            df_ohlcv_p['close_price_pct_change_vs_' + arr_labels[i] + '_low'] = \
-                (df_ohlcv_p.close_price - df_ohlcv_p.close_price.rolling(arr_nums[i]).min()) \
-                / df_ohlcv_p.close_price.rolling(arr_nums[i]).min()
+            df_ohlcv['close_price_pct_change_vs_' + arr_labels[i] + '_low'] = \
+                (df_ohlcv.close_price - df_ohlcv.close_price.rolling(arr_nums[i]).min()) \
+                / df_ohlcv.close_price.rolling(arr_nums[i]).min()
 
             # highs
         for i in range(len(arr_nums)):
-            df_ohlcv_p['close_price_pct_change_vs_' + arr_labels[i] + '_high'] \
-                = (df_ohlcv_p.close_price - df_ohlcv_p.close_price.rolling(arr_nums[i]).max()) \
-                  / df_ohlcv_p.close_price.rolling(
+            df_ohlcv['close_price_pct_change_vs_' + arr_labels[i] + '_high'] \
+                = (df_ohlcv.close_price - df_ohlcv.close_price.rolling(arr_nums[i]).max()) \
+                  / df_ohlcv.close_price.rolling(
                 arr_nums[i]).max()
-        return df_ohlcv_p
+        return df_ohlcv
 
+    @staticmethod
     def feature_engineering_ohlcv_all_cryptos(df_ohlcv_all_p):
         # volume_aggregated_24h
         df_ohlcv_all_p['global_volume_usd_24h'] = df_ohlcv_all_p.global_volume_usd_1h.rolling(24).sum()
         return df_ohlcv_all_p
 
+    @staticmethod
     def feature_engineering_reddit(df_reddit_p):
         # pct_change for periods : 1d, 3d, 7d, 15d, 30d
         arr_nums = np.array([1, 3, 7, 15, 30], dtype=int) * 24
@@ -74,6 +79,7 @@ class PreprocFeatureEngineering:
                 periods=arr_nums[i])
         return df_reddit_p
 
+    @staticmethod
     def feature_engineering_google_trend(df_google_trend_p, period):
         # period = month
         arr_nums = np.array([1, 3, 7, 15, 30], dtype=int) * 24
@@ -94,6 +100,7 @@ class PreprocFeatureEngineering:
                 i]] = df_google_trend_p.value_compared_to_standard.pct_change(periods=arr_nums[i])
         return df_google_trend_p
 
+    @staticmethod
     def feature_engineering_technical_analysis(df_ohlcv_p, df_ohlcv_1d_p):
         df_ohlcv_tmp = df_ohlcv_p.copy()
         df_ohlcv_1d = df_ohlcv_1d_p.copy()
@@ -141,7 +148,7 @@ class PreprocFeatureEngineering:
         df_ohlcv_1d['Indic_OBV'] = obv
 
         # join dataframes on 1h scale
-        df_ohlcv_tmp = join_ohlcv_1h_1d(df_ohlcv_tmp, df_ohlcv_1d)
+        df_ohlcv_tmp = PreprocFeatureEngineering.join_ohlcv_1h_1d(df_ohlcv_tmp, df_ohlcv_1d)
 
         # ========== ADD FEATURES FOR INTERPRETATION ==========
 
@@ -169,13 +176,16 @@ class PreprocFeatureEngineering:
 
         # [Interpretation] BBands close_price - Indic_Bbands_20d_upperband
         df_ohlcv_tmp[
-            'Indic_Bbands_20d_diff_close_upperband'] = df_ohlcv_tmp.close_price - df_ohlcv_tmp.Indic_Bbands_20d_upperband
+            'Indic_Bbands_20d_diff_close_upperband'] = df_ohlcv_tmp.close_price \
+                                                       - df_ohlcv_tmp.Indic_Bbands_20d_upperband
         # [Interpretation] BBands close_price - Indic_Bbands_20d_middleband
         df_ohlcv_tmp[
-            'Indic_Bbands_20d_diff_close_upperband'] = df_ohlcv_tmp.close_price - df_ohlcv_tmp.Indic_Bbands_20d_middleband
+            'Indic_Bbands_20d_diff_close_upperband'] = df_ohlcv_tmp.close_price \
+                                                       - df_ohlcv_tmp.Indic_Bbands_20d_middleband
         # [Interpretation] BBands close_price - Indic_Bbands_20d_middleband
         df_ohlcv_tmp[
-            'Indic_Bbands_20d_diff_close_lowerband'] = df_ohlcv_tmp.close_price - df_ohlcv_tmp.Indic_Bbands_20d_lowerband
+            'Indic_Bbands_20d_diff_close_lowerband'] = df_ohlcv_tmp.close_price \
+                                                       - df_ohlcv_tmp.Indic_Bbands_20d_lowerband
 
         # [Interpretation] RSI 14 days in uptrend : True / downtrend : False
         df_ohlcv_tmp['Indic_RSI_14d_uptrend'] = (df_ohlcv_tmp.Indic_RSI_14d.pct_change(periods=1) > 0).astype(

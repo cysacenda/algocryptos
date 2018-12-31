@@ -1,7 +1,7 @@
+from abc import ABC, abstractmethod
+
 ORDER_BUY = 'buy'
 ORDER_SELL = 'sell'
-
-from abc import ABC, abstractmethod
 
 
 class TradingApi(ABC):
