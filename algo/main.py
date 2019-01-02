@@ -39,12 +39,33 @@ try:
             # Start program
             # -----------------------------------------------
 
-            trading_api_binance = TradingApiBinance(self.param_pct_order_placed)
+            # Algo params
+            pct_order_placed = float(conf.get_config('trading_module_params', 'pct_order_placed'))
+            bet_size = float(conf.get_config('trading_module_params', 'bet_size'))
+            min_bet_size = float(conf.get_config('trading_module_params', 'min_bet_size'))
+            pct_order_placed = float(conf.get_config('trading_module_params', 'pct_order_placed'))
+            nb_periods_to_hold_position = float(conf.get_config('trading_module_params', 'nb_periods_to_hold_position'))
+            cash_asset = float(conf.get_config('trading_module_params', 'cash_asset'))
+
+            # TODO : trading pairs (cf. backtesting)
+
+            # TODO : tresholds (cf. backtesting)
+
+            # TODO : contrôles de cohérence :
+                # marché pas en pleine chute de ouf avec acceleration
+                # data signaux ok (pas de données manquantes)
+                # data server ok vs data signaux ?
+
+            # trading api binance
+            trading_api_binance = TradingApiBinance(pct_order_placed)
 
             # trading module
-            trading_module = TradingModule(trading_api_binance, self.param_bet_size, self.param_min_bet_size,
-                                                self.param_pct_order_placed, self.param_nb_periods_to_hold_position,
-                                                self.trading_pairs, self.cash_asset, self.thresholds, self.trace)
+            trading_module = TradingModule(trading_api_binance, bet_size, min_bet_size,
+                                           pct_order_placed, nb_periods_to_hold_position,
+                                                self.trading_pairs, cash_asset, self.thresholds, False)
+
+            # TODO : avec date (utile ?) et signaux sur dernirèes 24h (cf. param), cf. backtesting
+            trading_module.do_update(key, signals)
 
 
 except Exception as e:
