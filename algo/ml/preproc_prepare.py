@@ -1,8 +1,11 @@
 import numpy as np
 import pandas as pd
+
 from ml.preproc_load import PreprocLoad
 from ml.utils_ml import remove_outliers
 from ml.preproc_feature_engineering import PreprocFeatureEngineering
+from ml.utils_ml import load_obj
+
 from commons.config import Config
 
 pd.options.mode.chained_assignment = None  # default='warn'
@@ -139,6 +142,7 @@ class PreprocPrepare:
         return df_ohlcv_p
 
     @staticmethod
+    # TODO : Add parameter date (option)
     def get_global_dataset_for_crypto(connection, id_cryptocompare_crypto):
         # ------------------ PRE-PROCESSING : Retrieve data and prepare ------------------ #
         id_cryptocompare_crypto = str(id_cryptocompare_crypto)
@@ -245,3 +249,32 @@ class PreprocPrepare:
         df_final.set_index(['timestamp', 'id_cryptocompare'], inplace=True)
 
         return df_final
+
+    @staticmethod
+    def get_preprocessed_data_inference(df_one_crypto, do_scale=True, do_pca=True, useless_features=None):
+        if useless_features is None:
+            useless_features = []
+
+        # TODO : Vérifier que fonctionne et pas écrasé
+        old_indexes = df_one_crypto.index
+        X_close_prices = df_one_crypto.close_price
+
+        # delete useless columns if needed
+        if len(useless_features) > 0:
+            df_one_crypto = df_one_crypto.drop(useless_features, axis=1)
+
+        # Scaling Data - reuse scaler from learning !
+        if do_scale:
+            scaler = load_obj('scaler_learning')
+            df_one_crypto = scaler.transform(df_one_crypto)
+
+        # PCA to reduce dimensionality - reuse pca from learning !
+        if do_pca:
+            pca = load_obj('pca_learning')
+            df_one_crypto = pca.transform(df_one_crypto)
+
+        # re-index
+        df_one_crypto = pd.DataFrame(df_one_crypto)
+        df_one_crypto.index = old_indexes
+
+        return df_one_crypto, X_close_prices

@@ -11,3 +11,11 @@ class Config:
 
     def get_config(self, section, key):
         return self.config.get(section, key)
+
+    # allow to parse a config item to type dict
+    def parse_config_dict(self, text):
+        dict_config = {}
+        values = text.split(',')
+        for i in range(0, len(values), 2):
+            dict_config[values[i]] = values[i+1]
+        return dict_config

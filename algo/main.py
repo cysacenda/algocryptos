@@ -4,10 +4,14 @@ import logging
 import argparse
 from commons.config import Config
 from commons.processmanager import ProcessManager
+from sqlalchemy import create_engine
+from commons.utils import utils
 from commons.slack import slack
 
 from trading.trading_api_binance import TradingApiBinance
 from trading.trading_module import TradingModule
+from trading.trading_pair import TradingPair
+from ml.preproc_prepare import PreprocPrepare
 
 # Configuration
 conf = Config()
@@ -25,6 +29,9 @@ IdCurrentProcess = conf.get_config('process_params', 'algo_process_id')
 if not procM.start_process(IdCurrentProcess, 'Algo', sys.argv):
     sys.exit(1)
 
+# connection DB
+connection = create_engine(utils.get_connection_string())
+
 try:
     if __name__ == '__main__':
         parser = argparse.ArgumentParser(
@@ -39,17 +46,35 @@ try:
             # Start program
             # -----------------------------------------------
 
-            # Algo params
+            # Retrieve algo params
             pct_order_placed = float(conf.get_config('trading_module_params', 'pct_order_placed'))
             bet_size = float(conf.get_config('trading_module_params', 'bet_size'))
             min_bet_size = float(conf.get_config('trading_module_params', 'min_bet_size'))
             pct_order_placed = float(conf.get_config('trading_module_params', 'pct_order_placed'))
-            nb_periods_to_hold_position = float(conf.get_config('trading_module_params', 'nb_periods_to_hold_position'))
-            cash_asset = float(conf.get_config('trading_module_params', 'cash_asset'))
+            nb_periods_to_hold_position = int(conf.get_config('trading_module_params', 'nb_periods_to_hold_position'))
+            cash_asset = conf.get_config('trading_module_params', 'cash_asset')
+            threshold = float(conf.get_config('trading_module_params', 'threshold'))
+            trading_assets = conf.parse_config_dict(conf.get_config('trading_module_params', 'trading_assets_simple'))
 
-            # TODO : trading pairs (cf. backtesting)
 
-            # TODO : tresholds (cf. backtesting)
+            # Build trading pairs / tresholds / signals for trading_module usage
+            trading_pairs = {}
+            thresholds = {}
+            signals = {}
+            for id_crypto, binance_symbol in trading_assets.items():
+                trading_pair_str = binance_symbol + cash_asset
+                trading_pair = TradingPair(trading_pair_str, binance_symbol, cash_asset)
+                trading_pairs[trading_pair_str] = trading_pair
+                thresholds[trading_pair_str] = threshold
+
+                # Retrieve data
+                df_one_crypto = PreprocPrepare.get_global_dataset_for_crypto(connection, str(id_crypto))
+                df_one_crypto, X_close_prices = PreprocPrepare.get_preprocessed_data_inference(df_one_crypto,
+                                                                                               do_scale=True,
+                                                                                               do_pca=True,
+                                                                                               useless_features=None)
+                # TODO : filter en amont (perfs)
+                signals[trading_pair_str] = df_one_crypto
 
             # TODO : contrôles de cohérence :
                 # marché pas en pleine chute de ouf avec acceleration
@@ -62,9 +87,9 @@ try:
             # trading module
             trading_module = TradingModule(trading_api_binance, bet_size, min_bet_size,
                                            pct_order_placed, nb_periods_to_hold_position,
-                                                self.trading_pairs, cash_asset, self.thresholds, False)
+                                           trading_pairs, cash_asset, thresholds, False)
 
-            # TODO : avec date (utile ?) et signaux sur dernirèes 24h (cf. param), cf. backtesting
+            # TODO : avec date (utile ?) et signaux sur dernières 24h (cf. param), cf. backtesting
             trading_module.do_update(key, signals)
 
 

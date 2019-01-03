@@ -5,9 +5,11 @@ from datetime import datetime, timedelta
 
 from ml.preproc_load import PreprocLoad
 from ml.preproc_prepare import PreprocPrepare
+from ml.utils_ml import save_obj
 
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.decomposition import PCA
+
 
 pd.options.mode.chained_assignment = None  # default='warn'
 utc=pytz.UTC
@@ -73,8 +75,9 @@ class PreprocLearning:
         return X_train, X_test, y_train, y_test
 
     @staticmethod
-    def get_preprocessed_data(dict_df, dict_hours_labels, close_price_increase_targeted, predict_only_one_crypto,
-                              do_scale=True, do_pca=False, id_cryptocompare=0, useless_features=None):
+    # TODO : Do split learning specific / inference and learning standard
+    def get_preprocessed_data_learning(dict_df, dict_hours_labels, close_price_increase_targeted, predict_only_one_crypto,
+                                       do_scale=True, do_pca=True, id_cryptocompare=0, useless_features=None):
         if useless_features is None:
             useless_features = []
         columns_nb = 0
@@ -84,9 +87,8 @@ class PreprocLearning:
         min_index = utc.localize(datetime.max)
         max_index = utc.localize(datetime.min)
 
-        columns = None
-
         # calcul y for each crypto
+        columns = None
         for key_id_cryptocompare, df_one_crypto in dict_df.items():
 
             # delete useless columns if needed
@@ -104,7 +106,7 @@ class PreprocLearning:
             if maxi > max_index:
                 max_index = maxi
 
-                # number of columns before adding y values - could be done once only
+            # number of columns before adding y values - could be done once only
             columns_nb = len(df_one_crypto.columns)
 
             # calcul all y values we are interested in and add it to the dataframe
@@ -148,11 +150,17 @@ class PreprocLearning:
             X_train = scaler.fit_transform(X_train)
             X_test = scaler.transform(X_test)
 
+            # save scaler fo reuse with model
+            save_obj(scaler, 'scaler_learning')
+
         # PCA to reduce dimensionality
         if do_pca:
             pca = PCA(n_components=35)  # approx 97% variance
             X_train = pca.fit_transform(X_train)
             X_test = pca.transform(X_test)
+
+            # save scaler fo reuse with model
+            save_obj(pca, 'pca_learning')
 
         # re-index
         X_train = pd.DataFrame(X_train)
