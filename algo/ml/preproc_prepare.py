@@ -264,12 +264,13 @@ class PreprocPrepare:
             df_one_crypto = df_one_crypto.drop(useless_features, axis=1)
 
         df_one_crypto = df_one_crypto.values
+        save_obj(df_one_crypto, 'df_one_crypto_inference')
 
         # Scaling Data - reuse scaler from learning !
         if do_scale:
             scaler = load_obj('scaler_learning')
             df_one_crypto = scaler.transform(df_one_crypto)
-            save_obj(df_one_crypto, 'df_one_crypto_inference')
+
 
         # PCA to reduce dimensionality - reuse pca from learning !
         if do_pca:
