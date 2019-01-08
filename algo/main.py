@@ -41,7 +41,7 @@ try:
         args = parser.parse_args()
 
         if args.std:
-            # Check that no important traitement running ? last ohlcv just done ? Do it with process management
+            # TODO : Check that no important traitement running ? last ohlcv just done ? Do it with process management
             # -----------------------------------------------
             # Start program
             # -----------------------------------------------
@@ -80,6 +80,7 @@ try:
                 # marché pas en pleine chute de ouf avec acceleration
                 # data signaux ok (pas de données manquantes)
                 # data server ok vs data signaux ?
+                # stop loss
 
             # trading api binance
             trading_api_binance = TradingApiBinance(pct_order_placed)

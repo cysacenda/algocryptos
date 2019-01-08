@@ -4,7 +4,7 @@ import pandas as pd
 from ml.preproc_load import PreprocLoad
 from ml.utils_ml import remove_outliers
 from ml.preproc_feature_engineering import PreprocFeatureEngineering
-from ml.utils_ml import load_obj
+from ml.utils_ml import load_obj, save_obj
 
 from commons.config import Config
 
@@ -266,6 +266,7 @@ class PreprocPrepare:
         # Scaling Data - reuse scaler from learning !
         if do_scale:
             scaler = load_obj('scaler_learning')
+            save_obj('tmp_obj_inference')
             df_one_crypto = scaler.transform(df_one_crypto)
 
         # PCA to reduce dimensionality - reuse pca from learning !
