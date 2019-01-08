@@ -25,9 +25,9 @@ class PreprocPrepare:
         return df_ts.set_index('timestamp')
 
     @staticmethod
-    def get_ohlcv_1d_plus_missing_infos(connection, df_ohlcv_p, id_cryptocompare):
+    def get_ohlcv_1d_plus_missing_infos(connection, df_ohlcv_p, id_cryptocompare, str_older_date):
         # TODO : Perf : do only one call to these two lines (cf. get_ohlcv_1h_plus_missing_infos)
-        df_ohlcv_old = PreprocLoad.get_dataset_ohlcv_old(connection, id_cryptocompare, df_ohlcv_p.index.min())
+        df_ohlcv_old = PreprocLoad.get_dataset_ohlcv_old(connection, id_cryptocompare, df_ohlcv_p.index.min(), str_older_date)
 
         # resample to 1d
         df_ohlcv_1d = df_ohlcv_p.resample("1D").agg({'open_price': 'first', 'high_price': 'max', 'low_price': 'min',
@@ -63,9 +63,9 @@ class PreprocPrepare:
         return df_final
 
     @staticmethod
-    def get_ohlcv_1h_plus_missing_infos(connection, df_ohlcv_p, id_cryptocompare):
+    def get_ohlcv_1h_plus_missing_infos(connection, df_ohlcv_p, id_cryptocompare, str_older_date):
         # get data older than 12/2017
-        df_ohlcv_old = PreprocLoad.get_dataset_ohlcv_old(connection, id_cryptocompare, df_ohlcv_p.index.min())
+        df_ohlcv_old = PreprocLoad.get_dataset_ohlcv_old(connection, id_cryptocompare, df_ohlcv_p.index.min(), str_older_date)
 
         df_final = df_ohlcv_p
 
@@ -142,8 +142,8 @@ class PreprocPrepare:
         return df_ohlcv_p
 
     @staticmethod
-    # TODO : Add parameter date (option)
-    def get_global_dataset_for_crypto(connection, id_cryptocompare_crypto):
+    # str_older_date_to_retrieve : default (learning), everything is retrieved
+    def get_global_dataset_for_crypto(connection, id_cryptocompare_crypto, older_date=None):
         # ------------------ PRE-PROCESSING : Retrieve data and prepare ------------------ #
         id_cryptocompare_crypto = str(id_cryptocompare_crypto)
 
@@ -151,29 +151,32 @@ class PreprocPrepare:
         id_cryptocompare_tether = str(conf.get_config('cryptocompare_params', 'id_cryptocompare_tether'))
         id_cryptocompare_bitcoin = str(conf.get_config('cryptocompare_params', 'id_cryptocompare_bitcoin'))
 
+        if older_date is None:
+            older_date = str(conf.get_config('data_params', 'older_date_to_retrieve'))
+
         # --------------------------------
         # OHLCV
         # --------------------------------
-        df_ohlcv = PreprocLoad.get_dataset_ohlcv(connection, id_cryptocompare_crypto)
+        df_ohlcv = PreprocLoad.get_dataset_ohlcv(connection, id_cryptocompare_crypto, older_date)
         df_ohlcv = PreprocPrepare.clean_dataset_ohlcv_spe(df_ohlcv)
         min_date = df_ohlcv.index.min()
 
-        df_ohlcv = PreprocPrepare.get_ohlcv_1h_plus_missing_infos(connection, df_ohlcv, id_cryptocompare_crypto)
+        df_ohlcv = PreprocPrepare.get_ohlcv_1h_plus_missing_infos(connection, df_ohlcv, id_cryptocompare_crypto, older_date)
 
-        df_ohlcv_tether = PreprocLoad.get_dataset_ohlcv(connection, id_cryptocompare_tether)
+        df_ohlcv_tether = PreprocLoad.get_dataset_ohlcv(connection, id_cryptocompare_tether, older_date)
         df_ohlcv_tether = PreprocPrepare.clean_dataset_ohlcv_spe(df_ohlcv_tether)
-        df_ohlcv_tether = PreprocPrepare.get_ohlcv_1h_plus_missing_infos(connection, df_ohlcv_tether, id_cryptocompare_tether)
+        df_ohlcv_tether = PreprocPrepare.get_ohlcv_1h_plus_missing_infos(connection, df_ohlcv_tether, id_cryptocompare_tether, older_date)
 
-        df_ohlcv_bitcoin = PreprocLoad.get_dataset_ohlcv(connection, id_cryptocompare_bitcoin)
+        df_ohlcv_bitcoin = PreprocLoad.get_dataset_ohlcv(connection, id_cryptocompare_bitcoin, older_date)
         df_ohlcv_bitcoin = PreprocPrepare.clean_dataset_ohlcv_spe(df_ohlcv_bitcoin)
-        df_ohlcv_bitcoin = PreprocPrepare.get_ohlcv_1h_plus_missing_infos(connection, df_ohlcv_bitcoin, id_cryptocompare_bitcoin)
+        df_ohlcv_bitcoin = PreprocPrepare.get_ohlcv_1h_plus_missing_infos(connection, df_ohlcv_bitcoin, id_cryptocompare_bitcoin, older_date)
 
-        df_ohlcv_1d = PreprocPrepare.get_ohlcv_1d_plus_missing_infos(connection, df_ohlcv, id_cryptocompare_crypto)
+        df_ohlcv_1d = PreprocPrepare.get_ohlcv_1d_plus_missing_infos(connection, df_ohlcv, id_cryptocompare_crypto, older_date)
 
         # --------------------------------
         # REDDIT SUBSCRIBERS
         # --------------------------------
-        df_reddit = PreprocLoad.get_dataset_reddit(connection, id_cryptocompare_crypto)
+        df_reddit = PreprocLoad.get_dataset_reddit(connection, id_cryptocompare_crypto, older_date)
         df_reddit = df_reddit[df_reddit.reddit_subscribers.notnull()]
         df_reddit = PreprocPrepare.do_timestamp_tasks(df_reddit)
         df_reddit = df_reddit.resample('1H').interpolate()
@@ -182,7 +185,7 @@ class PreprocPrepare:
         # --------------------------------
         # ALL CRYPTOS
         # --------------------------------
-        df_all_cryptos = PreprocLoad.get_dataset_all_cryptos(connection)
+        df_all_cryptos = PreprocLoad.get_dataset_all_cryptos(connection, older_date)
         df_all_cryptos = PreprocPrepare.clean_dataset_ohlcv_std(df_all_cryptos,
                                                  columns_name=['global_volume_usd_1h', 'global_market_cap_usd'])
 
@@ -190,19 +193,19 @@ class PreprocPrepare:
         # GOOGLE TREND
         # --------------------------------
         # crypto - last month => Need to import and keep old data
-        df_google_trend_crypto_1m = PreprocLoad.get_dataset_google_trend(connection, id_cryptocompare_crypto, '_1m')
+        df_google_trend_crypto_1m = PreprocLoad.get_dataset_google_trend(connection, id_cryptocompare_crypto, '_1m', older_date)
         df_google_trend_crypto_1m = PreprocPrepare.clean_dataset_google_trend(df_google_trend_crypto_1m)
 
         # crypto - 5 years
-        df_google_trend_crypto_5y = PreprocLoad.get_dataset_google_trend(connection, id_cryptocompare_crypto, '')
+        df_google_trend_crypto_5y = PreprocLoad.get_dataset_google_trend(connection, id_cryptocompare_crypto, '', older_date)
         df_google_trend_crypto_5y = PreprocPrepare.clean_dataset_google_trend(df_google_trend_crypto_5y)
 
         # bitcoin - last month
-        df_google_trend_bitcoin_1m = PreprocLoad.get_dataset_google_trend(connection, id_cryptocompare_bitcoin, '_1m')
+        df_google_trend_bitcoin_1m = PreprocLoad.get_dataset_google_trend(connection, id_cryptocompare_bitcoin, '_1m', older_date)
         df_google_trend_bitcoin_1m = PreprocPrepare.clean_dataset_google_trend(df_google_trend_bitcoin_1m)
 
         # bitcoin - 5 years
-        df_google_trend_bitcoin_5y = PreprocLoad.get_dataset_google_trend(connection, id_cryptocompare_bitcoin, '')
+        df_google_trend_bitcoin_5y = PreprocLoad.get_dataset_google_trend(connection, id_cryptocompare_bitcoin, '', older_date)
         df_google_trend_bitcoin_5y = PreprocPrepare.clean_dataset_google_trend(df_google_trend_bitcoin_5y)
 
         # merge data
@@ -255,7 +258,6 @@ class PreprocPrepare:
         if useless_features is None:
             useless_features = []
 
-        # TODO : Vérifier que fonctionne et pas écrasé
         old_indexes = df_one_crypto.index
         X_close_prices = df_one_crypto.close_price
 
@@ -264,13 +266,11 @@ class PreprocPrepare:
             df_one_crypto = df_one_crypto.drop(useless_features, axis=1)
 
         df_one_crypto = df_one_crypto.values
-        save_obj(df_one_crypto, 'df_one_crypto_inference')
 
         # Scaling Data - reuse scaler from learning !
         if do_scale:
             scaler = load_obj('scaler_learning')
             df_one_crypto = scaler.transform(df_one_crypto)
-
 
         # PCA to reduce dimensionality - reuse pca from learning !
         if do_pca:
