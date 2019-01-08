@@ -266,7 +266,7 @@ class PreprocPrepare:
         # Scaling Data - reuse scaler from learning !
         if do_scale:
             scaler = load_obj('scaler_learning')
-            save_obj('tmp_obj_inference')
+            save_obj(df_one_crypto, 'tmp_obj_inference')
             df_one_crypto = scaler.transform(df_one_crypto)
 
         # PCA to reduce dimensionality - reuse pca from learning !
