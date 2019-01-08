@@ -48,7 +48,7 @@ class PreprocLoad:
         squery = 'select value_standalone, value_compared_to_standard, timestamp\n'
         squery += 'from social_google_trend' + period + '\n'
         squery += 'where id_cryptocompare = ' + id_cryptocompare + '\n'
-        squery += "and timestamp > '" + str_older_date + "'\n"
+        #squery += "and timestamp > '" + str_older_date + "'\n"
         squery += 'order by timestamp'
         return psql.read_sql_query(squery, connection)
 
