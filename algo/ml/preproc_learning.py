@@ -144,6 +144,9 @@ class PreprocLearning:
         X_train_close_price = X_train.close_price
         X_test_close_price = X_test.close_price
 
+        X_train = X_train.values
+        X_test = X_test.values
+
         # Scaling Data
         if do_scale:
             scaler = MinMaxScaler()
@@ -152,6 +155,7 @@ class PreprocLearning:
 
             # save scaler fo reuse with model
             save_obj(scaler, 'scaler_learning')
+            save_obj(X_train, 'X_train_learning')
 
         # PCA to reduce dimensionality
         if do_pca:
