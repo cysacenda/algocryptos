@@ -142,7 +142,7 @@ class PreprocPrepare:
         return df_ohlcv_p
 
     @staticmethod
-    # str_older_date_to_retrieve : default (learning), everything is retrieved
+    # str_older_date_to_retrieve : default (learning), everything is retrieved. Perf improvement for inference
     def get_global_dataset_for_crypto(connection, id_cryptocompare_crypto, older_date=None):
         # ------------------ PRE-PROCESSING : Retrieve data and prepare ------------------ #
         id_cryptocompare_crypto = str(id_cryptocompare_crypto)
@@ -241,7 +241,6 @@ class PreprocPrepare:
         df_global = df_global.interpolate(method='nearest', axis=0).ffill()
 
         # drop na if exist
-        save_obj(df_global, 'df_global_na')
         df_final = df_global.dropna(axis='rows')
         diff = df_global.shape[0] - df_final.shape[0]
         if diff > 0:

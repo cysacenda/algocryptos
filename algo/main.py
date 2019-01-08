@@ -55,6 +55,8 @@ try:
             cash_asset = conf.get_config('trading_module_params', 'cash_asset')
             threshold = float(conf.get_config('trading_module_params', 'threshold'))
             trading_assets = conf.parse_config_dict(conf.get_config('trading_module_params', 'trading_assets_simple'))
+            date_to_retrieve_days_to_add = int(conf.parse_config_dict(conf.get_config('data_params', 'date_to_retrieve_days_to_add')))
+
 
 
             # Build trading pairs / tresholds / signals for trading_module usage
@@ -68,12 +70,14 @@ try:
                 thresholds[trading_pair_str] = threshold
 
                 # Retrieve data
-                df_one_crypto = PreprocPrepare.get_global_dataset_for_crypto(connection, str(id_crypto))
+                older_date = (datetime.datetime.now()
+                              - datetime.timedelta(days=date_to_retrieve_days_to_add)).strftime("%Y-%m-%d")
+                df_one_crypto = PreprocPrepare.get_global_dataset_for_crypto(connection, str(id_crypto), older_date=older_date)
                 df_one_crypto, X_close_prices = PreprocPrepare.get_preprocessed_data_inference(df_one_crypto,
                                                                                                do_scale=True,
                                                                                                do_pca=True,
                                                                                                useless_features=None)
-                # TODO : filter en amont (perfs)
+                # TODO : filtre en amont (perfs)
                 signals[trading_pair_str] = df_one_crypto
 
             # TODO : contrôles de cohérence :
