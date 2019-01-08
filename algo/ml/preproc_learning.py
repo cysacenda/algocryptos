@@ -152,7 +152,6 @@ class PreprocLearning:
 
             # save scaler fo reuse with model
             save_obj(scaler, 'scaler_learning')
-            save_obj(X_train, 'tmp_obj_learning')
 
         # PCA to reduce dimensionality
         if do_pca:
