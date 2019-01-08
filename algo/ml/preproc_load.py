@@ -10,6 +10,7 @@ class PreprocLoad:
         squery += 'where oh.id_cryptocompare = ' + id_cryptocompare + '\n'
         squery += "and oh.timestamp > '" + str_older_date + "'\n"
         squery += 'order by oh.timestamp asc\n'
+        print(squery)
         return psql.read_sql_query(squery, connection)
 
     @staticmethod
@@ -21,6 +22,7 @@ class PreprocLoad:
         squery += "and oh.timestamp > '" + str_older_date + "'\n"
         squery += 'order by oh.timestamp desc\n'
         squery += 'limit 60\n'
+        print(squery)
         return psql.read_sql_query(squery, connection)
 
     @staticmethod
@@ -30,6 +32,7 @@ class PreprocLoad:
         squery += 'where re.reddit_subscribers <> 0 and re.id_cryptocompare = ' + id_cryptocompare + '\n'
         squery += "and re.timestamp > '" + str_older_date + "'\n"
         squery += 'order by re.timestamp asc\n'
+        print(squery)
         return psql.read_sql_query(squery, connection)
 
     @staticmethod
@@ -41,6 +44,7 @@ class PreprocLoad:
         squery += "where timestamp > '" + str_older_date + "'\n"
         squery += 'group by timestamp\n'
         squery += 'order by timestamp'
+        print(squery)
         return psql.read_sql_query(squery, connection)
 
     @staticmethod
@@ -50,6 +54,7 @@ class PreprocLoad:
         squery += 'where id_cryptocompare = ' + id_cryptocompare + '\n'
         squery += "and timestamp > '" + str_older_date + "'\n"
         squery += 'order by timestamp'
+        print(squery)
         return psql.read_sql_query(squery, connection)
 
     @staticmethod
