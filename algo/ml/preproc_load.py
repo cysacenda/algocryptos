@@ -38,7 +38,7 @@ class PreprocLoad:
         squery += 'from histo_ohlcv hi\n'
         squery += 'inner join coins co on (hi.id_cryptocompare = co.id_cryptocompare)\n'
         squery += 'left outer join prices pr on (pr.id_cryptocompare = hi.id_cryptocompare)\n'
-        squery += "and timestamp > '" + str_older_date + "'\n"
+        squery += "where timestamp > '" + str_older_date + "'\n"
         squery += 'group by timestamp\n'
         squery += 'order by timestamp'
         return psql.read_sql_query(squery, connection)
