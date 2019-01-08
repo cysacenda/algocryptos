@@ -241,6 +241,7 @@ class PreprocPrepare:
         df_global = df_global.interpolate(method='nearest', axis=0).ffill()
 
         # drop na if exist
+        save_obj(df_global, 'df_global_na')
         df_final = df_global.dropna(axis='rows')
         diff = df_global.shape[0] - df_final.shape[0]
         if diff > 0:
