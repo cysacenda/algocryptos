@@ -55,9 +55,7 @@ try:
             cash_asset = conf.get_config('trading_module_params', 'cash_asset')
             threshold = float(conf.get_config('trading_module_params', 'threshold'))
             trading_assets = conf.parse_config_dict(conf.get_config('trading_module_params', 'trading_assets_simple'))
-            date_to_retrieve_days_to_add = int(conf.parse_config_dict(conf.get_config('data_params', 'date_to_retrieve_days_to_add')))
-
-
+            date_to_retrieve_days_to_add = int(conf.get_config('data_params', 'date_to_retrieve_days_to_add'))
 
             # Build trading pairs / tresholds / signals for trading_module usage
             trading_pairs = {}
@@ -77,6 +75,17 @@ try:
                                                                                                do_scale=True,
                                                                                                do_pca=True,
                                                                                                useless_features=None)
+
+                # TODO : En cours
+                # Trick to be on same timezone as Db data (cryptocompare UTC date localized before inserting in DB)
+                # import tzlocal
+                # from datetime import datetime
+                #
+                # value = client.get_server_time()['serverTime'] / 1000
+                # local_timezone = tzlocal.get_localzone()  # get pytz timezone
+                # date_localized = datetime.fromtimestamp(value, local_timezone)
+                # date_localized.astimezone(pytz.utc)
+
                 # TODO : filtre en amont (perfs)
                 signals[trading_pair_str] = df_one_crypto
 
