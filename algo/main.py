@@ -84,7 +84,7 @@ try:
                 # value = client.get_server_time()['serverTime'] / 1000
                 # local_timezone = tzlocal.get_localzone()  # get pytz timezone
                 # date_localized = datetime.fromtimestamp(value, local_timezone)
-                # date_localized.astimezone(pytz.utc)
+                # date_localized.astimezone(pytz.utc) 
 
                 # TODO : filtre en amont (perfs)
                 signals[trading_pair_str] = df_one_crypto
