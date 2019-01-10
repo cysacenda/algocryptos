@@ -57,6 +57,8 @@ class CryptoCompare:
 
     @rate_limited(5, 1)
     def get_histo_hour_pair(self, symbol1, symbol2, limit):
+        if limit > 2000:
+            limit = 2000
         url = self.URL_HISTO_HOUR_PAIR.format(symbol1, symbol2, limit)
         data = self.query_cryptocompare(url)
         return self.__get_data_manage_errors(data, url)
@@ -94,7 +96,7 @@ class CryptoCompare:
             logging.error("Error getting information from cryptocompare. " + str(e))
             return None
         if error_check and 'Response' in response.keys() and response['Response'] != 'Success':
-            logging.warning(response['Message'])
+            logging.warning(response['Message'] + ' | url=' + url)
             return None
         return response
 
