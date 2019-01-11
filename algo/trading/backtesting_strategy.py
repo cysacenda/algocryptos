@@ -13,10 +13,10 @@ class BacktestingStrategy:
 
         self.param_init_amount_cash = float(conf.get_config('backtesting_stragegy_params', 'init_amount_cash'))  # $
         self.param_fees = float(conf.get_config('backtesting_stragegy_params', 'fees'))  # $
-        self.param_bet_size = float(conf.get_config('backtesting_stragegy_params', 'bet_size'))  # %
-        self.param_min_bet_size = float(conf.get_config('backtesting_stragegy_params', 'min_bet_size'))  # $
-        self.param_pct_order_placed = float(conf.get_config('backtesting_stragegy_params', 'pct_order_placed'))  # 1% up/down
-        self.param_nb_periods_to_hold_position = int(conf.get_config('backtesting_stragegy_params', 'pct_order_placed'))  # 1d
+        self.param_bet_size = float(conf.get_config('trading_module_params', 'bet_size'))  # %
+        self.param_min_bet_size = float(conf.get_config('trading_module_params', 'min_bet_size'))  # $
+        self.param_pct_order_placed = float(conf.get_config('trading_module_params', 'pct_order_placed'))  # 1% up/down
+        self.param_nb_periods_to_hold_position = int(conf.get_config('trading_module_params', 'pct_order_placed'))  # 1d
         self.signals = {}
         self.all_signals = {}
 
