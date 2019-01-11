@@ -18,6 +18,10 @@ class TradingApi(ABC):
         pass
 
     @abstractmethod
+    def check_predictions_time_vs_server_time(self):
+        pass
+
+    @abstractmethod
     def get_price_ticker(self, base_asset, quote_asset, key):
         pass
 

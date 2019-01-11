@@ -7,6 +7,7 @@ from commons.processmanager import ProcessManager
 from sqlalchemy import create_engine
 from commons.utils import utils
 from commons.slack import slack
+from ml.utils_ml import get_last_dates_per_trading_pair, calcul_signals_for_crypto, load_obj
 
 from trading.trading_api_binance import TradingApiBinance
 from trading.trading_module import TradingModule
@@ -56,44 +57,39 @@ try:
             threshold = float(conf.get_config('trading_module_params', 'threshold'))
             trading_assets = conf.parse_config_dict(conf.get_config('trading_module_params', 'trading_assets_simple'))
             date_to_retrieve_days_to_add = int(conf.get_config('data_params', 'date_to_retrieve_days_to_add'))
+            model_file_name = conf.get_config('trading_module_params', 'model_file_name')
+            model = load_obj(model_file_name)
 
             # Build trading pairs / tresholds / signals for trading_module usage
             trading_pairs = {}
             thresholds = {}
             signals = {}
+            dict_last_dates = {}
             for id_crypto, binance_symbol in trading_assets.items():
                 trading_pair_str = binance_symbol + cash_asset
                 trading_pair = TradingPair(trading_pair_str, binance_symbol, cash_asset)
                 trading_pairs[trading_pair_str] = trading_pair
                 thresholds[trading_pair_str] = threshold
 
-                # Retrieve data
+                # filter to retrieve only needed data to calcul all features
                 older_date = (datetime.datetime.now()
                               - datetime.timedelta(days=date_to_retrieve_days_to_add)).strftime("%Y-%m-%d")
+
+                # retrieve data
                 df_one_crypto = PreprocPrepare.get_global_dataset_for_crypto(connection, str(id_crypto), older_date=older_date)
                 df_one_crypto, X_close_prices = PreprocPrepare.get_preprocessed_data_inference(df_one_crypto,
                                                                                                do_scale=True,
                                                                                                do_pca=True,
                                                                                                useless_features=None)
 
-                # TODO : En cours
-                # Trick to be on same timezone as Db data (cryptocompare UTC date localized before inserting in DB)
-                # import tzlocal
-                # from datetime import datetime
-                #
-                # value = client.get_server_time()['serverTime'] / 1000
-                # local_timezone = tzlocal.get_localzone()  # get pytz timezone
-                # date_localized = datetime.fromtimestamp(value, local_timezone)
-                # date_localized.astimezone(pytz.utc) 
+                # keep only last rows (number = nb_periods_to_hold_position)
+                df_one_crypto = df_one_crypto.tail(nb_periods_to_hold_position)
 
-                # TODO : filtre en amont (perfs)
-                signals[trading_pair_str] = df_one_crypto
+                # get the last date of the dataset on which predictions are made for each trading pair
+                dict_last_dates[trading_pair_str] = get_last_dates_per_trading_pair(df_one_crypto)
 
-            # TODO : contrôles de cohérence :
-                # marché pas en pleine chute de ouf avec acceleration
-                # data signaux ok (pas de données manquantes)
-                # data server ok vs data signaux ?
-                # stop loss
+                # use model to calcul predictions
+                signals[trading_pair_str] = calcul_signals_for_crypto(model, df_one_crypto)
 
             # trading api binance
             trading_api_binance = TradingApiBinance(pct_order_placed)
@@ -103,9 +99,12 @@ try:
                                            pct_order_placed, nb_periods_to_hold_position,
                                            trading_pairs, cash_asset, thresholds, False)
 
-            # TODO : avec date (utile ?) et signaux sur dernières 24h (cf. param), cf. backtesting
-            trading_module.do_update(key, signals)
+            # performs algo actions
+            trading_module.do_update(datetime.datetime.now(), signals, dict_last_dates)
 
+            # TODO : contrôles de cohérence :
+            # marché pas en pleine chute de ouf avec acceleration ?
+            # stop loss
 
 except Exception as e:
     procM.setIsError()
