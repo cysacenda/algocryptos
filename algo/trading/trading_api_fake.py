@@ -12,12 +12,17 @@ class TradingApiFake(TradingApi):
         self.orders = {}
         self.close_prices = {}
 
+    # override
     def is_simulation(self):
         return True
 
     # override
     def check_status_api(self):
         return True, []
+
+    # override
+    def check_predictions_time_vs_server_time(self, dict_dates):
+        return []
 
     # override
     def get_price_ticker(self, base_asset, quote_asset, key):

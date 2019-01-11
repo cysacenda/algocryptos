@@ -4,6 +4,7 @@ import numpy as np
 from trading.trading_api_fake import TradingApiFake
 from trading.trading_module import TradingModule
 from commons.config import Config
+from ml.utils_ml import calcul_signals_for_crypto
 
 
 class BacktestingStrategy:
@@ -13,10 +14,10 @@ class BacktestingStrategy:
 
         self.param_init_amount_cash = float(conf.get_config('backtesting_stragegy_params', 'init_amount_cash'))  # $
         self.param_fees = float(conf.get_config('backtesting_stragegy_params', 'fees'))  # $
-        self.param_bet_size = float(conf.get_config('backtesting_stragegy_params', 'bet_size'))  # %
-        self.param_min_bet_size = float(conf.get_config('backtesting_stragegy_params', 'min_bet_size'))  # $
-        self.param_pct_order_placed = float(conf.get_config('backtesting_stragegy_params', 'pct_order_placed'))  # 1% up/down
-        self.param_nb_periods_to_hold_position = int(conf.get_config('backtesting_stragegy_params', 'pct_order_placed'))  # 1d
+        self.param_bet_size = float(conf.get_config('trading_module_params', 'bet_size'))  # %
+        self.param_min_bet_size = float(conf.get_config('trading_module_params', 'min_bet_size'))  # $
+        self.param_pct_order_placed = float(conf.get_config('trading_module_params', 'pct_order_placed'))  # 1% up/down
+        self.param_nb_periods_to_hold_position = int(conf.get_config('trading_module_params', 'pct_order_placed'))  # 1d
         self.signals = {}
         self.all_signals = {}
 
@@ -49,19 +50,15 @@ class BacktestingStrategy:
                                             self.trading_pairs,  self.cash_asset, self.thresholds, self.trace)
 
     def __calcul_signals(self):
+
         conf = Config()
-        proba_min = float(conf.get_config('trading_module_params', 'proba_min'))  # %
+        threshold = float(conf.get_config('trading_module_params', 'threshold'))  # %
 
         for trading_pair, value in self.trading_pairs.items():
-            predicted_proba = self.model.predict_proba(self.X_tests[trading_pair].values)
-            probs = predicted_proba[:, 1]
-            df_probs = pd.DataFrame(probs)
-            df_probs.index = self.X_tests[trading_pair].index
-            df_probs.columns = ['signal_prob']
-            self.signals[trading_pair] = df_probs
+            df_probs = calcul_signals_for_crypto(self.model, self.X_tests[trading_pair].values)
 
             # all signals
-            signal = df_probs.signal_prob > proba_min
+            signal = df_probs.signal_prob > threshold
             self.all_signals[trading_pair] = df_probs[signal]
 
     def override_signals(self, signals):
@@ -92,7 +89,7 @@ class BacktestingStrategy:
         current_date = self.init_date
         while current_date < self.end_date:
             signals = self.get_signals_for_date(current_date)
-            self.trading_module.do_update(current_date, signals)
+            self.trading_module.do_update(current_date, signals, {})
             current_date = current_date + timedelta(hours=1)
         self.trading_module.do_sell_all(current_date)
 

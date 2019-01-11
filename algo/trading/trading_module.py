@@ -84,6 +84,7 @@ class TradingModule:
             if signals[trading_pair].signal_prob.max() < self.thresholds[trading_pair]:
                 # if crypto currently in portfolio
                 crypto_amount = self.trading_api.get_available_amount_crypto(value.base_asset)
+                # TODO : Attention, montant doit être supérieur à un minium (éviter vente reliquats à 1$...)
                 if crypto_amount > 0:
                     what_to_sell[value] = crypto_amount
         return what_to_sell
@@ -109,7 +110,7 @@ class TradingModule:
                 self.__sell(key, value, amount_available)
 
     # check & perform actions that need to be done (buy / sell) at a specific date
-    def do_update(self, key, signals):
+    def do_update(self, key, signals, dict_dates):
         self.do_logging_warning("TradingModule.do_update() - start")
 
         # cancel open orders (buy + sell ?)
@@ -117,6 +118,9 @@ class TradingModule:
 
         # check api status
         status, authorized_trading_pairs = self.trading_api.check_status_api()
+
+        # check dates prediction vs server time (can sell if data not up to date, but not buy
+        tradable_trading_pairs = self.trading_api.check_predictions_time_vs_server_time(dict_dates)
 
         if status:
             # sell
@@ -128,10 +132,15 @@ class TradingModule:
                     logging.error(msg)
                     slack.post_message_to_alert_error_trading(msg)
             for trading_pair, amount in self.__what_to_buy(key, signals).items():
-                if (trading_pair.name in authorized_trading_pairs) or self.is_simulation():
+                if ((trading_pair.name in authorized_trading_pairs)
+                        and (trading_pair.name in tradable_trading_pairs)) or self.is_simulation():
                     self.__buy(key, trading_pair, amount)
                 else:
-                    msg = 'Error: TradingPair not authorized for trading: ' + trading_pair.name
+                    msg = ''
+                    if trading_pair.name not in authorized_trading_pairs:
+                        msg += 'Error: TradingPair not authorized for trading: ' + trading_pair.name + ' / '
+                    if trading_pair.name not in tradable_trading_pairs:
+                        msg += "Error: TradingPair can't be traded because of last prediction date vs server time: " + trading_pair.name
                     logging.error(msg)
                     slack.post_message_to_alert_error_trading(msg)
 

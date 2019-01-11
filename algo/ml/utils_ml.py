@@ -206,6 +206,10 @@ def remove_outliers(df, columns_name):
     return df
 
 
+def get_last_dates_per_trading_pair(df):
+    return df.index[-1][0].to_pydatetime()
+
+
 def get_useless_features(model, index, threshold=0.002):
     s = pd.Series(model.feature_importances_, index=index)
     return s[s <= threshold].index.values
@@ -237,3 +241,12 @@ def format_close_prices(X_, id_cryptocompare):
     X_ = pd.DataFrame(X_)
     X_ = remove_id_index(X_.query('id_cryptocompare == "' + id_cryptocompare + '"'))
     return X_.close_price
+
+
+def calcul_signals_for_crypto(model, df_crypto):
+    predicted_proba = model.predict_proba(df_crypto.values)
+    probs = predicted_proba[:, 1]
+    df_probs = pd.DataFrame(probs)
+    df_probs.index = df_crypto.index
+    df_probs.columns = ['signal_prob']
+    return df_probs

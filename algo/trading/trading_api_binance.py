@@ -5,6 +5,7 @@ from commons.dbaccess import DbConnection
 from trading.alg_order import AlgOrderBinance
 from commons.slack import slack
 import logging
+from trading.utils_trading import localize_utc_date
 
 # Look at orderTypes="STOP_LOSS_LIMIT"
 # Infos utiles:
@@ -18,9 +19,11 @@ class TradingApiBinance(TradingApi):
         self.param_pct_order_placed = param_pct_order_placed
         self.API_KEY = conf.get_config('binance', 'api_key')
         self.API_SECRET = conf.get_config('binance', 'api_secret')
+        self.MAX_DIFF_DATE_HOUR = conf.get_config('trading_module_params', 'max_diff_date_hour')
         self.client = Client(self.API_KEY, self.API_SECRET)  # lib python-binance
         self.precision = 5  # binance api precision for amount
 
+    # override
     def is_simulation(self):
         return False
 
@@ -53,6 +56,23 @@ class TradingApiBinance(TradingApi):
             slack.post_message_to_alert_error_trading(msg)
 
         return global_status, authorized_trading_pairs
+
+    # override
+    # allows to be sure that there is not to much space between prediction and now
+    # TODO : Implement in fake API return true
+    def check_predictions_time_vs_server_time(self, dict_dates):
+        tradable_trading_pairs = []
+
+        # Get server time
+        server_time = self.client.get_server_time()['serverTime']
+        server_time_localized = localize_utc_date(server_time)
+
+        for trading_pair, last_date in dict_dates.items():
+            # TODO : Tuner car marche pas là...
+            if (server_time_localized - last_date).hours < self.MAX_DIFF_DATE_HOUR:
+                tradable_trading_pairs.append(trading_pair)
+
+        return tradable_trading_pairs
 
     # override
     # TODO : parameter = tradingpair directly
