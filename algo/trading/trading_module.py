@@ -87,7 +87,7 @@ class TradingModule:
             if signals[trading_pair].signal_prob.max() < self.thresholds[trading_pair]:
                 # if crypto currently in portfolio and value > min_bet_value
                 crypto_amount = self.trading_api.get_available_amount_crypto(value.base_asset)
-                crypto_amount_cash_value = self.trading_api.get_price_ticker(value.base_asset, value.quote_asset) * crypto_amount
+                crypto_amount_cash_value = self.trading_api.get_price_ticker(value.base_asset, value.quote_asset, current_date) * crypto_amount
 
                 # TODO [SIMULATION]
                 what_to_sell[value] = crypto_amount
@@ -113,7 +113,7 @@ class TradingModule:
         for trading_pair, value in self.trading_pairs.items():
             amount_available = self.trading_api.get_available_amount_crypto(value.base_asset)
             crypto_amount_cash_value = self.trading_api.get_price_ticker(value.base_asset,
-                                                                         value.quote_asset) * amount_available
+                                                                         value.quote_asset, key) * amount_available
             if (amount_available > 0) and (crypto_amount_cash_value > self.param_min_bet_size):
                 self.__sell(key, value, amount_available)
 
