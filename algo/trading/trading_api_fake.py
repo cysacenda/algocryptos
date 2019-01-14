@@ -1,4 +1,4 @@
-from trading.trading_api import TradingApi, ORDER_BUY, ORDER_SELL
+from trading.trading_api import TradingApi, ORDER_SELL
 from trading.alg_order import AlgOrderFake
 from datetime import timedelta
 

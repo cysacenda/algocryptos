@@ -1,6 +1,7 @@
 from commons.config import Config
-from trading.trading_api import TradingApi, ORDER_SELL, ORDER_BUY
+from trading.trading_api import TradingApi, ORDER_BUY
 from binance.client import Client
+from binance.enums import *
 from commons.dbaccess import DbConnection
 from trading.alg_order import AlgOrderBinance
 from commons.slack import slack
@@ -80,6 +81,8 @@ class TradingApiBinance(TradingApi):
         for trading_pair, last_date in dict_dates.items():
             if (server_time_localized - last_date) < timedelta(hours=self.MAX_DIFF_DATE_HOUR):
                 tradable_trading_pairs.append(trading_pair)
+            else:
+                logging.error('Difference between server time (' + str(server_time_localized) + ') / prediction time (' + str(last_date) + ') too big for trading pair: ' + trading_pair)
 
         return tradable_trading_pairs
 
@@ -151,17 +154,33 @@ class TradingApiBinance(TradingApi):
             # TODO V2 : Use stopPrice for stop loss genre -3-4% ?
             if side == ORDER_BUY:
                 limit_price = self.get_buy_price(base_asset, quote_asset, key)
-                order = self.client.order_limit_buy(
+                # order = self.client.order_limit_buy(
+                #     symbol=base_asset + quote_asset,
+                #     quantity=quantity_from,
+                #     price=self.format_amount_order(limit_price))
+                # TODO [SIMULATION] : To be replaced with real order !
+                order = self.client.create_test_order(
                     symbol=base_asset + quote_asset,
+                    side=SIDE_BUY,
+                    type=ORDER_TYPE_LIMIT,
+                    timeInForce=TIME_IN_FORCE_GTC,
                     quantity=quantity_from,
                     price=self.format_amount_order(limit_price))
             else:
                 limit_price = self.get_sell_price(base_asset, quote_asset, key)
-                order = self.client.order_limit_sell(
+                # order = self.client.order_limit_sell(
+                #     symbol=base_asset + quote_asset,
+                #     quantity=quantity_from,
+                #     price=self.format_amount_order(limit_price))
+                # TODO [SIMULATION] : To be replaced with real order !
+                order = self.client.create_test_order(
                     symbol=base_asset + quote_asset,
+                    side=SIDE_SELL,
+                    type=ORDER_TYPE_LIMIT,
+                    timeInForce=TIME_IN_FORCE_GTC,
                     quantity=quantity_from,
                     price=self.format_amount_order(limit_price))
-            msg = "Order placed " + str(order)
+            msg = "Order placed on trading_pair: " + base_asset + quote_asset + ' - Qty: ' + str(quantity_from) + ' - limit: ' + str(limit_price) + ' - order: ' + str(order)
             logging.warning(msg)
             slack.post_message_to_alert_actions_trading(msg)
 
