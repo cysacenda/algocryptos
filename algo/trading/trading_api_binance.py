@@ -192,6 +192,7 @@ class TradingApiBinance(TradingApi):
             logging.error(msg.format(base_asset + quote_asset, side, quantity_from))
             logging.error(str(e))
             slack.post_message_to_alert_error_trading(msg.format(base_asset + quote_asset, side, quantity_from) + '\n' + str(e))
+            raise Exception(msg + str(e))
 
         return order['orderId']
 
