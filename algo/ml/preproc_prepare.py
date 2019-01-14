@@ -4,7 +4,7 @@ import pandas as pd
 from ml.preproc_load import PreprocLoad
 from ml.utils_ml import remove_outliers
 from ml.preproc_feature_engineering import PreprocFeatureEngineering
-from ml.utils_ml import load_obj, save_obj
+from ml.utils_ml import load_obj
 
 from commons.config import Config
 

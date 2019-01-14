@@ -88,8 +88,11 @@ class TradingModule:
                 # if crypto currently in portfolio and value > min_bet_value
                 crypto_amount = self.trading_api.get_available_amount_crypto(value.base_asset)
                 crypto_amount_cash_value = self.trading_api.get_price_ticker(value.base_asset, value.quote_asset) * crypto_amount
-                if (crypto_amount > 0) and (crypto_amount_cash_value > self.param_min_bet_size):
-                    what_to_sell[value] = crypto_amount
+
+                # TODO [SIMULATION]
+                what_to_sell[value] = crypto_amount
+                # if (crypto_amount > 0) and (crypto_amount_cash_value > self.param_min_bet_size):
+                #    what_to_sell[value] = crypto_amount
         return what_to_sell
 
     def __sell(self, key, trading_pair, crypto_amount):
@@ -114,7 +117,7 @@ class TradingModule:
             if (amount_available > 0) and (crypto_amount_cash_value > self.param_min_bet_size):
                 self.__sell(key, value, amount_available)
 
-    # check & perform actions that need to be done (buy / sell) at a specific date
+    # check & perform actions that need to be done (buy / sell)
     def do_update(self, key, signals, dict_dates):
         self.do_logging_warning("Start")
 
