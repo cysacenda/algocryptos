@@ -1,5 +1,5 @@
 import sys
-import datetime
+from datetime import datetime, timedelta
 import logging
 import argparse
 from commons.config import Config
@@ -22,7 +22,7 @@ conf = Config()
 procM = ProcessManager()
 
 # Logging params
-today = datetime.datetime.now().strftime("%Y-%m-%d")
+today = datetime.now().strftime("%Y-%m-%d")
 logging.basicConfig(filename='algo_' + today + '.log',
                     format=conf.get_config('log_params', 'log_format'))
 
@@ -77,8 +77,8 @@ try:
                 thresholds[trading_pair_str] = threshold
 
                 # filter to retrieve only needed data to calcul all features
-                older_date = (datetime.datetime.now()
-                              - datetime.timedelta(days=date_to_retrieve_days_to_add)).strftime("%Y-%m-%d")
+                older_date = (datetime.now()
+                              - timedelta(days=date_to_retrieve_days_to_add)).strftime("%Y-%m-%d")
 
                 # retrieve data
                 df_one_crypto = PreprocPrepare.get_global_dataset_for_crypto(connection, str(id_crypto), nb_periods_to_hold_position, older_date=older_date)
@@ -107,7 +107,7 @@ try:
                                            trading_pairs, cash_asset, thresholds, False)
 
             # performs algo actions
-            trading_module.do_update(datetime.datetime.now(), signals, dict_last_dates)
+            trading_module.do_update(datetime.now(), signals, dict_last_dates)
 
             # TODO V2 : contrôles de cohérence :
             # marché pas en pleine chute de ouf avec acceleration ?
