@@ -6,13 +6,11 @@ from trading.alg_order import AlgOrderBinance
 from commons.slack import slack
 import logging
 from trading.utils_trading import localize_utc_date
-
-# Look at orderTypes="STOP_LOSS_LIMIT"
-# Infos utiles:
-# https://api.binance.com/api/v1/exchangeInfo
+from datetime import timedelta
 
 
 class TradingApiBinance(TradingApi):
+
     # override
     def __init__(self, param_pct_order_placed):
         conf = Config()
@@ -21,7 +19,7 @@ class TradingApiBinance(TradingApi):
         self.API_SECRET = conf.get_config('binance', 'api_secret')
         self.MAX_DIFF_DATE_HOUR = conf.get_config('trading_module_params', 'max_diff_date_hour')
         self.client = Client(self.API_KEY, self.API_SECRET)  # lib python-binance
-        self.precision = 5  # binance api precision for amount
+        self.precision = int(conf.get_config('binance', 'api_amount_precision'))
 
     # override
     def is_simulation(self):
@@ -29,13 +27,19 @@ class TradingApiBinance(TradingApi):
 
     # override
     def check_status_api(self):
-        global_status = False
         authorized_trading_pairs = []
 
+        # test ping
         try:
-            # test ping
             self.client.ping()
-            # Check system status
+        except Exception as e:
+            msg = "Error while trying to ping Binance API : " + str(e)
+            logging.error(msg)
+            slack.post_message_to_alert_error_trading(msg)
+            return False, authorized_trading_pairs
+
+        # Check system status
+        try:
             status = self.client.get_system_status()
             if (status['msg'] == 'normal') and (status['status'] == 0):
                 # Check account status
@@ -43,23 +47,29 @@ class TradingApiBinance(TradingApi):
                 if (status_client['msg'] == 'Normal') and (status_client['success']):
                     # Check account status related to trading
                     info_client = self.client.get_account()
-                    if info_client['canTrade']:
-                        global_status = True
-            # Exchange info to verify which tradingpairs are tradable
+                    if not info_client['canTrade']:
+                        return False, authorized_trading_pairs
+        except Exception as e:
+            msg = "Error while trying to get system status from Binance API : " + str(e)
+            logging.error(msg)
+            slack.post_message_to_alert_error_trading(msg)
+            return False, authorized_trading_pairs
+
+        # Exchange info to verify which tradingpairs are tradable
+        try:
             exchange_info = self.client.get_exchange_info()
             for symbol in exchange_info['symbols']:
                 authorized_trading_pairs.append(symbol['symbol'])
-
         except Exception as e:
-            msg = "TradingApiBinance.check_status_api() - Can't check status: " + str(e)
+            msg = "Error while getting exchange info from binance : " + str(e)
             logging.error(msg)
             slack.post_message_to_alert_error_trading(msg)
+            return False, authorized_trading_pairs
 
-        return global_status, authorized_trading_pairs
+        return True, authorized_trading_pairs
 
     # override
-    # allows to be sure that there is not to much space between prediction and now
-    # TODO : Implement in fake API return true
+    # allows to be sure that there is not to much time between predictions time and now
     def check_predictions_time_vs_server_time(self, dict_dates):
         tradable_trading_pairs = []
 
@@ -68,20 +78,21 @@ class TradingApiBinance(TradingApi):
         server_time_localized = localize_utc_date(server_time)
 
         for trading_pair, last_date in dict_dates.items():
-            # TODO : Tuner car marche pas là...
-            if (server_time_localized - last_date).hours < self.MAX_DIFF_DATE_HOUR:
+            if (server_time_localized - last_date) < timedelta(hours=self.MAX_DIFF_DATE_HOUR):
                 tradable_trading_pairs.append(trading_pair)
 
         return tradable_trading_pairs
 
     # override
-    # TODO : parameter = tradingpair directly
+    # TODO V2 : parameter = tradingpair directly
+    # WARNING : can raise uncatched errors
     def get_price_ticker(self, base_asset, quote_asset, key):
         prices = self.client.get_all_tickers()
         prices_dict = {value["symbol"]: value["price"] for value in prices}
         return float(prices_dict[base_asset + quote_asset])
 
     # override
+    # WARNING : can raise uncatched errors
     def get_buy_price(self, base_asset, quote_asset, key):
         buy_limit_price = 0
         depth = self.client.get_order_book(symbol=base_asset + quote_asset)
@@ -89,7 +100,7 @@ class TradingApiBinance(TradingApi):
             ask_price = float(depth['asks'][0][0])  # get first ask price in order book
             buy_limit_price = ask_price + (ask_price * self.param_pct_order_placed)
         else:
-            msg = 'Error while getting price in get_buy_price() for trading_pair:' + base_asset + quote_asset
+            msg = 'Error while getting price for trading_pair:' + base_asset + quote_asset
             slack.post_message_to_alert_error_trading(msg)
             raise Exception(msg)
         return buy_limit_price
@@ -102,7 +113,7 @@ class TradingApiBinance(TradingApi):
             bid_price = float(depth['bids'][0][0])  # get first bid price in order book
             sell_limit_price = bid_price - (bid_price * self.param_pct_order_placed)
         else:
-            msg = 'Error while getting price in get_sell_price() for trading_pair:' + base_asset + quote_asset
+            msg = 'Error while getting price for trading_pair:' + base_asset + quote_asset
             slack.post_message_to_alert_error_trading(msg)
             raise Exception(msg)
         return sell_limit_price
@@ -114,7 +125,7 @@ class TradingApiBinance(TradingApi):
         if 'free' in infos_balance:
             balance = float(infos_balance['free'])
         else:
-            msg = 'Error while getting balance in get_available_amount_crypto() for symbol:' + symbol
+            msg = 'Error while getting balance for symbol:' + symbol
             slack.post_message_to_alert_error_trading(msg)
             raise Exception(msg)
         return balance
@@ -137,7 +148,7 @@ class TradingApiBinance(TradingApi):
     def create_order(self, base_asset, quote_asset, side, quantity_from, key):  # ex: USDT, ETH, 1000, BUY
         order = {}
         try:
-            # TODO : Use stopPrice for stop loss genre -3-4% ?
+            # TODO V2 : Use stopPrice for stop loss genre -3-4% ?
             if side == ORDER_BUY:
                 limit_price = self.get_buy_price(base_asset, quote_asset, key)
                 order = self.client.order_limit_buy(
@@ -150,7 +161,7 @@ class TradingApiBinance(TradingApi):
                     symbol=base_asset + quote_asset,
                     quantity=quantity_from,
                     price=self.format_amount_order(limit_price))
-            msg = "TradingApiBinance.create_order() - Order placed " + str(order)
+            msg = "Order placed " + str(order)
             logging.warning(msg)
             slack.post_message_to_alert_actions_trading(msg)
 
@@ -158,7 +169,7 @@ class TradingApiBinance(TradingApi):
             dbconn = DbConnection()
             dbconn.exexute_query(TradingApiBinance.__create_query_order(order))
         except Exception as e:
-            msg = "TradingApiBinance.create_order() - Error while creating order on tradingPair: {}, side: {}, qty:{}"
+            msg = "Error while creating order on tradingPair: {}, side: {}, qty:{}"
             logging.error(msg.format(base_asset + quote_asset, side, quantity_from))
             logging.error(str(e))
             slack.post_message_to_alert_error_trading(msg.format(base_asset + quote_asset, side, quantity_from) + '\n' + str(e))
@@ -206,13 +217,13 @@ class TradingApiBinance(TradingApi):
 
     # override
     def get_orders(self):
-        # Not useful for the moment (only for backtesting)
+        # Useless her, only for backtesting
         return 'N/A'
 
     # override
     def cancel_open_orders(self):
         orders = self.client.get_open_orders()
-        logging.warning("TradingApiBinance.cancel_open_orders() - Open orders to be cancelled " + str(orders))
+        logging.warning("Open orders to be cancelled " + str(orders))
         for order in orders:
             try:
                 result = self.client.cancel_order(
@@ -220,7 +231,7 @@ class TradingApiBinance(TradingApi):
                     orderId=order['orderId'])
                 slack.post_message_to_alert_actions_trading('Order cancelled: ' + str(result))
             except Exception as e:
-                msg = "TradingApiBinance.cancel_open_orders() - Order cannot be cancelled " + str(e)
+                msg = "Order cannot be cancelled " + str(e)
                 logging.error(msg)
                 slack.post_message_to_alert_error_trading(msg)
 
