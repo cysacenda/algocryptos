@@ -14,6 +14,7 @@ from trading.trading_module import TradingModule
 from trading.trading_pair import TradingPair
 from ml.preproc_prepare import PreprocPrepare
 
+# region config / process manager / logging / sql connexion
 # Configuration
 conf = Config()
 
@@ -32,22 +33,25 @@ if not procM.start_process(IdCurrentProcess, 'Algo', sys.argv):
 
 # connection DB
 connection = create_engine(utils.get_connection_string())
+#endregion
 
 try:
     if __name__ == '__main__':
+
+        # region instanciate parser
         parser = argparse.ArgumentParser(
             description="Outil permettant l'analyse des données marchés et réseaux sociaux pour les cryptocurrencies")
         parser.add_argument('-s', '--std', dest="std", help='Standard program',
                             action='store_true')
         args = parser.parse_args()
+        #endregion
 
         if args.std:
-            # TODO : Check that no important traitement running ? last ohlcv just done ? Do it with process management
             # -----------------------------------------------
             # Start program
             # -----------------------------------------------
 
-            # Retrieve algo params
+            # region retrieve algo params
             pct_order_placed = float(conf.get_config('trading_module_params', 'pct_order_placed'))
             bet_size = float(conf.get_config('trading_module_params', 'bet_size'))
             min_bet_size = float(conf.get_config('trading_module_params', 'min_bet_size'))
@@ -59,8 +63,9 @@ try:
             date_to_retrieve_days_to_add = int(conf.get_config('data_params', 'date_to_retrieve_days_to_add'))
             model_file_name = conf.get_config('trading_module_params', 'model_file_name')
             model = load_obj(model_file_name)
+            # endregion Retrieve algo params
 
-            # Build trading pairs / tresholds / signals for trading_module usage
+            # region build trading pairs / tresholds / signals for trading_module usage
             trading_pairs = {}
             thresholds = {}
             signals = {}
@@ -76,7 +81,7 @@ try:
                               - datetime.timedelta(days=date_to_retrieve_days_to_add)).strftime("%Y-%m-%d")
 
                 # retrieve data
-                df_one_crypto = PreprocPrepare.get_global_dataset_for_crypto(connection, str(id_crypto), older_date=older_date)
+                df_one_crypto = PreprocPrepare.get_global_dataset_for_crypto(connection, str(id_crypto), nb_periods_to_hold_position, older_date=older_date)
                 df_one_crypto, X_close_prices = PreprocPrepare.get_preprocessed_data_inference(df_one_crypto,
                                                                                                do_scale=True,
                                                                                                do_pca=True,
@@ -91,6 +96,8 @@ try:
                 # use model to calcul predictions
                 signals[trading_pair_str] = calcul_signals_for_crypto(model, df_one_crypto)
 
+            #endregion
+
             # trading api binance
             trading_api_binance = TradingApiBinance(pct_order_placed)
 
@@ -102,10 +109,14 @@ try:
             # performs algo actions
             trading_module.do_update(datetime.datetime.now(), signals, dict_last_dates)
 
-            # TODO : contrôles de cohérence :
+            # TODO V2 : contrôles de cohérence :
             # marché pas en pleine chute de ouf avec acceleration ?
-            # stop loss
+            # STOP LOSS (après mise en prod pour tests) /!\
+                # Look at orderTypes="STOP_LOSS_LIMIT"
+                # Infos utiles:
+                # https://api.binance.com/api/v1/exchangeInfo
 
+# region exception management / exit
 except Exception as e:
     procM.setIsError()
     msg = 'Uncatched error :' + str(e)
@@ -117,3 +128,4 @@ except Exception as e:
 procM.stop_process(IdCurrentProcess, 'Algo', sys.argv)
 
 exit(1 if procM.IsError else 0)
+# endregion

@@ -26,7 +26,7 @@ class PreprocPrepare:
 
     @staticmethod
     def get_ohlcv_1d_plus_missing_infos(connection, df_ohlcv_p, id_cryptocompare, str_older_date):
-        # TODO : Perf : do only one call to these two lines (cf. get_ohlcv_1h_plus_missing_infos)
+        # TODO V2 : Perf : do only one call to these two lines (cf. get_ohlcv_1h_plus_missing_infos)
         df_ohlcv_old = PreprocLoad.get_dataset_ohlcv_old(connection, id_cryptocompare, df_ohlcv_p.index.min(), str_older_date)
 
         # resample to 1d
@@ -63,7 +63,7 @@ class PreprocPrepare:
         return df_final
 
     @staticmethod
-    def get_ohlcv_1h_plus_missing_infos(connection, df_ohlcv_p, id_cryptocompare, str_older_date):
+    def get_ohlcv_1h_plus_missing_infos(connection, df_ohlcv_p, id_cryptocompare, str_older_date, model_term):
         # get data older than 12/2017
         df_ohlcv_old = PreprocLoad.get_dataset_ohlcv_old(connection, id_cryptocompare, df_ohlcv_p.index.min(), str_older_date)
 
@@ -75,8 +75,7 @@ class PreprocPrepare:
 
             # resample to 1h
             df_ohlcv_old = df_ohlcv_old.resample("1H").interpolate()
-            # TODO: Replace 24 with model horizon
-            df_ohlcv_old.volume_aggregated_1h = df_ohlcv_old.volume_aggregated_1h / 24
+            df_ohlcv_old.volume_aggregated_1h = df_ohlcv_old.volume_aggregated_1h / model_term
 
             # quick & dirty way to have coherents volumes between both dataset
             mean_vol_old = df_ohlcv_old.tail(5).volume_aggregated_1h.mean()
@@ -143,7 +142,7 @@ class PreprocPrepare:
 
     @staticmethod
     # str_older_date_to_retrieve : default (learning), everything is retrieved. Perf improvement for inference
-    def get_global_dataset_for_crypto(connection, id_cryptocompare_crypto, older_date=None):
+    def get_global_dataset_for_crypto(connection, id_cryptocompare_crypto, model_term, older_date=None):
         # ------------------ PRE-PROCESSING : Retrieve data and prepare ------------------ #
         id_cryptocompare_crypto = str(id_cryptocompare_crypto)
 
@@ -161,15 +160,15 @@ class PreprocPrepare:
         df_ohlcv = PreprocPrepare.clean_dataset_ohlcv_spe(df_ohlcv)
         min_date = df_ohlcv.index.min()
 
-        df_ohlcv = PreprocPrepare.get_ohlcv_1h_plus_missing_infos(connection, df_ohlcv, id_cryptocompare_crypto, older_date)
+        df_ohlcv = PreprocPrepare.get_ohlcv_1h_plus_missing_infos(connection, df_ohlcv, id_cryptocompare_crypto, older_date, model_term)
 
         df_ohlcv_tether = PreprocLoad.get_dataset_ohlcv(connection, id_cryptocompare_tether, older_date)
         df_ohlcv_tether = PreprocPrepare.clean_dataset_ohlcv_spe(df_ohlcv_tether)
-        df_ohlcv_tether = PreprocPrepare.get_ohlcv_1h_plus_missing_infos(connection, df_ohlcv_tether, id_cryptocompare_tether, older_date)
+        df_ohlcv_tether = PreprocPrepare.get_ohlcv_1h_plus_missing_infos(connection, df_ohlcv_tether, id_cryptocompare_tether, older_date, model_term)
 
         df_ohlcv_bitcoin = PreprocLoad.get_dataset_ohlcv(connection, id_cryptocompare_bitcoin, older_date)
         df_ohlcv_bitcoin = PreprocPrepare.clean_dataset_ohlcv_spe(df_ohlcv_bitcoin)
-        df_ohlcv_bitcoin = PreprocPrepare.get_ohlcv_1h_plus_missing_infos(connection, df_ohlcv_bitcoin, id_cryptocompare_bitcoin, older_date)
+        df_ohlcv_bitcoin = PreprocPrepare.get_ohlcv_1h_plus_missing_infos(connection, df_ohlcv_bitcoin, id_cryptocompare_bitcoin, older_date, model_term)
 
         df_ohlcv_1d = PreprocPrepare.get_ohlcv_1d_plus_missing_infos(connection, df_ohlcv, id_cryptocompare_crypto, older_date)
 

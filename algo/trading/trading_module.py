@@ -7,7 +7,7 @@ class TradingModule:
     def __init__(self, trading_api, param_bet_size, param_min_bet_size, param_pct_order_placed,
                  param_nb_periods_to_hold_position, trading_pairs, cash_asset, thresholds, trace):
 
-        logging.warning("TradingModule.__init__() - start")
+        logging.warning("TradingModule - START")
 
         self.x_buy = {}
         self.y_buy = {}
@@ -23,13 +23,14 @@ class TradingModule:
         self.trace = trace
 
         self.param_nb_periods_to_hold_position = param_nb_periods_to_hold_position
-        self.param_bet_size = param_bet_size
         self.param_min_bet_size = param_min_bet_size
         self.param_pct_order_placed = param_pct_order_placed
+        # TODO : V2 - Faire en fonction de la valeur du portefeuille
+        self.param_bet_size = param_bet_size
 
         self.init_var()
 
-        logging.warning("TradingModule.__init__() - end")
+        logging.warning("TradingModule - END")
 
     def init_var(self):
         for trading_pair, value in self.trading_pairs.items():
@@ -57,12 +58,14 @@ class TradingModule:
 
         # max proba identified and > threshold for the trading pair
         if (max_trading_pair != '') and (max_prob > self.thresholds[max_trading_pair]):
-            cash_amount_to_use = self.trading_api.get_available_amount_crypto(self.cash_asset) * self.param_bet_size
-            what_to_buy[self.trading_pairs[max_trading_pair]] = cash_amount_to_use
+            amount_cash_available = self.trading_api.get_available_amount_crypto(self.cash_asset)
+            if amount_cash_available > self.param_min_bet_size:
+                cash_amount_to_use = amount_cash_available * self.param_bet_size
+                what_to_buy[self.trading_pairs[max_trading_pair]] = cash_amount_to_use
 
         return what_to_buy
 
-    # Change bet size regarding proba ?
+    # TODO : V2 - Change bet size regarding proba ?
     def __buy(self, key, trading_pair, amount):
         id_order = self.trading_api.create_order(trading_pair.base_asset, trading_pair.quote_asset, ORDER_BUY, amount,
                                                  key)
@@ -82,14 +85,14 @@ class TradingModule:
         what_to_sell = {}
         for trading_pair, value in self.trading_pairs.items():
             if signals[trading_pair].signal_prob.max() < self.thresholds[trading_pair]:
-                # if crypto currently in portfolio
+                # if crypto currently in portfolio and value > min_bet_value
                 crypto_amount = self.trading_api.get_available_amount_crypto(value.base_asset)
-                # TODO : Attention, montant doit être supérieur à un minium (éviter vente reliquats à 1$...)
-                if crypto_amount > 0:
+                crypto_amount_cash_value = self.trading_api.get_price_ticker(value.base_asset, value.quote_asset) * crypto_amount
+                if (crypto_amount > 0) and (crypto_amount_cash_value > self.param_min_bet_size):
                     what_to_sell[value] = crypto_amount
         return what_to_sell
 
-    def __sell(self, key, trading_pair, crypto_amount):  # from_crypto, to_crypto
+    def __sell(self, key, trading_pair, crypto_amount):
         id_order = self.trading_api.create_order(trading_pair.base_asset, trading_pair.quote_asset, ORDER_SELL,
                                                  crypto_amount, key)
         order = self.trading_api.get_order(id_order, trading_pair.name)
@@ -106,14 +109,16 @@ class TradingModule:
     def do_sell_all(self, key):
         for trading_pair, value in self.trading_pairs.items():
             amount_available = self.trading_api.get_available_amount_crypto(value.base_asset)
-            if amount_available > 0:
+            crypto_amount_cash_value = self.trading_api.get_price_ticker(value.base_asset,
+                                                                         value.quote_asset) * amount_available
+            if (amount_available > 0) and (crypto_amount_cash_value > self.param_min_bet_size):
                 self.__sell(key, value, amount_available)
 
     # check & perform actions that need to be done (buy / sell) at a specific date
     def do_update(self, key, signals, dict_dates):
-        self.do_logging_warning("TradingModule.do_update() - start")
+        self.do_logging_warning("Start")
 
-        # cancel open orders (buy + sell ?)
+        # cancel open orders
         self.trading_api.cancel_open_orders()
 
         # check api status
@@ -146,17 +151,13 @@ class TradingModule:
 
             self.amount_x.append(key)
             self.amount_y.append(self.trading_api.get_portfolio_value(self.trading_pairs, self.cash_asset, key))
-        else:
-            msg = "TradingModule.do_update() - API status=False"
-            logging.error(msg)
-            slack.post_message_to_alert_error_trading(msg)
-
-        self.do_logging_warning("TradingModule.do_update() - end")
 
         # Post portfolio value to Slack
         if not self.is_simulation():
             portfolio_amount = self.trading_api.get_portfolio_value(self.trading_pairs, self.cash_asset, key)
             slack.post_message_to_alert_portfolio('Portfolio value: ' + str(portfolio_amount) + ' ' + self.cash_asset)
+
+        self.do_logging_warning("End")
 
     def get_available_amount_crypto(self, symbol):
         return self.trading_api.get_available_amount_crypto(symbol)

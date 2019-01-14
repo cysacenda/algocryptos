@@ -19,12 +19,12 @@ utc=pytz.UTC
 class PreprocLearning:
 
     @staticmethod
-    def get_global_datasets_for_cryptos(connection, ids_cryptocompare_crypto):
+    def get_global_datasets_for_cryptos(connection, ids_cryptocompare_crypto, model_term):
         dict_df = {}
         for id_crypto in ids_cryptocompare_crypto:
             print('Crypto : ' + str(id_crypto))
             try:
-                df = PreprocPrepare.get_global_dataset_for_crypto(connection, id_crypto)
+                df = PreprocPrepare.get_global_dataset_for_crypto(connection, id_crypto, model_term)
                 if df.empty:
                     print('ALERT : Empty dataframe')
                 else:
@@ -36,10 +36,9 @@ class PreprocLearning:
         return dict_df
 
     @staticmethod
-    def get_global_datasets_for_top_n_cryptos(connection, top_n=20):
-        # TODO : To be passed in args
+    def get_global_datasets_for_top_n_cryptos(connection, model_term, top_n=20):
         df = PreprocLoad.get_dataset_ids_top_n_cryptos(connection, top_n)
-        return PreprocLearning.get_global_datasets_for_cryptos(connection, df.id_cryptocompare.tolist())
+        return PreprocLearning.get_global_datasets_for_cryptos(connection, df.id_cryptocompare.tolist(), model_term)
 
     @staticmethod
     def calcul_values_of_y(df, dict_hours_labels, increase_target_pct):
@@ -75,7 +74,6 @@ class PreprocLearning:
         return X_train, X_test, y_train, y_test
 
     @staticmethod
-    # TODO : Do split learning specific / inference and learning standard
     def get_preprocessed_data_learning(dict_df, dict_hours_labels, close_price_increase_targeted, predict_only_one_crypto,
                                        do_scale=True, do_pca=True, id_cryptocompare=0, useless_features=None):
         if useless_features is None:
@@ -114,7 +112,6 @@ class PreprocLearning:
                                                                dict_hours_labels, close_price_increase_targeted)
 
             # remove rows where y can't be calculed (need more data in the future)
-            # TODO : Attention ! Ok pour testing mais pas pour production car on perd la data de la fin !
             df_one_crypto.dropna(subset=list(df_one_crypto.iloc[:, range(columns_nb, len(df_one_crypto.columns))]),
                                  inplace=True)
 

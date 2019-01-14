@@ -121,7 +121,7 @@ class PreprocFeatureEngineering:
         # [Overlap Studies] MA 7 days
         df_ohlcv_1d['Indic_MA_7d'] = MA(df_ohlcv_1d, price='close_price', timeperiod=7, matype=0)
 
-        # [Overlap Studies] BBands - TODO : 20 days ?
+        # [Overlap Studies] BBands
         bands = BBANDS(df_ohlcv_1d, price='close_price', timeperiod=20, nbdevup=2, nbdevdn=2, matype=0)
         bands.columns = ['Indic_Bbands_20d_upperband', 'Indic_Bbands_20d_middleband', 'Indic_Bbands_20d_lowerband']
         df_ohlcv_1d = df_ohlcv_1d.join(bands)

@@ -28,13 +28,13 @@ MINIMUM_MARKET_CAP_USD = conf.get_config('market_params', 'minimum_market_cap_us
 def extract_crytopcompare_coins():
     logging.warning("extract_crytopcompare_coins - start")
     dbconn = DbConnection()
+    squery = __create_query_coins()
     dbconn.exexute_query("Delete from coins;")
-    dbconn.exexute_query(__create_query_coins())
+    dbconn.exexute_query(squery)
     logging.warning("extract_crytopcompare_coins - end")
 
 
 # Cryptocompare : Get coins list and create insert query for BDD
-# TODO : Add system which insert / update depending on information already in DB
 def __create_query_coins():
     cryptocomp = CryptoCompare()
     data = cryptocomp.get_coin_list()
@@ -42,6 +42,11 @@ def __create_query_coins():
     insertquery = 'INSERT INTO public.coins (id_cryptocompare, crypto_name, symbol, coin_name, total_coin_supply, ' \
                   'sort_order, proof_type, algorithm, image_url)\n'
     insertquery += 'VALUES \n('
+
+    if len(data) == 0:
+        msg = 'Error while getting coins from Cryptocompare : no data'
+        logging.error(msg)
+        raise Exception(msg)
     for key in data:
         if not insertquery.endswith('('):
             insertquery += ',\n('
@@ -65,13 +70,11 @@ def __create_query_coins():
 # endregion
 
 # region Coins current prices
-
-# TODO : Add system which insert / update depending on information already in DB
 def extract_coinmarketcap_prices_old():
     logging.warning("extract_coinmarketcap_prices - start")
     dbconn = DbConnection()
     dbconn.exexute_query("Delete from prices;")
-    dbconn.exexute_query(__create_query_prices())
+    dbconn.exexute_query(__create_query_prices_old())
     logging.warning("extract_coinmarketcap_prices - end")
 
 def extract_coinmarketcap_prices():
@@ -141,7 +144,9 @@ def extract_coinmarketcap_prices():
 
     # update table
     if df_cryptos.empty:
-        toto = 0  # error
+        msg = 'Error while retrieving prices from CMC. No data'
+        logging.error(msg)
+        raise Exception(msg)
     else:
         connection.execute('delete from prices')
         df_cryptos.to_sql(name='prices', con=connection, if_exists='append', index=False,
@@ -149,7 +154,7 @@ def extract_coinmarketcap_prices():
 
     logging.warning("extract_coinmarketcap_prices - end")
 
-def __create_query_prices():
+def __create_query_prices_old():
     logging.warning("create_query_prices - start")
     coinmarket = CoinMarketCap()
     data = coinmarket.get_price_list()
@@ -159,8 +164,12 @@ def __create_query_prices():
                   'percent_change_7d, available_supply, last_updated)\n'
     insertquery += 'VALUES \n('
 
+    if len(data) == 0:
+        msg = 'Error while getting prices from CoinMarketCap : no data'
+        logging.error(msg)
+        raise Exception(msg)
     for entry in data:
-        # TODO : For the moment, do not take into account cryptos with ' in name
+        # Do not take into account cryptos with ' in name
         if not str(entry['name']).__contains__("'"):
             if not insertquery.endswith('('):
                 insertquery += ',\n('
@@ -429,8 +438,6 @@ def create_cryptocompare_social_stats(coin_id, data):
 # endregion
 
 # region Reddit
-
-# TODO : Gerer pour ne recuperer que ce qu'on a pas deja
 def extract_reddit_data():
     logging.warning("import_reddit_histo - start")
     # Get coins and associated subreddits id to be retrieved from APIs
@@ -704,7 +711,6 @@ def extract_cmc_global_data():
 
 
 # CMC : CMC global data and create insert query for BDD
-# TODO : Add system which insert / update depending on information already in DB
 def __create_query_global_data():
     coinmarket = CoinMarketCap()
     data = coinmarket.get_global_data()

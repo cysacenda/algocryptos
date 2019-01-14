@@ -36,7 +36,7 @@ def get_connection_string():
 
     # manage when not on server AWS EC2
     machine_name = socket.gethostname()
-    if machine_name in ['CSA-Server-ML', 'DESKTOP-RTOK6M3']:
+    if machine_name in ['CSA-Server-ML']: # 'DESKTOP-RTOK6M3'
         dbport = conf.get_config('db', 'dbport_ext')
     return 'postgresql://' + dbuser + ':' + dbpassword + '@' + dbhost + ':' + dbport + '/' + dbname
 

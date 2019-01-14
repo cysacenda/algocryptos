@@ -83,10 +83,7 @@ def show_model_accuracy(algo_name, model, pX_test, py_test, pX_columns, do_roc_c
     # print('AUC: {:.2f}'.format(roc_auc))
     # print('----------------------------------------------------------\n')
     print('\n\nOther Metrics :\n')
-
-    #  TODO : To be checked labels (False / True)
     print(classification_report(py_test, predicted, target_names=['False', 'True']))
-
     print('----------------------------------------------------------\n')
 
     # Plot ROC curve
