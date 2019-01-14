@@ -18,7 +18,7 @@ class TradingApiBinance(TradingApi):
         self.param_pct_order_placed = param_pct_order_placed
         self.API_KEY = conf.get_config('binance', 'api_key')
         self.API_SECRET = conf.get_config('binance', 'api_secret')
-        self.MAX_DIFF_DATE_HOUR = conf.get_config('trading_module_params', 'max_diff_date_hour')
+        self.MAX_DIFF_DATE_HOUR = int(conf.get_config('trading_module_params', 'max_diff_date_hour'))
         self.client = Client(self.API_KEY, self.API_SECRET)  # lib python-binance
         self.precision = int(conf.get_config('binance', 'api_amount_precision'))
 

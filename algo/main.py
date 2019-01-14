@@ -62,7 +62,9 @@ try:
             trading_assets = conf.parse_config_dict(conf.get_config('trading_module_params', 'trading_assets_simple'))
             date_to_retrieve_days_to_add = int(conf.get_config('data_params', 'date_to_retrieve_days_to_add'))
             model_file_name = conf.get_config('trading_module_params', 'model_file_name')
+            useless_features_file_name = conf.get_config('trading_module_params', 'useless_features_file_name')
             model = load_obj(model_file_name)
+            useless_features = load_obj(useless_features_file_name)
             # endregion Retrieve algo params
 
             # region build trading pairs / tresholds / signals for trading_module usage
@@ -85,7 +87,7 @@ try:
                 df_one_crypto, X_close_prices = PreprocPrepare.get_preprocessed_data_inference(df_one_crypto,
                                                                                                do_scale=True,
                                                                                                do_pca=True,
-                                                                                               useless_features=None)
+                                                                                               useless_features=useless_features)
 
                 # keep only last rows (number = nb_periods_to_hold_position)
                 df_one_crypto = df_one_crypto.tail(nb_periods_to_hold_position)
