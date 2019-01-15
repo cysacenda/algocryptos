@@ -55,9 +55,7 @@ class TradingModule:
                 if (trading_pair in authorized_trading_pairs) and trading_pair in tradable_trading_pairs:
                     last_prob = trading_pair_probs.tail(1).signal_prob[0]
 
-                    # logging slack
-                    slack.post_message_to_alert_log_trading(
-                        'What to buy: trading_pair=' + trading_pair + ', last_prob=' + str(
+                    self.do_logging_warning('What to buy: trading_pair=' + trading_pair + ', last_prob=' + str(
                             last_prob) + ', treshold=' + str(self.thresholds[trading_pair]))
 
                     if last_prob > max_prob:
@@ -65,9 +63,7 @@ class TradingModule:
                         max_trading_pair = trading_pair
 
         if max_trading_pair != '':
-            # logging slack
-            slack.post_message_to_alert_log_trading(
-                ' ====> What to buy: max_trading_pair=' + max_trading_pair + ', max_prob=' + str(
+            self.do_logging_warning(' ====> What to buy: max_trading_pair=' + max_trading_pair + ', max_prob=' + str(
                     max_prob) + ', treshold=' + str(self.thresholds[max_trading_pair]))
 
         # max proba identified and > threshold for the trading pair
@@ -123,9 +119,7 @@ class TradingModule:
     def __what_to_sell(self, current_date, signals):
         what_to_sell = {}
         for trading_pair, value in self.trading_pairs.items():
-
-            # logging slack
-            slack.post_message_to_alert_log_trading('What to sell: signal_prob=' + str(signals[
+            self.do_logging_warning('What to sell: signal_prob=' + str(signals[
                 trading_pair].signal_prob.max()) + ' for tradingpair: ' + trading_pair + ' (threshold=' + str(self.thresholds[trading_pair]) + ')')
 
             if signals[trading_pair].signal_prob.max() < self.thresholds[trading_pair]:
@@ -181,11 +175,9 @@ class TradingModule:
         # check dates prediction vs server time (can sell if data not up to date, but not buy
         tradable_trading_pairs = self.trading_api.check_predictions_time_vs_server_time(dict_dates)
 
-        # logging slack
         if self.is_simulation:
             position_pair, position_amount = self.get_current_position_simulation()
-            slack.post_message_to_alert_log_trading(
-                'Current position simulation: position_pair=' + position_pair + ' - amount=' + str(position_amount))
+            self.do_logging_warning('Current position simulation: position_pair=' + position_pair + ' - amount=' + str(position_amount))
 
         if status:
             # sell
@@ -193,10 +185,7 @@ class TradingModule:
                 if (trading_pair.name in authorized_trading_pairs) or self.is_fake_api():
                     self.__sell(key, trading_pair, amount)
                 else:
-                    msg = 'Error: TradingPair not authorized for trading (whereas algo want to sell !) : ' + trading_pair.name
-                    logging.error(msg)
-                    slack.post_message_to_alert_error_trading(msg)
-            #déporter le controle dans what to buy what to sell
+                    self.do_logging_error('Error: TradingPair not authorized for trading (whereas algo want to sell !) : ' + trading_pair.name)
             for trading_pair, amount in self.__what_to_buy(key, signals, authorized_trading_pairs, tradable_trading_pairs).items():
                 if ((trading_pair.name in authorized_trading_pairs)
                         and (trading_pair.name in tradable_trading_pairs)) or self.is_fake_api():
@@ -207,13 +196,12 @@ class TradingModule:
                         msg += 'Error: TradingPair not authorized for trading: ' + trading_pair.name + ' / '
                     if trading_pair.name not in tradable_trading_pairs:
                         msg += "Error: TradingPair can't be traded because of last prediction date vs server time: " + trading_pair.name
-                    logging.error(msg)
-                    slack.post_message_to_alert_error_trading(msg)
+                    self.do_logging_error(msg)
 
             self.amount_x.append(key)
             self.amount_y.append(self.trading_api.get_portfolio_value(self.trading_pairs, self.cash_asset, key))
 
-        # Post portfolio value to Slack
+        # Post portfolio value
         if not self.is_fake_api():
             portfolio_amount = self.trading_api.get_portfolio_value(self.trading_pairs, self.cash_asset, key)
             slack.post_message_to_alert_portfolio('Portfolio value: ' + str(portfolio_amount) + ' ' + self.cash_asset)
@@ -235,7 +223,13 @@ class TradingModule:
     def get_signals(self):
         return self.x_buy, self.y_buy, self.x_sell, self.y_sell, self.amount_x, self.amount_y
 
-    # logging warning only when not simulation
+    # logging warning only when not fake api (backtesting)
     def do_logging_warning(self, message):
         if not self.is_fake_api():
             logging.warning(message)
+            slack.post_message_to_alert_log_trading(message)
+
+    # logging error
+    def do_logging_error(self, message):
+        logging.error(message)
+        slack.post_message_to_alert_error_trading(message)
