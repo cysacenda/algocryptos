@@ -52,7 +52,8 @@ class TradingModule:
         max_trading_pair = ''
         if self.__can_buy():
             for trading_pair, trading_pair_probs in signals.items():
-                if (trading_pair in authorized_trading_pairs) and trading_pair in tradable_trading_pairs:
+                if ((trading_pair in authorized_trading_pairs) and (trading_pair in tradable_trading_pairs)) \
+                        or self.is_fake_api():
                     last_prob = trading_pair_probs.tail(1).signal_prob[0]
 
                     self.do_logging_warning('What to buy: trading_pair=' + trading_pair + ', last_prob=' + str(
