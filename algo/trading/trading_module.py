@@ -58,7 +58,7 @@ class TradingModule:
                     max_trading_pair = trading_pair
 
         # logging slack
-        slack.post_message_to_alert_log_trading('What to buy: max_trading_pair=' + max_trading_pair + ', max_prob=' + str(max_prob) + ', treshold=' + self.thresholds[max_trading_pair])
+        slack.post_message_to_alert_log_trading('What to buy: max_trading_pair=' + max_trading_pair + ', max_prob=' + str(max_prob) + ', treshold=' + str(self.thresholds[max_trading_pair]))
 
         # max proba identified and > threshold for the trading pair
         if (max_trading_pair != '') and (max_prob > self.thresholds[max_trading_pair]):
