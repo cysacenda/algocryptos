@@ -57,6 +57,9 @@ class TradingModule:
                     max_prob = last_prob
                     max_trading_pair = trading_pair
 
+        # logging slack
+        slack.post_message_to_alert_log_trading('What to buy: max_trading_pair=' + max_trading_pair + ', max_prob=' + str(max_prob) + ', treshold=' + self.thresholds[max_trading_pair])
+
         # max proba identified and > threshold for the trading pair
         if (max_trading_pair != '') and (max_prob > self.thresholds[max_trading_pair]):
             amount_cash_available = self.trading_api.get_available_amount_crypto(self.cash_asset)
@@ -66,8 +69,9 @@ class TradingModule:
                 # simulation mode (no real buy / sell)
                 if self.is_simulation:
                     # no crypto position for the moment
-                    if self.get_current_position_simulation() == self.cash_asset:
-                        what_to_buy[self.trading_pairs[max_trading_pair]] = cash_amount_to_use
+                    position_pair, position_amount = self.get_current_position_simulation()
+                    if position_pair == self.cash_asset:
+                        what_to_buy[self.trading_pairs[max_trading_pair]] = position_amount
                 else:
                     # standard mode (backtesting & real mode)
                     what_to_buy[self.trading_pairs[max_trading_pair]] = cash_amount_to_use
@@ -83,7 +87,7 @@ class TradingModule:
         # simulation mode (no real buy / sell)
         if self.is_simulation:
             # specify that current position is now on this crypto
-            self.set_current_position_simulation(trading_pair.base_asset)
+            self.set_current_position_simulation(trading_pair.base_asset, amount)
 
         # trace
         if self.trace and self.is_fake_api():
@@ -98,27 +102,37 @@ class TradingModule:
     # Specific to simulation
     def get_current_position_simulation(self):
         from ml.utils_ml import load_obj
-        return load_obj('actual_position_simulation')
+        return load_obj('actual_position_simulation'), load_obj('actual_position_amount_simulation')
 
     # Specific to simulation
-    def set_current_position_simulation(self, crypto_symbol):
+    def set_current_position_simulation(self, crypto_symbol, amount):
         from ml.utils_ml import save_obj
-        return save_obj(crypto_symbol, 'actual_position_simulation')
+        save_obj(crypto_symbol, 'actual_position_simulation')
+        save_obj(amount, 'actual_position_amount_simulation')
 
     def __what_to_sell(self, current_date, signals):
         what_to_sell = {}
         for trading_pair, value in self.trading_pairs.items():
             if signals[trading_pair].signal_prob.max() < self.thresholds[trading_pair]:
-                # if crypto currently in portfolio and value > min_bet_value
+                # logging slack
+                slack.post_message_to_alert_log_trading('What to sell: inf treshold for tradingpair: ' + trading_pair)
+
                 crypto_amount = self.trading_api.get_available_amount_crypto(value.base_asset)
                 crypto_amount_cash_value = self.trading_api.get_price_ticker(value.base_asset, value.quote_asset, current_date) * crypto_amount
 
                 # simulation mode (no real buy / sell)
                 if self.is_simulation:
-                    if self.get_current_position_simulation() == value.base_asset:
-                        what_to_sell[value] = crypto_amount
+                    position_pair, position_amount = self.get_current_position_simulation()
+
+                    # logging slack
+                    slack.post_message_to_alert_log_trading(
+                        'What to sell: position_pair=' + position_pair + ' - amount=' + str(position_amount))
+
+                    if position_pair == value.base_asset:
+                        what_to_sell[value] = position_amount
                 # standard mode (backtesting & real mode)
                 else:
+                    # if crypto currently in portfolio and value > min_bet_value
                     if (crypto_amount > 0) and (crypto_amount_cash_value > self.param_min_bet_size):
                         what_to_sell[value] = crypto_amount
 
