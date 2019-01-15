@@ -56,6 +56,7 @@ class BacktestingStrategy:
 
         for trading_pair, value in self.trading_pairs.items():
             df_probs = calcul_signals_for_crypto(self.model, self.X_tests[trading_pair])
+            self.signals[trading_pair] = df_probs
 
             # all signals
             signal = df_probs.signal_prob > threshold
