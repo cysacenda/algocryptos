@@ -31,3 +31,6 @@ def post_message_to_alert_actions_trading(message):
 
 def post_message_to_alert_portfolio(message):
     post_message('alert_portfolio', message)
+
+def post_message_to_alert_log_trading(message):
+    post_message('alert_log_trading', message)
