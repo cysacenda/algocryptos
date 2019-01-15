@@ -35,6 +35,7 @@ if not procM.start_process(IdCurrentProcess, 'Algo', sys.argv):
     sys.exit(1)
 
 # connection DB
+logging.warning(utils.get_connection_string())
 connection = create_engine(utils.get_connection_string())
 #endregion
 
