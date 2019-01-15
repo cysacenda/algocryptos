@@ -60,7 +60,7 @@ class PreprocLearning:
 
     @staticmethod
     def do_split_data(df_p, columns_nb_p, min_index, nb_days):
-        date_split = min_index + timedelta(days=round(nb_days * 0.75))  # 75 / 25 %
+        date_split = min_index + timedelta(days=round(nb_days * 0.85))  # 85 / 15 %
         df_train = df_p[df_p.index.get_level_values(0) <= date_split]
         df_test = df_p[df_p.index.get_level_values(0) > date_split]
 
