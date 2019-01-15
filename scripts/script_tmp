@@ -1,2 +1,2 @@
 cd /home/cysacenda/algocryptos/algocryptos_scripts/
-python algo/main.py -s >> /var/log/cron_algocryptos.log
+python algo/main.py -s >> /var/log/cron_algocryptos.log 
