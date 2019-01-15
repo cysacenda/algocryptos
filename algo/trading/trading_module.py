@@ -46,22 +46,23 @@ class TradingModule:
     def __can_buy(self):
         return self.trading_api.get_available_amount_crypto(self.cash_asset) >= self.param_min_bet_size
 
-    def __what_to_buy(self, current_date, signals):
+    def __what_to_buy(self, current_date, signals, authorized_trading_pairs, tradable_trading_pairs):
         what_to_buy = {}
         max_prob = 0
         max_trading_pair = ''
         if self.__can_buy():
             for trading_pair, trading_pair_probs in signals.items():
-                last_prob = trading_pair_probs.tail(1).signal_prob[0]
+                if (trading_pair in authorized_trading_pairs) and trading_pair in tradable_trading_pairs:
+                    last_prob = trading_pair_probs.tail(1).signal_prob[0]
 
-                # logging slack
-                slack.post_message_to_alert_log_trading(
-                    'What to buy: trading_pair=' + trading_pair + ', last_prob=' + str(
-                        last_prob) + ', treshold=' + str(self.thresholds[trading_pair]))
+                    # logging slack
+                    slack.post_message_to_alert_log_trading(
+                        'What to buy: trading_pair=' + trading_pair + ', last_prob=' + str(
+                            last_prob) + ', treshold=' + str(self.thresholds[trading_pair]))
 
-                if last_prob > max_prob:
-                    max_prob = last_prob
-                    max_trading_pair = trading_pair
+                    if last_prob > max_prob:
+                        max_prob = last_prob
+                        max_trading_pair = trading_pair
 
         # logging slack
         slack.post_message_to_alert_log_trading(' ====> What to buy: max_trading_pair=' + max_trading_pair + ', max_prob=' + str(max_prob) + ', treshold=' + str(self.thresholds[max_trading_pair]))
@@ -185,10 +186,11 @@ class TradingModule:
                 if (trading_pair.name in authorized_trading_pairs) or self.is_fake_api():
                     self.__sell(key, trading_pair, amount)
                 else:
-                    msg = 'Error: TradingPair not authorized for trading: ' + trading_pair.name
+                    msg = 'Error: TradingPair not authorized for trading (whereas algo want to sell !) : ' + trading_pair.name
                     logging.error(msg)
                     slack.post_message_to_alert_error_trading(msg)
-            for trading_pair, amount in self.__what_to_buy(key, signals).items():
+            #déporter le controle dans what to buy what to sell
+            for trading_pair, amount in self.__what_to_buy(key, signals, authorized_trading_pairs, tradable_trading_pairs).items():
                 if ((trading_pair.name in authorized_trading_pairs)
                         and (trading_pair.name in tradable_trading_pairs)) or self.is_fake_api():
                     self.__buy(key, trading_pair, amount)
