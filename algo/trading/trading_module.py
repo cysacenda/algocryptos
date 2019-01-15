@@ -136,10 +136,6 @@ class TradingModule:
                 if self.is_simulation:
                     position_pair, position_amount = self.get_current_position_simulation()
 
-                    # logging slack
-                    slack.post_message_to_alert_log_trading(
-                        'What to sell: position_pair=' + position_pair + ' - amount=' + str(position_amount))
-
                     if position_pair == value.base_asset:
                         what_to_sell[value] = position_amount
                 # standard mode (backtesting & real mode)
@@ -184,6 +180,12 @@ class TradingModule:
 
         # check dates prediction vs server time (can sell if data not up to date, but not buy
         tradable_trading_pairs = self.trading_api.check_predictions_time_vs_server_time(dict_dates)
+
+        # logging slack
+        if self.is_simulation:
+            position_pair, position_amount = self.get_current_position_simulation()
+            slack.post_message_to_alert_log_trading(
+                'Current position simulation: position_pair=' + position_pair + ' - amount=' + str(position_amount))
 
         if status:
             # sell
