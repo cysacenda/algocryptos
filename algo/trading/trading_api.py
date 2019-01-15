@@ -10,7 +10,7 @@ class TradingApi(ABC):
         pass
 
     @abstractmethod
-    def is_simulation(self):
+    def is_fake_api(self):
         pass
 
     @abstractmethod

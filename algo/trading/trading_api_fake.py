@@ -13,7 +13,7 @@ class TradingApiFake(TradingApi):
         self.close_prices = {}
 
     # override
-    def is_simulation(self):
+    def is_fake_api(self):
         return True
 
     # override

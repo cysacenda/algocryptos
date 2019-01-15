@@ -106,7 +106,7 @@ try:
             # trading module
             trading_module = TradingModule(trading_api_binance, bet_size, min_bet_size,
                                            pct_order_placed, nb_periods_to_hold_position,
-                                           trading_pairs, cash_asset, thresholds, False)
+                                           trading_pairs, cash_asset, thresholds, False, is_simulation=True)
 
             # performs algo actions
             trading_module.do_update(datetime.now(), signals, dict_last_dates)

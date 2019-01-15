@@ -23,7 +23,7 @@ class TradingApiBinance(TradingApi):
         self.precision = int(conf.get_config('binance', 'api_amount_precision'))
 
     # override
-    def is_simulation(self):
+    def is_fake_api(self):
         return False
 
     # override
