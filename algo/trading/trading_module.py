@@ -123,10 +123,12 @@ class TradingModule:
     def __what_to_sell(self, current_date, signals):
         what_to_sell = {}
         for trading_pair, value in self.trading_pairs.items():
-            if signals[trading_pair].signal_prob.max() < self.thresholds[trading_pair]:
-                # logging slack
-                slack.post_message_to_alert_log_trading('What to sell: inf treshold for tradingpair: ' + trading_pair)
 
+            # logging slack
+            slack.post_message_to_alert_log_trading('What to sell: signal_prob=' + str(signals[
+                trading_pair].signal_prob.max()) + ' for tradingpair: ' + trading_pair + ' (threshold=' + str(self.thresholds[trading_pair]) + ')')
+
+            if signals[trading_pair].signal_prob.max() < self.thresholds[trading_pair]:
                 crypto_amount = self.trading_api.get_available_amount_crypto(value.base_asset)
                 crypto_amount_cash_value = self.trading_api.get_price_ticker(value.base_asset, value.quote_asset, current_date) * crypto_amount
 
