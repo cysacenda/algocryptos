@@ -59,7 +59,7 @@ try:
             nb_periods_to_hold_position = int(conf.get_config('trading_module_params', 'nb_periods_to_hold_position'))
             cash_asset = conf.get_config('trading_module_params', 'cash_asset')
             threshold = float(conf.get_config('trading_module_params', 'threshold'))
-            trading_assets = conf.parse_config_dict(conf.get_config('trading_module_params', 'trading_assets_simple'))
+            trading_assets = conf.parse_config_dict(conf.get_config('trading_module_params', 'trading_assets_all'))
             date_to_retrieve_days_to_add = int(conf.get_config('data_params', 'date_to_retrieve_days_to_add'))
             model_file_name = conf.get_config('trading_module_params', 'model_file_name')
             useless_features_file_name = conf.get_config('trading_module_params', 'useless_features_file_name')
