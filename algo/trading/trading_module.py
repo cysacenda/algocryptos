@@ -5,7 +5,7 @@ from commons.slack import slack
 
 class TradingModule:
     def __init__(self, trading_api, param_bet_size, param_min_bet_size, param_pct_order_placed,
-                 param_nb_periods_to_hold_position, trading_pairs, cash_asset, thresholds, trace):
+                 param_nb_periods_to_hold_position, trading_pairs, cash_asset, thresholds, trace, is_simulation=False):
 
         logging.warning("TradingModule - START")
 
@@ -21,6 +21,7 @@ class TradingModule:
         self.cash_asset = cash_asset
         self.thresholds = thresholds
         self.trace = trace
+        self.is_simulation = is_simulation
 
         self.param_nb_periods_to_hold_position = param_nb_periods_to_hold_position
         self.param_min_bet_size = param_min_bet_size
@@ -39,8 +40,8 @@ class TradingModule:
             self.x_sell[trading_pair] = []
             self.y_sell[trading_pair] = []
 
-    def is_simulation(self):
-        return self.trading_api.is_simulation()
+    def is_fake_api(self):
+        return self.trading_api.is_fake_api()
 
     def __can_buy(self):
         return self.trading_api.get_available_amount_crypto(self.cash_asset) >= self.param_min_bet_size
@@ -61,7 +62,15 @@ class TradingModule:
             amount_cash_available = self.trading_api.get_available_amount_crypto(self.cash_asset)
             if amount_cash_available > self.param_min_bet_size:
                 cash_amount_to_use = amount_cash_available * self.param_bet_size
-                what_to_buy[self.trading_pairs[max_trading_pair]] = cash_amount_to_use
+
+                # simulation mode (no real buy / sell)
+                if self.is_simulation:
+                    # no crypto position for the moment
+                    if self.get_current_position_simulation() == self.cash_asset:
+                        what_to_buy[self.trading_pairs[max_trading_pair]] = cash_amount_to_use
+                else:
+                    # standard mode (backtesting & real mode)
+                    what_to_buy[self.trading_pairs[max_trading_pair]] = cash_amount_to_use
 
         return what_to_buy
 
@@ -71,8 +80,13 @@ class TradingModule:
                                                  key)
         order = self.trading_api.get_order(id_order, trading_pair.name)
 
+        # simulation mode (no real buy / sell)
+        if self.is_simulation:
+            # specify that current position is now on this crypto
+            self.set_current_position_simulation(trading_pair.base_asset)
+
         # trace
-        if self.trace and self.is_simulation():
+        if self.trace and self.is_fake_api():
             print(
                 '[BUY] ORDER PLACED (' + str(key) + '): ' + str(order.quantity_base) + ' ' + order.base_asset + ' for '
                 + str(order.quantity_quote) + '$ (close_price = ' + str(round(order.price, 2))
@@ -80,6 +94,16 @@ class TradingModule:
 
         self.x_buy[trading_pair.name].append(key)
         self.y_buy[trading_pair.name].append(order.price)
+
+    # Specific to simulation
+    def get_current_position_simulation(self):
+        from ml.utils_ml import load_obj
+        return load_obj('actual_position_simulation')
+
+    # Specific to simulation
+    def set_current_position_simulation(self, crypto_symbol):
+        from ml.utils_ml import save_obj
+        return save_obj(crypto_symbol, 'actual_position_simulation')
 
     def __what_to_sell(self, current_date, signals):
         what_to_sell = {}
@@ -89,10 +113,15 @@ class TradingModule:
                 crypto_amount = self.trading_api.get_available_amount_crypto(value.base_asset)
                 crypto_amount_cash_value = self.trading_api.get_price_ticker(value.base_asset, value.quote_asset, current_date) * crypto_amount
 
-                # TODO [SIMULATION]
-                what_to_sell[value] = crypto_amount
-                # if (crypto_amount > 0) and (crypto_amount_cash_value > self.param_min_bet_size):
-                #    what_to_sell[value] = crypto_amount
+                # simulation mode (no real buy / sell)
+                if self.is_simulation:
+                    if self.get_current_position_simulation() == value.base_asset:
+                        what_to_sell[value] = crypto_amount
+                # standard mode (backtesting & real mode)
+                else:
+                    if (crypto_amount > 0) and (crypto_amount_cash_value > self.param_min_bet_size):
+                        what_to_sell[value] = crypto_amount
+
         return what_to_sell
 
     def __sell(self, key, trading_pair, crypto_amount):
@@ -100,7 +129,7 @@ class TradingModule:
                                                  crypto_amount, key)
         order = self.trading_api.get_order(id_order, trading_pair.name)
 
-        if self.trace and self.is_simulation():
+        if self.trace and self.is_fake_api():
             print(
                 '[SELL] ORDER PLACED (' + str(key) + '): ' + str(order.quantity_base) + ' ' + order.base_asset + ' for '
                 + str(order.quantity_quote) + '$ (close_price = ' + str(round(order.price, 2))
@@ -133,7 +162,7 @@ class TradingModule:
         if status:
             # sell
             for trading_pair, amount in self.__what_to_sell(key, signals).items():
-                if (trading_pair.name in authorized_trading_pairs) or self.is_simulation():
+                if (trading_pair.name in authorized_trading_pairs) or self.is_fake_api():
                     self.__sell(key, trading_pair, amount)
                 else:
                     msg = 'Error: TradingPair not authorized for trading: ' + trading_pair.name
@@ -141,7 +170,7 @@ class TradingModule:
                     slack.post_message_to_alert_error_trading(msg)
             for trading_pair, amount in self.__what_to_buy(key, signals).items():
                 if ((trading_pair.name in authorized_trading_pairs)
-                        and (trading_pair.name in tradable_trading_pairs)) or self.is_simulation():
+                        and (trading_pair.name in tradable_trading_pairs)) or self.is_fake_api():
                     self.__buy(key, trading_pair, amount)
                 else:
                     msg = ''
@@ -156,7 +185,7 @@ class TradingModule:
             self.amount_y.append(self.trading_api.get_portfolio_value(self.trading_pairs, self.cash_asset, key))
 
         # Post portfolio value to Slack
-        if not self.is_simulation():
+        if not self.is_fake_api():
             portfolio_amount = self.trading_api.get_portfolio_value(self.trading_pairs, self.cash_asset, key)
             slack.post_message_to_alert_portfolio('Portfolio value: ' + str(portfolio_amount) + ' ' + self.cash_asset)
 
@@ -179,5 +208,5 @@ class TradingModule:
 
     # logging warning only when not simulation
     def do_logging_warning(self, message):
-        if not self.is_simulation():
+        if not self.is_fake_api():
             logging.warning(message)
