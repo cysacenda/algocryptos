@@ -53,12 +53,18 @@ class TradingModule:
         if self.__can_buy():
             for trading_pair, trading_pair_probs in signals.items():
                 last_prob = trading_pair_probs.tail(1).signal_prob[0]
+
+                # logging slack
+                slack.post_message_to_alert_log_trading(
+                    'What to buy: trading_pair=' + trading_pair + ', last_prob=' + str(
+                        last_prob) + ', treshold=' + str(self.thresholds[trading_pair]))
+
                 if last_prob > max_prob:
                     max_prob = last_prob
                     max_trading_pair = trading_pair
 
         # logging slack
-        slack.post_message_to_alert_log_trading('What to buy: max_trading_pair=' + max_trading_pair + ', max_prob=' + str(max_prob) + ', treshold=' + str(self.thresholds[max_trading_pair]))
+        slack.post_message_to_alert_log_trading(' ====> What to buy: max_trading_pair=' + max_trading_pair + ', max_prob=' + str(max_prob) + ', treshold=' + str(self.thresholds[max_trading_pair]))
 
         # max proba identified and > threshold for the trading pair
         if (max_trading_pair != '') and (max_prob > self.thresholds[max_trading_pair]):
