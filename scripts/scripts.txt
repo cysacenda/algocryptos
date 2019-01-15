@@ -4,7 +4,6 @@ PYTHONPATH=$PYTHONPATH:/home/ec2-user/prod/algocryptos_scripts/
 #-----------------------------------------------------------------------------
 #Min     Hour    Day     Month   Weekday Command
 #-----------------------------------------------------------------------------
-# TMP : 10       0,2-23/1 *       *       *       python /home/cysacenda/algocryptos_scripts/algo/main.py -s
 
 4       1        *       *       *       /home/ec2-user/prod/algocryptos_scripts/venv/bin/python /home/ec2-user/prod/algocryptos_scripts/dataimporter/main.py -ath
 34      1        *       *       *       /home/ec2-user/prod/algocryptos_scripts/venv/bin/python /home/ec2-user/prod/algocryptos_scripts/dataimporter/main.py -r
