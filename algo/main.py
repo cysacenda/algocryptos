@@ -1,4 +1,7 @@
 import sys
+sys.path.append('/home/cysacenda/algocryptos/algocryptos_scripts/algo')
+sys.path.append('/home/cysacenda/algocryptos/algocryptos_scripts/commons')
+sys.path.append('/home/cysacenda/algocryptos/algocryptos_scripts/')
 from datetime import datetime, timedelta
 import logging
 import argparse
