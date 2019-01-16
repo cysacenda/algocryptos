@@ -23,8 +23,7 @@ from ml.preproc_prepare import PreprocPrepare
 conf = Config()
 
 # Process manager
-# TODO : uncomment
-#procM = ProcessManager()
+procM = ProcessManager()
 
 # Logging params
 today = datetime.now().strftime("%Y-%m-%d")
@@ -32,10 +31,9 @@ logging.basicConfig(filename='algo_' + today + '.log',
                     format=conf.get_config('log_params', 'log_format'))
 
 # If process can't start because other processes running
-# TODO : uncomment
-# IdCurrentProcess = conf.get_config('process_params', 'algo_process_id')
-# if not procM.start_process(IdCurrentProcess, 'Algo', sys.argv):
-#    sys.exit(1)
+IdCurrentProcess = conf.get_config('process_params', 'algo_process_id')
+if not procM.start_process(IdCurrentProcess, 'Algo', sys.argv):
+    sys.exit(1)
 
 # connection DB
 logging.warning(utils.get_connection_string())
@@ -127,16 +125,14 @@ try:
 
 # region exception management / exit
 except Exception as e:
-    # TODO : uncomment
-    #procM.setIsError()
+    procM.setIsError()
     msg = 'Uncatched error :' + str(e)
     logging.error(msg)
     slack.post_message_to_alert_error_trading(msg)
 
 
 # Stop process
-# TODO : uncomment
-#procM.stop_process(IdCurrentProcess, 'Algo', sys.argv)
+procM.stop_process(IdCurrentProcess, 'Algo', sys.argv)
 
-#exit(1 if procM.IsError else 0)
+exit(1 if procM.IsError else 0)
 # endregion
