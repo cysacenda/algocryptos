@@ -186,18 +186,11 @@ class TradingModule:
                 if (trading_pair.name in authorized_trading_pairs) or self.is_fake_api():
                     self.__sell(key, trading_pair, amount)
                 else:
-                    self.do_logging_error('Error: TradingPair not authorized for trading (whereas algo want to sell !) : ' + trading_pair.name)
+                    msg = 'Error: TradingPair not authorized for trading (whereas algo want to sell !) : ' + trading_pair.name
+                    logging.error(msg)
+                    slack.post_message_to_alert_error_trading(msg)
             for trading_pair, amount in self.__what_to_buy(key, signals, authorized_trading_pairs, tradable_trading_pairs).items():
-                if ((trading_pair.name in authorized_trading_pairs)
-                        and (trading_pair.name in tradable_trading_pairs)) or self.is_fake_api():
-                    self.__buy(key, trading_pair, amount)
-                else:
-                    msg = ''
-                    if trading_pair.name not in authorized_trading_pairs:
-                        msg += 'Error: TradingPair not authorized for trading: ' + trading_pair.name + ' / '
-                    if trading_pair.name not in tradable_trading_pairs:
-                        msg += "Error: TradingPair can't be traded because of last prediction date vs server time: " + trading_pair.name
-                    self.do_logging_error(msg)
+                self.__buy(key, trading_pair, amount)
 
             self.amount_x.append(key)
             self.amount_y.append(self.trading_api.get_portfolio_value(self.trading_pairs, self.cash_asset, key))
@@ -229,8 +222,3 @@ class TradingModule:
         if not self.is_fake_api():
             logging.warning(message)
             slack.post_message_to_alert_log_trading(message)
-
-    # logging error
-    def do_logging_error(self, message):
-        logging.error(message)
-        slack.post_message_to_alert_error_trading(message)
