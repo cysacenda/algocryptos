@@ -72,6 +72,7 @@ class TradingApiBinance(TradingApi):
     # override
     # allows to be sure that there is not to much time between predictions time and now
     def check_predictions_time_vs_server_time(self, dict_dates):
+        logging.warning('dict_dates' + str(dict_dates))
         tradable_trading_pairs = []
 
         # Get server time

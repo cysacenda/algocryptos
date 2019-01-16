@@ -18,7 +18,7 @@ class TradingApi(ABC):
         pass
 
     @abstractmethod
-    def check_predictions_time_vs_server_time(self):
+    def check_predictions_time_vs_server_time(self, dict_dates):
         pass
 
     @abstractmethod
