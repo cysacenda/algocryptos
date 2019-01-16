@@ -82,7 +82,9 @@ class TradingApiBinance(TradingApi):
             if (server_time_localized - last_date) < timedelta(hours=self.MAX_DIFF_DATE_HOUR):
                 tradable_trading_pairs.append(trading_pair)
             else:
-                logging.error('Difference between server time (' + str(server_time_localized) + ') / prediction time (' + str(last_date) + ') too big for trading pair: ' + trading_pair)
+                msg = 'Difference between server time (' + str(server_time_localized) + ') / prediction time (' + str(last_date) + ') too big for trading pair: ' + trading_pair
+                logging.error(msg)
+                slack.post_message_to_alert_error_trading(msg)
 
         return tradable_trading_pairs
 
