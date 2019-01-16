@@ -22,7 +22,7 @@ class DbConnection:
             dbport = self.conf.get_config('db', 'dbport_ext')
 
         try:
-            self.conn = psycopg2.connect(dbhost=dbhost, dbname=dbname, user=dbuser, password=dbpassword, dbport=dbport)
+            self.conn = psycopg2.connect(host=dbhost, dbname=dbname, user=dbuser, password=dbpassword, port=dbport)
         except Exception as e:
             logging.error("Error : " + str(e) + " - " + "Error while connecting to DB : " + 'postgresql://' + dbuser + ':' + dbpassword + '@' + dbhost + ':' + dbport + '/' + dbname)
 
