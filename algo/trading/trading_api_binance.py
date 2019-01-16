@@ -72,14 +72,17 @@ class TradingApiBinance(TradingApi):
     # override
     # allows to be sure that there is not to much time between predictions time and now
     def check_predictions_time_vs_server_time(self, dict_dates):
-        logging.warning('dict_dates' + str(dict_dates))
         tradable_trading_pairs = []
 
         # Get server time
         server_time = self.client.get_server_time()['serverTime']
         server_time_localized = localize_utc_date(server_time)
 
+        logging.warning('server_time:' + str(server_time))
+        logging.warning('server_time_localized:' + str(server_time_localized))
+
         for trading_pair, last_date in dict_dates.items():
+            logging.warning('trading_pair diff (' + trading_pair + ')' + str(server_time_localized - last_date))
             if (server_time_localized - last_date) < timedelta(hours=self.MAX_DIFF_DATE_HOUR):
                 tradable_trading_pairs.append(trading_pair)
             else:
