@@ -88,7 +88,7 @@ class ProcessManager:
         self.__insert_process(process_id, concatname, self.ERROR if self.IsError else self.SUCCESS, True)
         squery = 'Delete from process_params where process_id = ' + str(process_id)
         squery += ' and status = ' + "'" + status + "'" + ' and process_name = ' + "'" + concatname + "'" + ';'
-        slack.post_message_to_alert_importer_jobs('Job finished: *' + name + '* (' + self.ERROR if self.IsError else self.SUCCESS + ')')
+        slack.post_message_to_alert_importer_jobs('Job *' + concatname + '* :' + str(self.ERROR if self.IsError else self.SUCCESS))
         return self.dbconn.exexute_query(squery) == 0
 
     # If process there for too long (shouldn't be), delete process from table
