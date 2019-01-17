@@ -64,7 +64,7 @@ class TradingModule:
 
         if max_trading_pair != '':
             self.do_logging_warning(':thumbsup: Best choice : *' + max_trading_pair + '*- *' + str(
-                    max_prob) + '* (threshold=' + str(self.thresholds[max_trading_pair])) + ')'
+                    max_prob) + '* (threshold=' + str(self.thresholds[max_trading_pair]) + ')')
 
         # max proba identified and > threshold for the trading pair
         if (max_trading_pair != '') and (max_prob > self.thresholds[max_trading_pair]):
