@@ -33,6 +33,9 @@ class ProcessManager:
         if args[1] == '-h':
             return True
 
+        # check if processid should be updated regarding args (specific behaviour for a specific arg)
+        process_id = self.conf.get_config('process_params', args[1].replace('-', ''), fallback=process_id)
+
         concatname = name + " " + str(args[1])
         logging.warning("------------------------------")
         logging.warning("START PROCESS - " + concatname)
