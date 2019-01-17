@@ -178,7 +178,7 @@ class TradingModule:
 
         if self.is_simulation:
             position_pair, position_amount = self.get_current_position_simulation()
-            self.do_logging_warning('Current position simulation: *' + str(position_amount)) + ' ' + position_pair + '*'
+            self.do_logging_warning('Current position simulation: *' + str(position_amount) + ' ' + position_pair + '*')
 
         if status:
             # sell
