@@ -1,16 +1,16 @@
-# Set des Variable d'environnements
+# Set des Variables d'environnements
 PYTHONPATH=$PYTHONPATH:/home/ec2-user/prod/algocryptos_scripts/
 #   Crontab file for Home Directory for AlgoCrypto
 #-----------------------------------------------------------------------------
 #Min     Hour    Day     Month   Weekday Command
 #-----------------------------------------------------------------------------
 
-4       1        *       *       *       /home/ec2-user/prod/algocryptos_scripts/venv/bin/python /home/ec2-user/prod/algocryptos_scripts/dataimporter/main.py -ath
+30       1        *       *       *       /home/ec2-user/prod/algocryptos_scripts/venv/bin/python /home/ec2-user/prod/algocryptos_scripts/dataimporter/main.py -ath
 34      1        *       *       *       /home/ec2-user/prod/algocryptos_scripts/venv/bin/python /home/ec2-user/prod/algocryptos_scripts/dataimporter/main.py -r
 47      1        *       *       *       /home/ec2-user/prod/algocryptos_scripts/venv/bin/python /home/ec2-user/prod/algocryptos_scripts/dataimporter/main.py -gt
-3       0,2-23/1 *       *       *       /home/ec2-user/prod/algocryptos_scripts/venv/bin/python /home/ec2-user/prod/algocryptos_scripts/dataimporter/main.py -o
+3       */1      *       *       *       /home/ec2-user/prod/algocryptos_scripts/venv/bin/python /home/ec2-user/prod/algocryptos_scripts/dataimporter/main.py -o
 17      0,2-23/1 *       *       *       /home/ec2-user/prod/algocryptos_scripts/venv/bin/python /home/ec2-user/prod/algocryptos_scripts/dataimporter/main.py -img
-1-59/10  0,2-23   *       *       *       /home/ec2-user/prod/algocryptos_scripts/venv/bin/python /home/ec2-user/prod/algocryptos_scripts/dataimporter/main.py -cpd
+1-59/10  0,2-23  *       *       *       /home/ec2-user/prod/algocryptos_scripts/venv/bin/python /home/ec2-user/prod/algocryptos_scripts/dataimporter/main.py -cpd
 
 45      1        *       *       *       /home/ec2-user/prod/algocryptos_scripts/venv/bin/python /home/ec2-user/prod/algocryptos_scripts/algokpi/main.py -r
 27      0,2-23/1 *       *       *       /home/ec2-user/prod/algocryptos_scripts/venv/bin/python /home/ec2-user/prod/algocryptos_scripts/algokpi/main.py -v
