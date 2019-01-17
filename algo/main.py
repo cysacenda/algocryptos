@@ -118,10 +118,6 @@ try:
 
             # TODO V2 : contrôles de cohérence :
             # marché pas en pleine chute de ouf avec acceleration ?
-            # STOP LOSS (après mise en prod pour tests) /!\
-                # Look at orderTypes="STOP_LOSS_LIMIT"
-                # Infos utiles:
-                # https://api.binance.com/api/v1/exchangeInfo
 
 # region exception management / exit
 except Exception as e:

@@ -2,6 +2,7 @@ import logging
 from commons.config import Config
 from commons.dbaccess import DbConnection
 import time
+from commons.slack import slack
 
 
 class ProcessManager:
@@ -87,6 +88,7 @@ class ProcessManager:
         self.__insert_process(process_id, concatname, self.ERROR if self.IsError else self.SUCCESS, True)
         squery = 'Delete from process_params where process_id = ' + str(process_id)
         squery += ' and status = ' + "'" + status + "'" + ' and process_name = ' + "'" + concatname + "'" + ';'
+        slack.post_message_to_alert_importer_jobs('Job finished: *' + name + '* (' + self.ERROR if self.IsError else self.SUCCESS + ')')
         return self.dbconn.exexute_query(squery) == 0
 
     # If process there for too long (shouldn't be), delete process from table
