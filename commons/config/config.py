@@ -9,8 +9,8 @@ class Config:
         self.config = configparser.RawConfigParser()
         self.config.read(os.path.join(os.path.dirname(__file__), 'config.ini'))
 
-    def get_config(self, section, key):
-        return self.config.get(section, key)
+    def get_config(self, section, key, fallback=None):
+        return self.config.get(section, key, fallback=fallback)
 
     # allow to parse a config item to type dict
     def parse_config_dict(self, text):
