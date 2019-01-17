@@ -6,12 +6,20 @@ slack_token = conf.get_config('slack', 'slack_api_token')
 sc = SlackClient(slack_token)
 
 
-def post_message(channel_name, message_content):
-    sc.api_call(
-        "chat.postMessage",
-        channel=channel_name,
-        text=message_content
-    )
+def post_message(channel_name, message_content, attachments=''):
+    if attachments == '':
+        sc.api_call(
+            "chat.postMessage",
+            channel=channel_name,
+            text=message_content
+        )
+    else:
+        sc.api_call(
+            "chat.postMessage",
+            channel=channel_name,
+            text=message_content,
+            attachments=attachments
+        )
 
 
 def post_message_to_bot_alert(message):

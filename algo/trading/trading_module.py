@@ -50,22 +50,21 @@ class TradingModule:
         what_to_buy = {}
         max_prob = 0
         max_trading_pair = ''
+        self.do_logging_warning('Buying signals :Chart_With_Upwards_Trend:')
         if self.__can_buy():
             for trading_pair, trading_pair_probs in signals.items():
                 if ((trading_pair in authorized_trading_pairs) and (trading_pair in tradable_trading_pairs)) \
                         or self.is_fake_api():
                     last_prob = trading_pair_probs.tail(1).signal_prob[0]
-
-                    self.do_logging_warning('What to buy: trading_pair=' + trading_pair + ', last_prob=' + str(
-                            last_prob) + ', treshold=' + str(self.thresholds[trading_pair]))
+                    self.do_logging_warning('Last signal proba *' + trading_pair + ': ' + str(last_prob) + '*')
 
                     if last_prob > max_prob:
                         max_prob = last_prob
                         max_trading_pair = trading_pair
 
         if max_trading_pair != '':
-            self.do_logging_warning(' ====> What to buy: max_trading_pair=' + max_trading_pair + ', max_prob=' + str(
-                    max_prob) + ', treshold=' + str(self.thresholds[max_trading_pair]))
+            self.do_logging_warning(':thumbsup: Best choice : *' + max_trading_pair + '*- *' + str(
+                    max_prob) + '* (threshold=' + str(self.thresholds[max_trading_pair])) + ')'
 
         # max proba identified and > threshold for the trading pair
         if (max_trading_pair != '') and (max_prob > self.thresholds[max_trading_pair]):
@@ -118,10 +117,11 @@ class TradingModule:
         save_obj(amount, 'actual_position_amount_simulation')
 
     def __what_to_sell(self, current_date, signals):
+        self.do_logging_warning('Selling signals :Chart_With_Downwards_Trend:')
         what_to_sell = {}
         for trading_pair, value in self.trading_pairs.items():
-            self.do_logging_warning('What to sell: signal_prob=' + str(signals[
-                trading_pair].signal_prob.max()) + ' for tradingpair: ' + trading_pair + ' (threshold=' + str(self.thresholds[trading_pair]) + ')')
+            self.do_logging_warning('Max signal proba *' + trading_pair + ': ' + str(signals[
+                trading_pair].signal_prob.max()) + '* (threshold=' + str(self.thresholds[trading_pair]) + ')')
 
             if signals[trading_pair].signal_prob.max() < self.thresholds[trading_pair]:
                 crypto_amount = self.trading_api.get_available_amount_crypto(value.base_asset)
@@ -165,7 +165,7 @@ class TradingModule:
 
     # check & perform actions that need to be done (buy / sell)
     def do_update(self, key, signals, dict_dates):
-        self.do_logging_warning("Start")
+        self.do_logging_warning("*Start*")
 
         # cancel open orders
         self.trading_api.cancel_open_orders()
@@ -178,7 +178,7 @@ class TradingModule:
 
         if self.is_simulation:
             position_pair, position_amount = self.get_current_position_simulation()
-            self.do_logging_warning('Current position simulation: position_pair=' + position_pair + ' - amount=' + str(position_amount))
+            self.do_logging_warning('Current position simulation: *' + str(position_amount)) + ' ' + position_pair + '*'
 
         if status:
             # sell
@@ -186,7 +186,7 @@ class TradingModule:
                 if (trading_pair.name in authorized_trading_pairs) or self.is_fake_api():
                     self.__sell(key, trading_pair, amount)
                 else:
-                    msg = 'Error: TradingPair not authorized for trading (whereas algo want to sell !) : ' + trading_pair.name
+                    msg = 'Error: TradingPair not authorized for trading (whereas algo want to sell !) : *' + trading_pair.name + '*'
                     logging.error(msg)
                     slack.post_message_to_alert_error_trading(msg)
             for trading_pair, amount in self.__what_to_buy(key, signals, authorized_trading_pairs, tradable_trading_pairs).items():
@@ -200,7 +200,7 @@ class TradingModule:
             portfolio_amount = self.trading_api.get_portfolio_value(self.trading_pairs, self.cash_asset, key)
             slack.post_message_to_alert_portfolio('Portfolio value: ' + str(portfolio_amount) + ' ' + self.cash_asset)
 
-        self.do_logging_warning("End")
+        self.do_logging_warning("*End*")
 
     def get_available_amount_crypto(self, symbol):
         return self.trading_api.get_available_amount_crypto(symbol)
@@ -220,5 +220,5 @@ class TradingModule:
     # logging warning only when not fake api (backtesting)
     def do_logging_warning(self, message):
         if not self.is_fake_api():
-            logging.warning(message)
+            logging.warning(message.replace('*', ''))
             slack.post_message_to_alert_log_trading(message)
