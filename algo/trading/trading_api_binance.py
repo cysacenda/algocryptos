@@ -186,7 +186,7 @@ class TradingApiBinance(TradingApi):
                     timeInForce=TIME_IN_FORCE_GTC,
                     quantity=quantity_from,
                     price=self.format_amount_order(limit_price))
-            msg = "Order placed on trading_pair: " + base_asset + quote_asset + ' - Qty: ' + str(quantity_from) + ' - limit: ' + str(limit_price) + ' - order: ' + str(order)
+            msg = 'Order placed (' + str(side) + ') on trading_pair: ' + base_asset + quote_asset + ' - Qty: ' + str(quantity_from) + ' - limit: ' + str(limit_price) + ' - order: ' + str(order)
             logging.warning(msg)
             slack.post_message_to_alert_actions_trading(msg)
 
@@ -255,7 +255,9 @@ class TradingApiBinance(TradingApi):
                 result = self.client.cancel_order(
                     symbol=order['symbol'],
                     orderId=order['orderId'])
-                slack.post_message_to_alert_actions_trading('Order cancelled: ' + str(result))
+                msg = 'Order cancelled: ' + str(result)
+                logging.warning(msg)
+                slack.post_message_to_alert_actions_trading(msg)
             except Exception as e:
                 msg = "Order cannot be cancelled " + str(e)
                 logging.error(msg)
