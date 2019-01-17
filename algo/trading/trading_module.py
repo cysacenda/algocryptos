@@ -50,7 +50,7 @@ class TradingModule:
         what_to_buy = {}
         max_prob = 0
         max_trading_pair = ''
-        self.do_logging_warning('Buying signals :Chart_With_Upwards_Trend:')
+        self.do_logging_warning('*Buying signals* :Chart_With_Upwards_Trend:')
         if self.__can_buy():
             for trading_pair, trading_pair_probs in signals.items():
                 if ((trading_pair in authorized_trading_pairs) and (trading_pair in tradable_trading_pairs)) \
@@ -117,7 +117,7 @@ class TradingModule:
         save_obj(amount, 'actual_position_amount_simulation')
 
     def __what_to_sell(self, current_date, signals):
-        self.do_logging_warning('Selling signals :Chart_With_Downwards_Trend:')
+        self.do_logging_warning('*Selling signals* :Chart_With_Downwards_Trend:')
         what_to_sell = {}
         for trading_pair, value in self.trading_pairs.items():
             self.do_logging_warning('Max signal proba *' + trading_pair + ': ' + str(signals[

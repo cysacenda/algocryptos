@@ -189,17 +189,18 @@ def remove_outliers(df, columns_name):
         # print('shape after outliers #2 (zscore) : ' + str(df.shape))
 
         # 3 / remove outliers with rolling_median
-        threshold_sup = 1.5  # 1.5 times higher than median
-        threshold_inf = 1 / 1.5  # 1.5 times lower than median
-        df['rm'] = df[column_name].rolling(window=10, center=True).median().fillna(method='bfill').fillna(
-            method='ffill')
-        df['divided'] = np.abs(df[column_name] / df['rm'])
-        df = df[df.divided < threshold_sup]
-        df = df[df.divided > threshold_inf]
+        if column_name != 'volume_aggregated_1h': # TODO : Moche !
+            threshold_sup = 1.5  # 1.5 times higher than median
+            threshold_inf = 1 / 1.5  # 1.5 times lower than median
+            df['rm'] = df[column_name].rolling(window=10, center=True).median().fillna(method='bfill').fillna(
+                method='ffill')
+            df['divided'] = np.abs(df[column_name] / df['rm'])
+            df = df[df.divided < threshold_sup]
+            df = df[df.divided > threshold_inf]
 
-        # print('shape after outliers #3 (rolling_median) : ' + str(df.shape))
+            # print('shape after outliers #3 (rolling_median) : ' + str(df.shape))
 
-        df.drop(columns=['rm', 'divided'], inplace=True)
+            df.drop(columns=['rm', 'divided'], inplace=True)
     return df
 
 
