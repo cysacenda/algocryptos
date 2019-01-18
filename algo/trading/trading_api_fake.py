@@ -5,7 +5,7 @@ from datetime import timedelta
 
 class TradingApiFake(TradingApi):
     # override
-    def __init__(self, param_pct_order_placed):
+    def __init__(self, param_pct_order_placed, stop_loss_pct):
         self.positions = {}
         self.fees = 0
         self.nb_periods_price_to_buy = 1  # approx because actions will have delay
@@ -45,9 +45,10 @@ class TradingApiFake(TradingApi):
 
     # override
     def create_order(self, base_asset, quote_asset, side, quantity_from, key):  # ex: USDT, ETH, 1000, BUY
-        # if cryptos exists
         from_crypto = ''
         to_crypto = ''
+
+        # if cryptos exists
         if base_asset in self.positions and quote_asset in self.positions:
             from_crypto, to_crypto = self.get_from_to(base_asset, quote_asset, side)
 
