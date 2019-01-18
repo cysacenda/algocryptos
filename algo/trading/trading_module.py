@@ -127,15 +127,13 @@ class TradingModule:
             # manage stop loss for backtesting
             if self.is_fake_api():
                 crypto_amount = self.trading_api.get_available_amount_crypto(value.base_asset)
-                if len(self.x_buy[trading_pair.name]) > 0:
+                if (crypto_amount > 0) and (len(self.x_buy[trading_pair.name]) > 0):
                     order_price = self.x_buy[trading_pair.name][-1]
                     current_price = self.trading_api.get_price_ticker(self, trading_pair.base_asset, trading_pair.quote_asset, current_date)
+                    logging.warning((order_price - current_price) / order_price)
                     if (order_price - current_price) / order_price > self.stop_loss_pct:
-                        crypto_amount = self.trading_api.get_available_amount_crypto(value.base_asset)
-                        # if crypto currently in portfolio and value > min_bet_value
-                        if crypto_amount > 0:
-                            what_to_sell[value] = crypto_amount
-                            logging.warning('STOP LOSS !')
+                        what_to_sell[value] = crypto_amount
+                        logging.warning('STOP LOSS !')
 
 
             if signals[trading_pair].signal_prob.max() < self.thresholds[trading_pair]:
