@@ -130,7 +130,7 @@ class TradingModule:
                 if (crypto_amount > 0) and (len(self.x_buy[trading_pair.name]) > 0):
                     order_price = self.x_buy[trading_pair.name][-1]
                     current_price = self.trading_api.get_price_ticker(self, trading_pair.base_asset, trading_pair.quote_asset, current_date)
-                    logging.warning((order_price - current_price) / order_price)
+                    #logging.warning((order_price - current_price) / order_price)
                     if (order_price - current_price) / order_price > self.stop_loss_pct:
                         what_to_sell[value] = crypto_amount
                         logging.warning('STOP LOSS !')
