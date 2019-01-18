@@ -22,6 +22,12 @@ class CryptoCompare:
     def __init__(self):
         self.conf = Config()
 
+        # API Key
+        self.API_KEY = self.conf.get_config('cryptocompare_params', 'api_key_cryptocompare')
+        self.HEADERS = {
+            "authorization": "Apikey " + self.API_KEY
+        }
+
         # API urls
         self.URL_COIN_LIST = self.conf.get_config('cryptocompare_params', 'url_coin_list')
         self.URL_PRICE = self.conf.get_config('cryptocompare_params', 'url_price')
@@ -86,10 +92,9 @@ class CryptoCompare:
 
     # region Utils
 
-    @staticmethod
-    def query_cryptocompare(url, error_check=True, json_format=True):
+    def query_cryptocompare(self, url, error_check=True, json_format=True):
         try:
-            response = requests.get(url)
+            response = requests.get(url, self.HEADERS)
             if json_format:
                 response = response.json()
         except Exception as e:

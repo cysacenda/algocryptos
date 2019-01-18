@@ -42,3 +42,6 @@ def post_message_to_alert_portfolio(message):
 
 def post_message_to_alert_log_trading(message):
     post_message('alert_log_trading', message)
+
+def post_message_to_alert_importer_jobs(message):
+    post_message('alert_importer_jobs', message)

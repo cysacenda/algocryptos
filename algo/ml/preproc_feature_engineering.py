@@ -55,12 +55,19 @@ class PreprocFeatureEngineering:
                 (df_ohlcv.close_price - df_ohlcv.close_price.rolling(arr_nums[i]).min()) \
                 / df_ohlcv.close_price.rolling(arr_nums[i]).min()
 
-            # highs
+        # highs
         for i in range(len(arr_nums)):
             df_ohlcv['close_price_pct_change_vs_' + arr_labels[i] + '_high'] \
                 = (df_ohlcv.close_price - df_ohlcv.close_price.rolling(arr_nums[i]).max()) \
                   / df_ohlcv.close_price.rolling(
                 arr_nums[i]).max()
+
+        # price trends
+        arr_nums = [3, 6, 12, 24, 3 * 24, 7 * 24, 15 * 24, 30 * 24]
+        arr_labels = ['3h', '6h', '12h', '24h', '3d', '7d', '15d', '30d']
+        for i in range(len(arr_nums)):
+            df_ohlcv['trend_pct_' + arr_labels[i]] = df_ohlcv['close_price'].pct_change(periods=arr_nums[i])
+
         return df_ohlcv
 
     @staticmethod

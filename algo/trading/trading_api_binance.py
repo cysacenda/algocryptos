@@ -164,7 +164,7 @@ class TradingApiBinance(TradingApi):
                 #     symbol=base_asset + quote_asset,
                 #     quantity=quantity_from,
                 #     price=self.format_amount_order(limit_price))
-                # TODO [SIMULATION] : To be replaced with real order !
+                # TODO [SIMULATION] : To be replaced with real order + stop loss
                 order = self.client.create_test_order(
                     symbol=base_asset + quote_asset,
                     side=SIDE_BUY,
@@ -178,7 +178,7 @@ class TradingApiBinance(TradingApi):
                 #     symbol=base_asset + quote_asset,
                 #     quantity=quantity_from,
                 #     price=self.format_amount_order(limit_price))
-                # TODO [SIMULATION] : To be replaced with real order !
+                # TODO [SIMULATION] : To be replaced with real order
                 order = self.client.create_test_order(
                     symbol=base_asset + quote_asset,
                     side=SIDE_SELL,

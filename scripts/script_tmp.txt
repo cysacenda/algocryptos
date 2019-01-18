@@ -1,2 +1,2 @@
 # used to schedule on server-ML
-10       0,2-23/1 *       *       *       /home/cysacenda/anaconda3/bin/python /home/cysacenda/algocryptos/algocryptos_scripts/algo/main.py -s
+10       */1       *       *       *       /home/cysacenda/anaconda3/bin/python /home/cysacenda/algocryptos/algocryptos_scripts/algo/main.py -s
