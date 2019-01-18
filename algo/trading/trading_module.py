@@ -133,7 +133,7 @@ class TradingModule:
                     #logging.warning((order_price - current_price) / order_price)
                     if (order_price - current_price) / order_price > self.stop_loss_pct:
                         what_to_sell[value] = crypto_amount
-                        logging.warning('[' + str(current_date) + '] STOP LOSS on ' + trading_pair + ' - amount=' + str(crypto_amount))
+                        print('[' + str(current_date) + '] STOP LOSS on ' + trading_pair + ' - amount=' + str(crypto_amount))
 
 
             if signals[trading_pair].signal_prob.max() < self.thresholds[trading_pair]:
