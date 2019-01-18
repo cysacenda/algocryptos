@@ -128,7 +128,7 @@ class TradingModule:
             if self.is_fake_api():
                 crypto_amount = self.trading_api.get_available_amount_crypto(value.base_asset)
                 if (crypto_amount > 0) and (len(self.x_buy[value.name]) > 0):
-                    order_price = self.x_buy[value.name][-1]
+                    order_price = self.x_buy[value.name][-2]
                     current_price = self.trading_api.get_price_ticker(value.base_asset, value.quote_asset, current_date)
                     #logging.warning((order_price - current_price) / order_price)
                     if (order_price - current_price) / order_price > self.stop_loss_pct:
