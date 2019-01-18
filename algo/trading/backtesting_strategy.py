@@ -42,7 +42,7 @@ class BacktestingStrategy:
             init_positions[value.base_asset] = 0.0
 
         # trading API (fake one for simulation)
-        trading_api = TradingApiFake(self.param_pct_order_placed, self.stop_loss_pct)
+        trading_api = TradingApiFake(self.param_pct_order_placed, self.param_stop_loss_pct)
         trading_api.init_from_backtesting_strategy(init_positions, self.param_fees, self.close_price)
 
         # trading module
