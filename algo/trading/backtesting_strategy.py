@@ -10,7 +10,7 @@ from ml.utils_ml import calcul_signals_for_crypto
 class BacktestingStrategy:
     def __init__(self, model, model_term, init_date, end_date, X_tests, close_price, target, thresholds, trading_pairs,
                  cash_asset, trace=True, param_stop_loss_pct=None):
-        conf = Config()
+        conf = Config() 
 
         self.param_init_amount_cash = float(conf.get_config('backtesting_stragegy_params', 'init_amount_cash'))  # $
         self.param_fees = float(conf.get_config('backtesting_stragegy_params', 'fees'))  # $
