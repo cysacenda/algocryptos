@@ -6,7 +6,7 @@ ORDER_SELL = 'sell'
 
 class TradingApi(ABC):
     @abstractmethod
-    def __init__(self, param_pct_order_placed):
+    def __init__(self, param_pct_order_placed, stop_loss_pct):
         pass
 
     @abstractmethod

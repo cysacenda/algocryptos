@@ -5,7 +5,7 @@ from commons.slack import slack
 
 class TradingModule:
     def __init__(self, trading_api, param_bet_size, param_min_bet_size, param_pct_order_placed,
-                 param_nb_periods_to_hold_position, trading_pairs, cash_asset, thresholds, trace, is_simulation=False):
+                 param_nb_periods_to_hold_position, trading_pairs, cash_asset, thresholds, trace, stop_loss_pct, is_simulation=False):
 
         logging.warning("TradingModule - START")
 
@@ -28,6 +28,7 @@ class TradingModule:
         self.param_pct_order_placed = param_pct_order_placed
         # TODO : V2 - Faire en fonction de la valeur du portefeuille
         self.param_bet_size = param_bet_size
+        self.stop_loss_pct = stop_loss_pct
 
         self.init_var()
 
@@ -122,6 +123,18 @@ class TradingModule:
         for trading_pair, value in self.trading_pairs.items():
             self.do_logging_warning('Max signal proba *' + trading_pair + ': ' + str(signals[
                 trading_pair].signal_prob.max()) + '* (threshold=' + str(self.thresholds[trading_pair]) + ')')
+
+            # manage stop loss for backtesting
+            if self.is_fake_api():
+                crypto_amount = self.trading_api.get_available_amount_crypto(value.base_asset)
+                if (crypto_amount > 0) and (len(self.x_buy[trading_pair.name]) > 0):
+                    order_price = self.x_buy[trading_pair.name][-1]
+                    current_price = self.trading_api.get_price_ticker(self, trading_pair.base_asset, trading_pair.quote_asset, current_date)
+                    #logging.warning((order_price - current_price) / order_price)
+                    if (order_price - current_price) / order_price > self.stop_loss_pct:
+                        what_to_sell[value] = crypto_amount
+                        logging.warning('STOP LOSS !')
+
 
             if signals[trading_pair].signal_prob.max() < self.thresholds[trading_pair]:
                 crypto_amount = self.trading_api.get_available_amount_crypto(value.base_asset)

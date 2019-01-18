@@ -68,6 +68,7 @@ try:
             date_to_retrieve_days_to_add = int(conf.get_config('data_params', 'date_to_retrieve_days_to_add'))
             model_file_name = conf.get_config('trading_module_params', 'model_file_name')
             useless_features_file_name = conf.get_config('trading_module_params', 'useless_features_file_name')
+            stop_loss_pct = float(conf.get_config('trading_module_params', 'stop_loss_pct'))
             model = load_obj(model_file_name)
             useless_features = load_obj(useless_features_file_name)
             # endregion Retrieve algo params
@@ -106,12 +107,12 @@ try:
             #endregion
 
             # trading api binance
-            trading_api_binance = TradingApiBinance(pct_order_placed)
+            trading_api_binance = TradingApiBinance(pct_order_placed, stop_loss_pct)
 
             # trading module
             trading_module = TradingModule(trading_api_binance, bet_size, min_bet_size,
                                            pct_order_placed, nb_periods_to_hold_position,
-                                           trading_pairs, cash_asset, thresholds, False, is_simulation=True)
+                                           trading_pairs, cash_asset, thresholds, False, stop_loss_pct, is_simulation=True)
 
             # performs algo actions
             trading_module.do_update(datetime.now(), signals, dict_last_dates)
