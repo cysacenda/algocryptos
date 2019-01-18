@@ -9,8 +9,8 @@ from ml.utils_ml import calcul_signals_for_crypto
 
 class BacktestingStrategy:
     def __init__(self, model, model_term, init_date, end_date, X_tests, close_price, target, thresholds, trading_pairs,
-                 cash_asset, trace=True):
-        conf = Config()
+                 cash_asset, trace=True, param_stop_loss_pct=None):
+        conf = Config() 
 
         self.param_init_amount_cash = float(conf.get_config('backtesting_stragegy_params', 'init_amount_cash'))  # $
         self.param_fees = float(conf.get_config('backtesting_stragegy_params', 'fees'))  # $
@@ -18,7 +18,9 @@ class BacktestingStrategy:
         self.param_min_bet_size = float(conf.get_config('trading_module_params', 'min_bet_size'))  # $
         self.param_pct_order_placed = float(conf.get_config('trading_module_params', 'pct_order_placed'))  # 1% up/down
         self.param_nb_periods_to_hold_position = int(conf.get_config('trading_module_params', 'nb_periods_to_hold_position'))  # 1d
-        self.param_stop_loss_pct = float(conf.get_config('trading_module_params', 'stop_loss_pct'))
+        if param_stop_loss_pct is None:
+            self.param_stop_loss_pct = float(conf.get_config('trading_module_params', 'stop_loss_pct'))
+
         self.signals = {}
         self.all_signals = {}
 
