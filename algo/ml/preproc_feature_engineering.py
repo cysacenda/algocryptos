@@ -14,7 +14,10 @@ class PreprocFeatureEngineering:
             axis=1)
 
         # Interpolation ok (checked with ploting before / after each indicator)
-        return df_ohlcv_p.join(df_ohlcv_1d_p.resample('1H').interpolate())
+        # TODO : Check if interpolation ok
+        return df_ohlcv_p.join(df_ohlcv_1d_p.resample('1H')
+                               #.agg({'close_price': np.mean, 'volume_aggregated': np.sum})
+                               .interpolate())
 
     # ======== FEATURE ENGINEERING ========
     @staticmethod
