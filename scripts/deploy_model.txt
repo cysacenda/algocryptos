@@ -2,3 +2,4 @@
 cp ./algocryptos/algocryptos_scripts/notebooks/ML/obj/scaler_learning.pkl obj/
 cp ./algocryptos/algocryptos_scripts/notebooks/ML/obj/production_model.pkl obj/
 cp ./algocryptos/algocryptos_scripts/notebooks/ML/obj/pca_learning.pkl obj/
+cp ./algocryptos/algocryptos_scripts/notebooks/ML/obj/useless_features.pkl obj/
