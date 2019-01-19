@@ -159,26 +159,25 @@ class PreprocFeatureEngineering:
 
         # ========== ADD FEATURES FOR INTERPRETATION ==========
 
-        # [Interpretation] EMA 30 days in uptrend : True / downtrend : False
-        df_ohlcv_tmp['Indic_EMA_30d_uptrend'] = (df_ohlcv_tmp.Indic_EMA_30d.pct_change(periods=1) > 0).astype(
-            int).astype(
+        # [Interpretation] EMA 30 days pct change on last nb_periods=12h
+        nb_periods = 12
+        df_ohlcv_tmp['Indic_EMA_30d_uptrend'] = (df_ohlcv_tmp.Indic_EMA_30d.pct_change(periods=nb_periods)).astype(
             float)
-        # [Interpretation] EMA 15 days in uptrend : True / downtrend : False
-        df_ohlcv_tmp['Indic_EMA_15d_uptrend'] = (df_ohlcv_tmp.Indic_EMA_15d.pct_change(periods=1) > 0).astype(
-            int).astype(
+        # [Interpretation] EMA 15 days pct change on last nb_periods=12h
+        df_ohlcv_tmp['Indic_EMA_15d_uptrend'] = (df_ohlcv_tmp.Indic_EMA_15d.pct_change(periods=nb_periods)).astype(
             float)
-        # [Interpretation] EMA 7 days in uptrend : True / downtrend : False
-        df_ohlcv_tmp['Indic_EMA_7d_uptrend'] = (df_ohlcv_tmp.Indic_EMA_7d.pct_change(periods=1) > 0).astype(int).astype(
+        # [Interpretation] EMA 7 days pct change on last nb_periods=12h
+        df_ohlcv_tmp['Indic_EMA_7d_uptrend'] = (df_ohlcv_tmp.Indic_EMA_7d.pct_change(periods=nb_periods)).astype(
             float)
 
-        # [Interpretation] MA 30 days in uptrend : True / downtrend : False
-        df_ohlcv_tmp['Indic_MA_30d_uptrend'] = (df_ohlcv_tmp.Indic_MA_30d.pct_change(periods=1) > 0).astype(int).astype(
+        # [Interpretation] MA 30 days pct change on last nb_periods=12h
+        df_ohlcv_tmp['Indic_MA_30d_uptrend'] = (df_ohlcv_tmp.Indic_MA_30d.pct_change(periods=nb_periods)).astype(
             float)
-        # [Interpretation] MA 15 days in uptrend : True / downtrend : False
-        df_ohlcv_tmp['Indic_MA_15d_uptrend'] = (df_ohlcv_tmp.Indic_MA_15d.pct_change(periods=1) > 0).astype(int).astype(
+        # [Interpretation] MA 15 days pct change on last nb_periods=12h
+        df_ohlcv_tmp['Indic_MA_15d_uptrend'] = (df_ohlcv_tmp.Indic_MA_15d.pct_change(periods=nb_periods)).astype(
             float)
-        # [Interpretation] MA 7 days in uptrend : True / downtrend : False
-        df_ohlcv_tmp['Indic_MA_7d_uptrend'] = (df_ohlcv_tmp.Indic_MA_7d.pct_change(periods=1) > 0).astype(int).astype(
+        # [Interpretation] MA 7 days pct change on last nb_periods=12h
+        df_ohlcv_tmp['Indic_MA_7d_uptrend'] = (df_ohlcv_tmp.Indic_MA_7d.pct_change(periods=nb_periods)).astype(
             float)
 
         # [Interpretation] BBands close_price - Indic_Bbands_20d_upperband
@@ -194,9 +193,8 @@ class PreprocFeatureEngineering:
             'Indic_Bbands_20d_diff_close_lowerband'] = df_ohlcv_tmp.close_price \
                                                        - df_ohlcv_tmp.Indic_Bbands_20d_lowerband
 
-        # [Interpretation] RSI 14 days in uptrend : True / downtrend : False
-        df_ohlcv_tmp['Indic_RSI_14d_uptrend'] = (df_ohlcv_tmp.Indic_RSI_14d.pct_change(periods=1) > 0).astype(
-            int).astype(
+        # [Interpretation] RSI 14 days pct change  on last nb_periods=12h
+        df_ohlcv_tmp['Indic_RSI_14d_uptrend'] = (df_ohlcv_tmp.Indic_RSI_14d.pct_change(periods=nb_periods)).astype(
             float)
         # [Interpretation] RSI 14 days > value 70
         df_ohlcv_tmp['Indic_RSI_sup_70'] = (df_ohlcv_tmp.Indic_RSI_14d > 70).astype(int).astype(float)
@@ -214,21 +212,17 @@ class PreprocFeatureEngineering:
         # [Interpretation] STOCH diff
         df_ohlcv_tmp['Indic_Stoch_14_3_3_diff'] = df_ohlcv_tmp.Indic_Stoch_14_3_3_k - df_ohlcv_tmp.Indic_Stoch_14_3_3_d
 
-        # [Interpretation] OBV in uptrend on last 3d : True / downtrend : False
-        df_ohlcv_tmp['Indic_OBV_uptrend_3d'] = (df_ohlcv_tmp.Indic_OBV.pct_change(periods=3 * 24) > 0).astype(
-            int).astype(
+        # [Interpretation] OBV pct change on last 3d
+        df_ohlcv_tmp['Indic_OBV_uptrend_3d'] = (df_ohlcv_tmp.Indic_OBV.pct_change(periods=3 * 24)).astype(
             float)
-        # [Interpretation] OBV in uptrend on last 7d : True / downtrend : False
-        df_ohlcv_tmp['Indic_OBV_uptrend_7d'] = (df_ohlcv_tmp.Indic_OBV.pct_change(periods=7 * 24) > 0).astype(
-            int).astype(
+        # [Interpretation] OBV pct change on last 7d
+        df_ohlcv_tmp['Indic_OBV_uptrend_7d'] = (df_ohlcv_tmp.Indic_OBV.pct_change(periods=7 * 24)).astype(
             float)
-        # [Interpretation] OBV in uptrend on last 15d : True / downtrend : False
-        df_ohlcv_tmp['Indic_OBV_uptrend_15d'] = (df_ohlcv_tmp.Indic_OBV.pct_change(periods=15 * 24) > 0).astype(
-            int).astype(
+        # [Interpretation] OBV pct change on last 15d
+        df_ohlcv_tmp['Indic_OBV_uptrend_15d'] = (df_ohlcv_tmp.Indic_OBV.pct_change(periods=15 * 24)).astype(
             float)
-        # [Interpretation] OBV in uptrend on last 30d : True / downtrend : False
-        df_ohlcv_tmp['Indic_OBV_uptrend_30d'] = (df_ohlcv_tmp.Indic_OBV.pct_change(periods=30 * 24) > 0).astype(
-            int).astype(
+        # [Interpretation] OBV pct change on last 30d
+        df_ohlcv_tmp['Indic_OBV_uptrend_30d'] = (df_ohlcv_tmp.Indic_OBV.pct_change(periods=30 * 24)).astype(
             float)
 
         return df_ohlcv_tmp.drop(['open_price', 'high_price', 'low_price', 'close_price', 'volume_aggregated_1h'],
