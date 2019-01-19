@@ -75,7 +75,7 @@ class PreprocLearning:
 
     @staticmethod
     def get_preprocessed_data_learning(dict_df, dict_hours_labels, close_price_increase_targeted, predict_only_one_crypto,
-                                       do_scale=True, do_pca=True, id_cryptocompare=0, useless_features=None):
+                                       do_scale=True, do_pca=True, pca_components=45, id_cryptocompare=0, useless_features=None):
         if useless_features is None:
             useless_features = []
         columns_nb = 0
@@ -155,7 +155,7 @@ class PreprocLearning:
 
         # PCA to reduce dimensionality
         if do_pca:
-            pca = PCA(n_components=35)  # approx 97% variance
+            pca = PCA(n_components=pca_components)  # approx 97% variance
             X_train = pca.fit_transform(X_train)
             X_test = pca.transform(X_test)
 
