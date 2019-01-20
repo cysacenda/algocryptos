@@ -162,15 +162,15 @@ class PreprocPrepare:
         df_ohlcv = PreprocPrepare.clean_dataset_ohlcv_spe(df_ohlcv)
         min_date = df_ohlcv.index.min()
 
-        df_ohlcv = PreprocPrepare.get_ohlcv_1h_plus_missing_infos(connection, df_ohlcv, id_cryptocompare_crypto, older_date, model_term)
+        df_ohlcv = PreprocPrepare.get_ohlcv_1h_plus_missing_infos(connection, df_ohlcv, id_cryptocompare_crypto, older_date)
 
         df_ohlcv_tether = PreprocLoad.get_dataset_ohlcv(connection, id_cryptocompare_tether, older_date)
         df_ohlcv_tether = PreprocPrepare.clean_dataset_ohlcv_spe(df_ohlcv_tether)
-        df_ohlcv_tether = PreprocPrepare.get_ohlcv_1h_plus_missing_infos(connection, df_ohlcv_tether, id_cryptocompare_tether, older_date, model_term)
+        df_ohlcv_tether = PreprocPrepare.get_ohlcv_1h_plus_missing_infos(connection, df_ohlcv_tether, id_cryptocompare_tether, older_date)
 
         df_ohlcv_bitcoin = PreprocLoad.get_dataset_ohlcv(connection, id_cryptocompare_bitcoin, older_date)
         df_ohlcv_bitcoin = PreprocPrepare.clean_dataset_ohlcv_spe(df_ohlcv_bitcoin)
-        df_ohlcv_bitcoin = PreprocPrepare.get_ohlcv_1h_plus_missing_infos(connection, df_ohlcv_bitcoin, id_cryptocompare_bitcoin, older_date, model_term)
+        df_ohlcv_bitcoin = PreprocPrepare.get_ohlcv_1h_plus_missing_infos(connection, df_ohlcv_bitcoin, id_cryptocompare_bitcoin, older_date)
 
         #df_ohlcv = PreprocPrepare.add_ohlcv_missing_infos(connection, df_ohlcv, id_cryptocompare_crypto, older_date)
 
