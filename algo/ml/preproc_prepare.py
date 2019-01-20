@@ -24,46 +24,48 @@ class PreprocPrepare:
         df_ts['timestamp'] = pd.to_datetime(df_ts.timestamp, utc=True)
         return df_ts.set_index('timestamp')
 
+    # TODO : To be coded to avoir loosing info from december 2017 !
     @staticmethod
-    def get_ohlcv_1d_plus_missing_infos(connection, df_ohlcv_p, id_cryptocompare, str_older_date):
+    def add_ohlcv_missing_infos(connection, df_ohlcv_p, id_cryptocompare, str_older_date):
         # TODO V2 : Perf : do only one call to these two lines (cf. get_ohlcv_1h_plus_missing_infos)
-        df_ohlcv_old = PreprocLoad.get_dataset_ohlcv_old(connection, id_cryptocompare, df_ohlcv_p.index.min(), str_older_date)
+        df_ohlcv_old_1d = PreprocLoad.get_dataset_ohlcv_old(connection, id_cryptocompare, df_ohlcv_p.index.min(), str_older_date)
 
-        # resample to 1d
-        df_ohlcv_1d = df_ohlcv_p.resample("1D").agg({'open_price': 'first', 'high_price': 'max', 'low_price': 'min',
-                                                     'close_price': 'last', 'volume_aggregated_1h': 'sum'})
+        # resample to 1h
+        # df_ohlcv_1h = df_ohlcv_p.resample("1H").agg({'open_price': 'first', 'high_price': 'max', 'low_price': 'min',
+        #                                             'close_price': 'last', 'volume_aggregated_1h': 'sum'})
 
-        df_final = df_ohlcv_1d
+        df_final = df_ohlcv_p
 
-        # Only when datafarme contains rows
-        if len(df_ohlcv_old.index) > 0:
-            df_ohlcv_old = PreprocPrepare.clean_dataset_ohlcv_std(df_ohlcv_old, PreprocPrepare.get_columns_to_be_cleaned(),
-                                                               resample='1D')
-
-            # resample to 1d
-            df_ohlcv_old = df_ohlcv_old.resample("1D").agg({'open_price': 'first', 'high_price': 'max', 'low_price': 'min',
-                                                            'close_price': 'last', 'volume_aggregated_1h': 'sum'})
-
-            # quick & dirty way to have coherents volumes between both dataset
-            mean_vol_old = df_ohlcv_old.tail(5).volume_aggregated_1h.mean()
-            mean_vol_1d = df_ohlcv_1d.head(5).volume_aggregated_1h.mean()
-            df_ohlcv_old.volume_aggregated_1h = df_ohlcv_old.volume_aggregated_1h / (mean_vol_old / mean_vol_1d)
-            df_final = pd.concat([df_ohlcv_old, df_ohlcv_1d])
-
-            df_final = df_final[~df_final.index.duplicated()]
-
-        # trick to allow to have data for indicators on last rows
-        df_last_row = df_ohlcv_p.tail(1).copy()
-        df_last_row.index = [pd.to_datetime(df_final.tail(1).index.values[0] + np.timedelta64(1, 'D'), utc=True)]
-
-        # extrapolate 24h vol from mean of last 6 hours
-        df_last_row.volume_aggregated_1h = df_ohlcv_p.tail(6).volume_aggregated_1h.mean() * 4
-
-        df_final = df_final.append(df_last_row)
+        # # Only when datafarme contains rows
+        # if len(df_ohlcv_old_1d.index) > 0:
+        #     df_ohlcv_old_1d = PreprocPrepare.clean_dataset_ohlcv_std(df_ohlcv_old_1d, PreprocPrepare.get_columns_to_be_cleaned(),
+        #                                                        resample='1D')
+        #
+        #     # resample to 1h
+        #     df_ohlcv_old_1h = df_ohlcv_old_1d.resample("1H").agg({'open_price': 'first', 'high_price': 'max', 'low_price': 'min',
+        #                                                     'close_price': 'last', 'volume_aggregated_1h': 'sum'}).interpolate()
+        #
+        #     # quick & dirty way to have coherents volumes between both dataset
+        #     mean_vol_old = df_ohlcv_old.tail(5).volume_aggregated_1h.mean()
+        #     mean_vol_1d = df_ohlcv_1d.head(5).volume_aggregated_1h.mean()
+        #     df_ohlcv_old.volume_aggregated_1h = df_ohlcv_old.volume_aggregated_1h / (mean_vol_old / mean_vol_1d)
+        #     df_final = pd.concat([df_ohlcv_old, df_ohlcv_1d])
+        #
+        #     df_final = df_final[~df_final.index.duplicated()]
+        #
+        # # TODO : Check that !
+        # # trick to allow to have data for indicators on last rows
+        # df_last_row = df_ohlcv_p.tail(1).copy()
+        # df_last_row.index = [pd.to_datetime(df_final.tail(1).index.values[0] + np.timedelta64(1, 'D'), utc=True)]
+        #
+        # # extrapolate 24h vol from mean of last 6 hours
+        # df_last_row.volume_aggregated_1h = df_ohlcv_p.tail(6).volume_aggregated_1h.mean() * 4
+        #
+        # df_final = df_final.append(df_last_row)
         return df_final
 
     @staticmethod
-    def get_ohlcv_1h_plus_missing_infos(connection, df_ohlcv_p, id_cryptocompare, str_older_date, model_term):
+    def get_ohlcv_1h_plus_missing_infos(connection, df_ohlcv_p, id_cryptocompare, str_older_date):
         # get data older than 12/2017
         df_ohlcv_old = PreprocLoad.get_dataset_ohlcv_old(connection, id_cryptocompare, df_ohlcv_p.index.min(), str_older_date)
 
@@ -75,7 +77,7 @@ class PreprocPrepare:
 
             # resample to 1h
             df_ohlcv_old = df_ohlcv_old.resample("1H").interpolate()
-            df_ohlcv_old.volume_aggregated_1h = df_ohlcv_old.volume_aggregated_1h / model_term
+            df_ohlcv_old.volume_aggregated_1h = df_ohlcv_old.volume_aggregated_1h / 24
 
             # quick & dirty way to have coherents volumes between both dataset
             mean_vol_old = df_ohlcv_old.tail(5).volume_aggregated_1h.mean()
@@ -170,7 +172,7 @@ class PreprocPrepare:
         df_ohlcv_bitcoin = PreprocPrepare.clean_dataset_ohlcv_spe(df_ohlcv_bitcoin)
         df_ohlcv_bitcoin = PreprocPrepare.get_ohlcv_1h_plus_missing_infos(connection, df_ohlcv_bitcoin, id_cryptocompare_bitcoin, older_date, model_term)
 
-        df_ohlcv_1d = PreprocPrepare.get_ohlcv_1d_plus_missing_infos(connection, df_ohlcv, id_cryptocompare_crypto, older_date)
+        #df_ohlcv = PreprocPrepare.add_ohlcv_missing_infos(connection, df_ohlcv, id_cryptocompare_crypto, older_date)
 
         # --------------------------------
         # REDDIT SUBSCRIBERS
@@ -216,7 +218,7 @@ class PreprocPrepare:
         df_ohlcv_fe = PreprocFeatureEngineering.feature_engineering_ohlcv(df_ohlcv)
         df_ohlcv_tether_fe = PreprocFeatureEngineering.feature_engineering_ohlcv(df_ohlcv_tether)
         df_ohlcv_bitcoin_fe = PreprocFeatureEngineering.feature_engineering_ohlcv(df_ohlcv_bitcoin)
-        df_technical_analysis = PreprocFeatureEngineering.feature_engineering_technical_analysis(df_ohlcv, df_ohlcv_1d)
+        df_technical_analysis = PreprocFeatureEngineering.feature_engineering_technical_analysis(df_ohlcv)
         df_all_cryptos = PreprocFeatureEngineering.feature_engineering_ohlcv_all_cryptos(df_all_cryptos)
         df_google_trend_crypto_5y = PreprocFeatureEngineering.feature_engineering_google_trend(df_google_trend_crypto_5y, 'y')
         df_google_trend_bitcoin_5y = PreprocFeatureEngineering.feature_engineering_google_trend(df_google_trend_bitcoin_5y, 'y')
