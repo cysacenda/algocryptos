@@ -111,58 +111,59 @@ class PreprocFeatureEngineering:
         return df_google_trend_p
 
     @staticmethod
-    def feature_engineering_technical_analysis(df_ohlcv_p, df_ohlcv_1d_p):
+    def feature_engineering_technical_analysis(df_ohlcv_p):
         df_ohlcv_tmp = df_ohlcv_p.copy()
-        df_ohlcv_1d = df_ohlcv_1d_p.copy()
 
         # ========== INDICATORS CALCUL ==========
 
         # [Overlap Studies] EMA 30 days
-        df_ohlcv_1d['Indic_EMA_30d'] = EMA(df_ohlcv_1d, price='close_price', timeperiod=30)
+        df_ohlcv_p['Indic_EMA_30d'] = EMA(df_ohlcv_p, price='close_price', timeperiod=30 * 24)
         # [Overlap Studies] EMA 15 days
-        df_ohlcv_1d['Indic_EMA_15d'] = EMA(df_ohlcv_1d, price='close_price', timeperiod=15)
+        df_ohlcv_p['Indic_EMA_15d'] = EMA(df_ohlcv_p, price='close_price', timeperiod=15 * 24)
         # [Overlap Studies] EMA 7 days
-        df_ohlcv_1d['Indic_EMA_7d'] = EMA(df_ohlcv_1d, price='close_price', timeperiod=7)
+        df_ohlcv_p['Indic_EMA_7d'] = EMA(df_ohlcv_p, price='close_price', timeperiod=7 * 24)
 
         # [Overlap Studies] MA 30 days
-        df_ohlcv_1d['Indic_MA_30d'] = MA(df_ohlcv_1d, price='close_price', timeperiod=30, matype=0)
+        df_ohlcv_p['Indic_MA_30d'] = MA(df_ohlcv_p, price='close_price', timeperiod=30 * 24, matype=0)
         # [Overlap Studies] MA 15 days
-        df_ohlcv_1d['Indic_MA_15d'] = MA(df_ohlcv_1d, price='close_price', timeperiod=15, matype=0)
+        df_ohlcv_p['Indic_MA_15d'] = MA(df_ohlcv_p, price='close_price', timeperiod=15 * 24, matype=0)
         # [Overlap Studies] MA 7 days
-        df_ohlcv_1d['Indic_MA_7d'] = MA(df_ohlcv_1d, price='close_price', timeperiod=7, matype=0)
+        df_ohlcv_p['Indic_MA_7d'] = MA(df_ohlcv_p, price='close_price', timeperiod=7 * 24, matype=0)
 
         # [Overlap Studies] BBands
-        bands = BBANDS(df_ohlcv_1d, price='close_price', timeperiod=20, nbdevup=2, nbdevdn=2, matype=0)
+        bands = BBANDS(df_ohlcv_p, price='close_price', timeperiod=20 * 24, nbdevup=2, nbdevdn=2, matype=0)
         bands.columns = ['Indic_Bbands_20d_upperband', 'Indic_Bbands_20d_middleband', 'Indic_Bbands_20d_lowerband']
-        df_ohlcv_1d = df_ohlcv_1d.join(bands)
+        df_ohlcv_p = df_ohlcv_p.join(bands)
 
         # [Momentum Indicator] RSI 14 days
-        df_ohlcv_1d['Indic_RSI_14d'] = RSI(df_ohlcv_1d, price='close_price', timeperiod=14)
+        df_ohlcv_p['Indic_RSI_14d'] = RSI(df_ohlcv_p, price='close_price', timeperiod=14 * 24)
 
         # [Momentum Indicators] STOCH
         # ta-lib abstract API KO with dataframe : use workaround
-        dataset = {'high': df_ohlcv_1d.high_price.values, 'low': df_ohlcv_1d.low_price.values,
-                   'close': df_ohlcv_1d.close_price.values}
-        kd = STOCH(dataset, fastk_period=14, slowk_period=3, slowk_matype=0, slowd_period=3, slowd_matype=0)
-        df_ohlcv_1d['Indic_Stoch_14_3_3_k'] = kd[0]
-        df_ohlcv_1d['Indic_Stoch_14_3_3_d'] = kd[1]
+        dataset = {'high': df_ohlcv_p.high_price.values, 'low': df_ohlcv_p.low_price.values,
+                   'close': df_ohlcv_p.close_price.values}
+        kd = STOCH(dataset, fastk_period=14 * 24, slowk_period=3 * 24, slowk_matype=0, slowd_period=3 * 24, slowd_matype=0)
+        df_ohlcv_p['Indic_Stoch_14_3_3_k'] = kd[0]
+        df_ohlcv_p['Indic_Stoch_14_3_3_d'] = kd[1]
 
         # [Momentum Indicators] MACD
-        macd = MACD(df_ohlcv_1d, price='close_price', fastperiod=12, slowperiod=26, signalperiod=9)
+        macd = MACD(df_ohlcv_p, price='close_price', fastperiod=12 * 24, slowperiod=26 * 24, signalperiod=9 * 24)
         macd.columns = ['Indic_Macd_12_26_9_macd', 'Indic_Macd_12_26_9_macdsignal', 'Indic_Macd_12_26_9_macdhist']
-        df_ohlcv_1d = df_ohlcv_1d.join(macd)
+        df_ohlcv_p = df_ohlcv_p.join(macd)
 
         # [Volume Indicators] OBV
-        dataset = {'close': df_ohlcv_1d.close_price.values, 'volume': df_ohlcv_1d.volume_aggregated_1h.values}
+        dataset = {'close': df_ohlcv_p.close_price.values, 'volume': df_ohlcv_p.volume_aggregated_1h.values}
         obv = OBV(dataset)
-        df_ohlcv_1d['Indic_OBV'] = obv
+        df_ohlcv_p['Indic_OBV'] = obv
 
         # join dataframes on 1h scale
-        df_ohlcv_tmp = PreprocFeatureEngineering.join_ohlcv_1h_1d(df_ohlcv_tmp, df_ohlcv_1d)
+        # df_ohlcv_tmp = PreprocFeatureEngineering.join_ohlcv_1h_1d(df_ohlcv_tmp, df_ohlcv_1d)
+        df_ohlcv_tmp = df_ohlcv_p
 
         # ========== ADD FEATURES FOR INTERPRETATION ==========
 
         # [Interpretation] EMA 30 days pct change on last nb_periods=12h
+        # TODO : Feature engineering => tests different nb_periods
         nb_periods = 12
         df_ohlcv_tmp['Indic_EMA_30d_uptrend'] = (df_ohlcv_tmp.Indic_EMA_30d.pct_change(periods=nb_periods)).astype(
             float)
