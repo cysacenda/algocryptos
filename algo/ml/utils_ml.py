@@ -2,8 +2,6 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_sc
     precision_recall_curve, average_precision_score
 from sklearn.metrics import confusion_matrix
 from sklearn.utils.fixes import signature
-from matplotlib import pyplot as plt
-import seaborn as sns
 import pandas as pd
 import numpy as np
 from scipy import stats
@@ -63,6 +61,7 @@ def evaluate_model_formated(model, pX_test, py_test, threshold, do_feat_importan
 def show_model_accuracy(algo_name, model, pX_test, py_test, pX_columns, do_roc_curve=False,
                         do_precision_recall_curve=False, do_features_importance=False,
                         do_precision_recall_vs_treshold=False, threshold=0.5, nb_features_imp=20):
+    from matplotlib import pyplot as plt
     predicted_proba = model.predict_proba(pX_test)
     # keep probabilities for the positive outcome only
     probs = predicted_proba[:, 1]
@@ -154,7 +153,7 @@ def show_model_accuracy(algo_name, model, pX_test, py_test, pX_columns, do_roc_c
         plt.show()
 
 
-def show_model_accuracy_new_way(model, X_, y_test_value, X_close_price, threshold):
+def show_model_accuracy_new_way(model, X_, y_test_value, X_close_price, threshold, show_graphs=True):
     predicted_proba = model.predict_proba(X_.values)
     probs = predicted_proba[:, 1]
     df_probs = pd.DataFrame(probs)
@@ -167,9 +166,13 @@ def show_model_accuracy_new_way(model, X_, y_test_value, X_close_price, threshol
     df_probs['pct_change_value'] = ((df_probs['close_price_+term'] - df_probs['close_price']) / df_probs[
         'close_price']) * 100
 
-    plt.figure(figsize=(6, 6))
-    sns.distplot(df_probs.pct_change_value)
-    print('pct_change_value: ' + str(df_probs.pct_change_value.mean()))
+    if show_graphs:
+        from matplotlib import pyplot as plt
+        import seaborn as sns
+        plt.figure(figsize=(6, 6))
+        sns.distplot(df_probs.pct_change_value)
+        print('pct_change_value: ' + str(df_probs.pct_change_value.mean()))
+    return df_probs.pct_change_value.mean()
 
 
 # https://ocefpaf.github.io/python4oceanographers/blog/2015/03/16/outlier_detection/
