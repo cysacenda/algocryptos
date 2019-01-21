@@ -144,7 +144,7 @@ class PreprocPrepare:
 
     @staticmethod
     # str_older_date_to_retrieve : default (learning), everything is retrieved. Perf improvement for inference
-    def get_global_dataset_for_crypto(connection, id_cryptocompare_crypto, model_term, older_date=None):
+    def get_global_dataset_for_crypto(connection, id_cryptocompare_crypto, older_date=None):
         # ------------------ PRE-PROCESSING : Retrieve data and prepare ------------------ #
         id_cryptocompare_crypto = str(id_cryptocompare_crypto)
 

@@ -24,7 +24,7 @@ class PreprocLearning:
         for id_crypto in ids_cryptocompare_crypto:
             print('Crypto : ' + str(id_crypto))
             try:
-                df = PreprocPrepare.get_global_dataset_for_crypto(connection, id_crypto, model_term)
+                df = PreprocPrepare.get_global_dataset_for_crypto(connection, id_crypto)
                 if df.empty:
                     print('ALERT : Empty dataframe')
                 else:

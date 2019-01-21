@@ -89,7 +89,7 @@ try:
                               - timedelta(days=date_to_retrieve_days_to_add)).strftime("%Y-%m-%d")
 
                 # retrieve data
-                df_one_crypto = PreprocPrepare.get_global_dataset_for_crypto(connection, str(id_crypto), nb_periods_to_hold_position, older_date=older_date)
+                df_one_crypto = PreprocPrepare.get_global_dataset_for_crypto(connection, str(id_crypto), older_date=older_date)
                 df_one_crypto, X_close_prices = PreprocPrepare.get_preprocessed_data_inference(df_one_crypto,
                                                                                                do_scale=True,
                                                                                                do_pca=True,
