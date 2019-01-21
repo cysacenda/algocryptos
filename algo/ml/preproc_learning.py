@@ -19,7 +19,7 @@ utc=pytz.UTC
 class PreprocLearning:
 
     @staticmethod
-    def get_global_datasets_for_cryptos(connection, ids_cryptocompare_crypto, model_term):
+    def get_global_datasets_for_cryptos(connection, ids_cryptocompare_crypto):
         dict_df = {}
         for id_crypto in ids_cryptocompare_crypto:
             print('Crypto : ' + str(id_crypto))
@@ -38,7 +38,7 @@ class PreprocLearning:
     @staticmethod
     def get_global_datasets_for_top_n_cryptos(connection, model_term, top_n=20):
         df = PreprocLoad.get_dataset_ids_top_n_cryptos(connection, top_n)
-        return PreprocLearning.get_global_datasets_for_cryptos(connection, df.id_cryptocompare.tolist(), model_term)
+        return PreprocLearning.get_global_datasets_for_cryptos(connection, df.id_cryptocompare.tolist())
 
     @staticmethod
     def calcul_values_of_y(df, dict_hours_labels, increase_target_pct):
