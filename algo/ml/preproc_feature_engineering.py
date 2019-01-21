@@ -156,9 +156,9 @@ class PreprocFeatureEngineering:
         df_ohlcv_p['Indic_RSI_14d'] = RSI(df_ohlcv_p, price='close_price', timeperiod=14 * 24)
 
         # [Momentum Indicator] RSI 14 hours
-        df_ohlcv_p['Indic_RSI_14d'] = RSI(df_ohlcv_p, price='close_price', timeperiod=14)
+        df_ohlcv_p['Indic_RSI_14h'] = RSI(df_ohlcv_p, price='close_price', timeperiod=14)
         # [Momentum Indicator] RSI 9 hours
-        df_ohlcv_p['Indic_RSI_14d'] = RSI(df_ohlcv_p, price='close_price', timeperiod=9)
+        df_ohlcv_p['Indic_RSI_9h'] = RSI(df_ohlcv_p, price='close_price', timeperiod=9)
 
         # [Momentum Indicators] STOCH d
         # ta-lib abstract API KO with dataframe : use workaround
